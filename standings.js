@@ -38,6 +38,11 @@ function parseLeagueStandings(leagueKey, espnData) {
   if (divisions.length === 0) {
     throw new Error(`No standings found for ${leagueKey}`);
   }
+  // A league with one table (NWSL) calls it something like "NWSL Regular
+  // Season"; the league's name reads better.
+  if (divisions.length === 1) {
+    divisions[0].title = leagueKey;
+  }
   return { league: leagueKey, season, divisions };
 }
 
@@ -67,7 +72,7 @@ function formatRecord(leagueKey, team) {
   if (leagueKey === "NHL") {
     return `${team.wins}-${team.losses}-${team.overtimeLosses}`;
   }
-  if (leagueKey === "MLS") {
+  if (leagueInfoFor(leagueKey).sport === "soccer") {
     // Soccer records are wins-draws-losses.
     return `${team.wins}-${team.ties}-${team.losses}`;
   }
@@ -132,6 +137,7 @@ const WILD_CARD_RULES = {
   NBA: { skipPerDivision: 0, skipSeeds: 6, spots: 4, name: "play-in" },
   MLS: { skipPerDivision: 0, skipSeeds: 0, spots: 9, name: "playoff" },
   WNBA: { skipPerDivision: 0, skipSeeds: 0, spots: 8, name: "playoff", wholeLeague: true },
+  NWSL: { skipPerDivision: 0, skipSeeds: 0, spots: 8, name: "playoff", wholeLeague: true },
 };
 
 // One race per conference, ranked by ESPN's conference seed; or, for a

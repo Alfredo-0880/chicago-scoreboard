@@ -9,8 +9,10 @@ function standingsPageHtml() {
               data-action="league" data-league="${leagueInfo.key}">${leagueInfo.key}</button>`
   ).join("");
   const loaded = loadState("standings", state.selectedLeague).value;
-  const groupLabel = loaded && loaded.divisions[0].isConference ? "Conferences" : "Divisions";
-  const raceLabel = { NBA: "Play-in", MLS: "Playoff race", WNBA: "Playoff race" }[state.selectedLeague] || "Wild card";
+  let groupLabel = "Divisions";
+  if (loaded && loaded.divisions.length === 1) groupLabel = "Table";
+  else if (loaded && loaded.divisions[0].isConference) groupLabel = "Conferences";
+  const raceLabel = { NBA: "Play-in", MLS: "Playoff race", WNBA: "Playoff race", NWSL: "Playoff race" }[state.selectedLeague] || "Wild card";
 
   return `
     <div class="controls">
