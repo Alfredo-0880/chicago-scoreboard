@@ -15,6 +15,7 @@ const US_SEASON_TYPE_NAMES = { 1: "Preseason", 2: "Regular season", 3: "Postseas
 const LEAGUES = [
   { key: "NFL", sport: "football", league: "nfl", scheduleQueries: US_SEASON_TYPES, seasonTypeNames: US_SEASON_TYPE_NAMES, rankedByPoints: false, hasInjuryReports: true },
   { key: "NBA", sport: "basketball", league: "nba", scheduleQueries: US_SEASON_TYPES, seasonTypeNames: US_SEASON_TYPE_NAMES, rankedByPoints: false, hasInjuryReports: true },
+  { key: "WNBA", sport: "basketball", league: "wnba", scheduleQueries: US_SEASON_TYPES, seasonTypeNames: US_SEASON_TYPE_NAMES, rankedByPoints: false, hasInjuryReports: true },
   { key: "MLB", sport: "baseball", league: "mlb", scheduleQueries: US_SEASON_TYPES, seasonTypeNames: US_SEASON_TYPE_NAMES, rankedByPoints: false, hasInjuryReports: true },
   { key: "NHL", sport: "hockey", league: "nhl", scheduleQueries: US_SEASON_TYPES, seasonTypeNames: US_SEASON_TYPE_NAMES, rankedByPoints: true, hasInjuryReports: true },
   { key: "MLS", sport: "soccer", league: "usa.1", scheduleQueries: ["", "fixture=true"], seasonTypeNames: { 1: "Regular season" }, rankedByPoints: true, hasInjuryReports: false },
@@ -30,6 +31,7 @@ const FAVORITE_TEAMS = [
   { key: "whitesox", league: "MLB", abbreviation: "CHW", scheduleTeamId: "chw", label: "White Sox", fullName: "Chicago White Sox", color: "#27251F" },
   { key: "blackhawks", league: "NHL", abbreviation: "CHI", scheduleTeamId: "chi", label: "Blackhawks", fullName: "Chicago Blackhawks", color: "#CE1126" },
   { key: "fire", league: "MLS", abbreviation: "CHI", scheduleTeamId: "182", label: "Fire", fullName: "Chicago Fire FC", color: "#AF2626" },
+  { key: "sky", league: "WNBA", abbreviation: "CHI", scheduleTeamId: "chi", label: "Sky", fullName: "Chicago Sky", color: "#2A6EBB" },
 ];
 
 const ESPN_SITE_API = "https://site.api.espn.com/apis";

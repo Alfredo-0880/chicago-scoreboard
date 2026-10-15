@@ -29,6 +29,7 @@ function parseLeagueStandings(leagueKey, espnData) {
       divisions.push({
         title: division === conference ? conference.name : divisionTitle(conference, division),
         conference: conference.abbreviation,
+        isConference: division === conference,
         teams,
       });
     }
@@ -107,21 +108,48 @@ function findTeamStanding(leagueStandings, abbreviation) {
   return null;
 }
 
+// The two lines a team card shows about a team's place, such as
+// ["4th, NFC North", "7th in NFC"] or ["4th, Eastern Conference", "48 pts"].
+// Leagues without divisions skip the seed, since it repeats the first line.
+function placeSummary(leagueKey, standing) {
+  const { team, division, divisionRank } = standing;
+  const details = [
+    team.playoffSeed && !division.isConference && `${ordinal(team.playoffSeed)} in ${division.conference}`,
+    leagueInfoFor(leagueKey).rankedByPoints && `${team.points} pts`,
+  ].filter(Boolean);
+  return [`${ordinal(divisionRank)}, ${division.title}`, details.join(" · ")].filter(Boolean);
+}
+
 // How each league fills its last playoff spots:
 // - skipPerDivision: division leaders that are already in, so not in the race
 // - skipSeeds: conference seeds that are already in (NBA's top 6)
 // - spots: how many teams in the race get in (or reach the play-in)
+// - wholeLeague: one race for the whole league, ignoring conferences (WNBA)
 const WILD_CARD_RULES = {
   NFL: { skipPerDivision: 1, skipSeeds: 0, spots: 3, name: "wild card" },
   MLB: { skipPerDivision: 1, skipSeeds: 0, spots: 3, name: "wild card" },
   NHL: { skipPerDivision: 3, skipSeeds: 0, spots: 2, name: "wild card" },
   NBA: { skipPerDivision: 0, skipSeeds: 6, spots: 4, name: "play-in" },
   MLS: { skipPerDivision: 0, skipSeeds: 0, spots: 9, name: "playoff" },
+  WNBA: { skipPerDivision: 0, skipSeeds: 0, spots: 8, name: "playoff", wholeLeague: true },
 };
 
-// One race per conference, ranked by ESPN's conference seed.
+// One race per conference, ranked by ESPN's conference seed; or, for a
+// whole-league race, every team ranked by record.
 function wildCardRaces(leagueStandings) {
   const rules = WILD_CARD_RULES[leagueStandings.league];
+  if (rules.wholeLeague) {
+    const teams = leagueStandings.divisions.flatMap((division) => division.teams);
+    return [
+      {
+        title: `${leagueStandings.league} ${rules.name} race`,
+        lineLabel: `${rules.name} line`,
+        spots: rules.spots,
+        teams: teams.sort((a, b) => compareTeams(leagueStandings.league, a, b)),
+      },
+    ];
+  }
+
   const raceByConference = new Map();
 
   for (const division of leagueStandings.divisions) {
