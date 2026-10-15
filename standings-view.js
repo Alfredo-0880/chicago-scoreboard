@@ -8,13 +8,14 @@ function standingsPageHtml() {
               aria-selected="${leagueInfo.key === state.selectedLeague}"
               data-action="league" data-league="${leagueInfo.key}">${leagueInfo.key}</button>`
   ).join("");
-  const raceLabel = state.selectedLeague === "NBA" ? "Play-in" : "Wild card";
+  const groupLabel = state.selectedLeague === "MLS" ? "Conferences" : "Divisions";
+  const raceLabel = { NBA: "Play-in", MLS: "Playoff race" }[state.selectedLeague] || "Wild card";
 
   return `
     <div class="controls">
       <div class="league-tabs" role="tablist" aria-label="League">${leagueTabs}</div>
       <div class="toggle" role="group" aria-label="Standings view">
-        ${toggleButtonHtml("standings-view", "view", "divisions", "Divisions", state.standingsView)}
+        ${toggleButtonHtml("standings-view", "view", "divisions", groupLabel, state.standingsView)}
         ${toggleButtonHtml("standings-view", "view", "wildcard", raceLabel, state.standingsView)}
       </div>
     </div>
@@ -43,17 +44,17 @@ function standingsBodyHtml() {
 
 // race (optional) draws a dashed line under the last team that gets in.
 function standingsTableHtml(title, teams, favorite, race) {
-  const isHockey = favorite.league === "NHL";
+  const showPoints = leagueInfoFor(favorite.league).rankedByPoints;
   const rows = teams.map((team, index) => {
     const row = `
       <tr class="${team.abbreviation === favorite.abbreviation ? "favorite" : ""}">
         <td>${escapeHtml(team.name)}</td>
         <td>${escapeHtml(team.record)}</td>
-        ${isHockey ? `<td>${team.points}</td>` : ""}
+        ${showPoints ? `<td>${team.points}</td>` : ""}
       </tr>`;
     const lineAfter = race && index === race.spots - 1 && index < teams.length - 1;
     const line = lineAfter
-      ? `<tr class="cutoff"><td colspan="${isHockey ? 3 : 2}"><span>${escapeHtml(race.lineLabel)}</span></td></tr>`
+      ? `<tr class="cutoff"><td colspan="${showPoints ? 3 : 2}"><span>${escapeHtml(race.lineLabel)}</span></td></tr>`
       : "";
     return row + line;
   });
@@ -62,7 +63,7 @@ function standingsTableHtml(title, teams, favorite, race) {
     <section class="division">
       <h2 class="division-title">${escapeHtml(title)}</h2>
       <table class="standings-table">
-        <thead><tr><th>Team</th><th>Record</th>${isHockey ? "<th>Pts</th>" : ""}</tr></thead>
+        <thead><tr><th>Team</th><th>Record</th>${showPoints ? "<th>Pts</th>" : ""}</tr></thead>
         <tbody>${rows.join("")}</tbody>
       </table>
     </section>`;

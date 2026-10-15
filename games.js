@@ -1,14 +1,10 @@
-// Loads a favorite team's schedule (preseason, regular season, and
-// postseason) from ESPN and turns each game into a simple object.
-
-const SEASON_TYPES = [1, 2, 3];
+// Loads a favorite team's whole schedule (played and upcoming games) from
+// ESPN and turns each game into a simple object.
 
 async function fetchTeamGames(favorite) {
   const leagueInfo = leagueInfoFor(favorite.league);
-  const baseUrl = `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/teams/${favorite.abbreviation.toLowerCase()}/schedule`;
-  const schedules = await Promise.all(
-    SEASON_TYPES.map((seasonType) => fetchJson(`${baseUrl}?seasontype=${seasonType}`))
-  );
+  const baseUrl = `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/teams/${favorite.scheduleTeamId}/schedule`;
+  const schedules = await Promise.all(leagueInfo.scheduleQueries.map((query) => fetchJson(`${baseUrl}?${query}`)));
 
   const gamesById = new Map();
   for (const schedule of schedules) {

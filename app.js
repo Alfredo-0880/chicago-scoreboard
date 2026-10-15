@@ -86,12 +86,15 @@ function teamCardHtml(favorite) {
       body = `<div class="card-record">—</div><div class="card-detail">Not in ESPN's standings</div>`;
     } else {
       const { team, division, divisionRank } = standing;
-      const points = favorite.league === "NHL" ? ` · ${team.points} pts` : "";
-      const seed = team.playoffSeed ? `<br>${ordinal(team.playoffSeed)} in ${escapeHtml(division.conference)}${points}` : "";
+      const placeDetails = [
+        team.playoffSeed && `${ordinal(team.playoffSeed)} in ${escapeHtml(division.conference)}`,
+        leagueInfoFor(favorite.league).rankedByPoints && `${team.points} pts`,
+      ].filter(Boolean);
       body = `
         <div class="card-record">${escapeHtml(team.record)}</div>
         <div class="card-detail">
-          ${ordinal(divisionRank)}, ${escapeHtml(division.title)}${seed}
+          ${ordinal(divisionRank)}, ${escapeHtml(division.title)}
+          ${placeDetails.length ? `<br>${placeDetails.join(" · ")}` : ""}
           <br><span class="card-season">${escapeHtml(standings.season.name)} ${escapeHtml(standings.season.type)}</span>
         </div>`;
     }

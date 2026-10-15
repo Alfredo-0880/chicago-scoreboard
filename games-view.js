@@ -67,8 +67,12 @@ function gameListHtml(games) {
   return html;
 }
 
+function teamFor(game) {
+  return FAVORITE_TEAMS.find((team) => team.key === game.teamKey);
+}
+
 function gameRowHtml(game) {
-  const favorite = FAVORITE_TEAMS.find((team) => team.key === game.teamKey);
+  const favorite = teamFor(game);
   const details = [game.note, game.venue && `${game.venue.name} · ${game.venue.city}`].filter(Boolean);
 
   return `
@@ -93,9 +97,13 @@ function resultHtml(game) {
   if (game.completed) {
     const tied = game.ourScore === game.theirScore;
     const outcome = tied ? "tie" : game.won ? "win" : "loss";
+    // Soccer calls a tie a draw.
+    const isSoccer = leagueInfoFor(teamFor(game).league).sport === "soccer";
+    const labels = { win: ["W", "win"], loss: ["L", "loss"], tie: isSoccer ? ["D", "draw"] : ["T", "tie"] };
+    const [letter, word] = labels[outcome];
     return `
       <div class="score">${escapeHtml(game.ourScore)}–${escapeHtml(game.theirScore)}</div>
-      <span class="outcome ${outcome}" title="${outcome}">${{ win: "W", loss: "L", tie: "T" }[outcome]}</span>`;
+      <span class="outcome ${outcome}" title="${word}">${letter}</span>`;
   }
   if (game.state === "in") {
     return `

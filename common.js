@@ -1,18 +1,34 @@
 // Shared by every part of the app: which leagues and teams we follow, and
 // small formatting helpers.
 
+// How each league differs:
+// - scheduleQueries: the schedule requests that together cover a season.
+//   US leagues split it by season type; soccer splits played games from
+//   upcoming fixtures.
+// - rankedByPoints: standings go by points (hockey, soccer), not win %.
+// - hasInjuryReports: ESPN publishes no injury reports for MLS.
+// - seasonTypeNames: what ESPN's season type numbers mean in standings
+//   (soccer numbers its regular season 1, where US leagues mean preseason).
+const US_SEASON_TYPES = ["seasontype=1", "seasontype=2", "seasontype=3"];
+const US_SEASON_TYPE_NAMES = { 1: "Preseason", 2: "Regular season", 3: "Postseason" };
+
 const LEAGUES = [
-  { key: "NFL", sport: "football", league: "nfl" },
-  { key: "NBA", sport: "basketball", league: "nba" },
-  { key: "MLB", sport: "baseball", league: "mlb" },
-  { key: "NHL", sport: "hockey", league: "nhl" },
+  { key: "NFL", sport: "football", league: "nfl", scheduleQueries: US_SEASON_TYPES, seasonTypeNames: US_SEASON_TYPE_NAMES, rankedByPoints: false, hasInjuryReports: true },
+  { key: "NBA", sport: "basketball", league: "nba", scheduleQueries: US_SEASON_TYPES, seasonTypeNames: US_SEASON_TYPE_NAMES, rankedByPoints: false, hasInjuryReports: true },
+  { key: "MLB", sport: "baseball", league: "mlb", scheduleQueries: US_SEASON_TYPES, seasonTypeNames: US_SEASON_TYPE_NAMES, rankedByPoints: false, hasInjuryReports: true },
+  { key: "NHL", sport: "hockey", league: "nhl", scheduleQueries: US_SEASON_TYPES, seasonTypeNames: US_SEASON_TYPE_NAMES, rankedByPoints: true, hasInjuryReports: true },
+  { key: "MLS", sport: "soccer", league: "usa.1", scheduleQueries: ["", "fixture=true"], seasonTypeNames: { 1: "Regular season" }, rankedByPoints: true, hasInjuryReports: false },
 ];
 
+// scheduleTeamId is what ESPN's schedule URLs use for the team. It is usually
+// the abbreviation, but in soccer abbreviations are countries (chi = Chile),
+// so the Fire use ESPN's team number.
 const FAVORITE_TEAMS = [
-  { key: "bears", league: "NFL", abbreviation: "CHI", label: "Bears", fullName: "Chicago Bears", color: "#0B162A" },
-  { key: "bulls", league: "NBA", abbreviation: "CHI", label: "Bulls", fullName: "Chicago Bulls", color: "#CE1141" },
-  { key: "cubs", league: "MLB", abbreviation: "CHC", label: "Cubs", fullName: "Chicago Cubs", color: "#0E3386" },
-  { key: "blackhawks", league: "NHL", abbreviation: "CHI", label: "Blackhawks", fullName: "Chicago Blackhawks", color: "#CE1126" },
+  { key: "bears", league: "NFL", abbreviation: "CHI", scheduleTeamId: "chi", label: "Bears", fullName: "Chicago Bears", color: "#0B162A" },
+  { key: "bulls", league: "NBA", abbreviation: "CHI", scheduleTeamId: "chi", label: "Bulls", fullName: "Chicago Bulls", color: "#CE1141" },
+  { key: "cubs", league: "MLB", abbreviation: "CHC", scheduleTeamId: "chc", label: "Cubs", fullName: "Chicago Cubs", color: "#0E3386" },
+  { key: "blackhawks", league: "NHL", abbreviation: "CHI", scheduleTeamId: "chi", label: "Blackhawks", fullName: "Chicago Blackhawks", color: "#CE1126" },
+  { key: "fire", league: "MLS", abbreviation: "CHI", scheduleTeamId: "182", label: "Fire", fullName: "Chicago Fire FC", color: "#AF2626" },
 ];
 
 const ESPN_SITE_API = "https://site.api.espn.com/apis";

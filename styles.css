@@ -128,7 +128,7 @@ button {
 
 .team-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(124px, 1fr));
   gap: 12px;
   max-width: 720px;
   margin: -26px auto 0;

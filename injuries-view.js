@@ -15,6 +15,8 @@ function injuryBlockHtml(favorite) {
     body = `<p class="injury-empty">Loading…</p>`;
   } else if (injuryState.status === "error") {
     body = `<p class="injury-empty">Couldn't load this injury report. Try Refresh.</p>`;
+  } else if (injuryState.value === null) {
+    body = `<p class="injury-empty">ESPN doesn't publish injury reports for ${favorite.league}.</p>`;
   } else if (injuryState.value.length === 0) {
     body = `<p class="injury-empty">No injuries reported.</p>`;
   } else {

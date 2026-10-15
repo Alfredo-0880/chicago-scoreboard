@@ -1,31 +1,33 @@
 // Loads league standings from ESPN's public feed and turns them into a
 // simple shape the page can draw.
 
-const SEASON_TYPE_NAMES = { 1: "Preseason", 2: "Regular season", 3: "Postseason" };
-
 async function fetchLeagueStandings(leagueInfo) {
   const url = `${ESPN_SITE_API}/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/standings?level=3`;
   return parseLeagueStandings(leagueInfo.key, await fetchJson(url));
 }
 
 // ESPN nests league -> conferences -> divisions -> entries, and each team's
-// numbers are a list of {name, value, displayValue} stats.
+// numbers are a list of {name, value, displayValue} stats. Leagues without
+// divisions (MLS) put the entries right on each conference, and then the
+// conference is drawn as one group.
 function parseLeagueStandings(leagueKey, espnData) {
+  const leagueInfo = leagueInfoFor(leagueKey);
   const divisions = [];
   let season = null;
 
   for (const conference of espnData.children || []) {
-    for (const division of conference.children || []) {
+    const groups = conference.children || [conference];
+    for (const division of groups) {
       const standings = division.standings;
       if (!standings) continue;
       season = season || {
         name: standings.seasonDisplayName,
-        type: SEASON_TYPE_NAMES[standings.seasonType] || "",
+        type: leagueInfo.seasonTypeNames[standings.seasonType] || "",
       };
       const teams = standings.entries.map((entry) => teamFromEntry(leagueKey, entry));
       teams.sort((a, b) => compareTeams(leagueKey, a, b));
       divisions.push({
-        title: divisionTitle(conference, division),
+        title: division === conference ? conference.name : divisionTitle(conference, division),
         conference: conference.abbreviation,
         teams,
       });
@@ -54,6 +56,7 @@ function teamFromEntry(leagueKey, entry) {
     points: number("points"),
     winPercent: number("winPercent"),
     playoffSeed: number("playoffSeed"),
+    rank: number("rank"),
   };
   team.record = formatRecord(leagueKey, team);
   return team;
@@ -63,20 +66,25 @@ function formatRecord(leagueKey, team) {
   if (leagueKey === "NHL") {
     return `${team.wins}-${team.losses}-${team.overtimeLosses}`;
   }
+  if (leagueKey === "MLS") {
+    // Soccer records are wins-draws-losses.
+    return `${team.wins}-${team.ties}-${team.losses}`;
+  }
   const ties = team.ties > 0 ? `-${team.ties}` : "";
   return `${team.wins}-${team.losses}${ties}`;
 }
 
-// Hockey ranks by points; the other leagues by winning percentage. ESPN's
-// playoff seed breaks ties, since it already applies each league's tiebreakers.
+// Hockey and soccer rank by points; the other leagues by winning percentage.
+// ESPN's playoff seed (or, in MLS, its rank) breaks ties, since it already
+// applies each league's tiebreakers.
 function compareTeams(leagueKey, a, b) {
-  const primary = leagueKey === "NHL" ? b.points - a.points : b.winPercent - a.winPercent;
+  const primary = leagueInfoFor(leagueKey).rankedByPoints ? b.points - a.points : b.winPercent - a.winPercent;
   if (primary !== 0) return primary;
   return bySeed(a, b);
 }
 
 function bySeed(a, b) {
-  return (a.playoffSeed || 99) - (b.playoffSeed || 99);
+  return (a.playoffSeed || a.rank || 99) - (b.playoffSeed || b.rank || 99);
 }
 
 // Make division names short and consistent: "NFC North", "AL Central",
@@ -108,6 +116,7 @@ const WILD_CARD_RULES = {
   MLB: { skipPerDivision: 1, skipSeeds: 0, spots: 3, name: "wild card" },
   NHL: { skipPerDivision: 3, skipSeeds: 0, spots: 2, name: "wild card" },
   NBA: { skipPerDivision: 0, skipSeeds: 6, spots: 4, name: "play-in" },
+  MLS: { skipPerDivision: 0, skipSeeds: 0, spots: 9, name: "playoff" },
 };
 
 // One race per conference, ranked by ESPN's conference seed.

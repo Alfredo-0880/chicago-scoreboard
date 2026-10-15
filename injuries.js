@@ -1,8 +1,10 @@
 // Loads each league's injury report from ESPN and keeps the favorite team's
 // players.
 
+// Returns null when ESPN has no injury reports for the team's league.
 async function fetchTeamInjuries(favorite) {
   const leagueInfo = leagueInfoFor(favorite.league);
+  if (!leagueInfo.hasInjuryReports) return null;
   const report = await fetchJson(`${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/injuries`);
   return teamInjuriesFromReport(favorite, report);
 }
