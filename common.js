@@ -27,6 +27,7 @@ const FAVORITE_TEAMS = [
   { key: "bears", league: "NFL", abbreviation: "CHI", scheduleTeamId: "chi", label: "Bears", fullName: "Chicago Bears", color: "#0B162A" },
   { key: "bulls", league: "NBA", abbreviation: "CHI", scheduleTeamId: "chi", label: "Bulls", fullName: "Chicago Bulls", color: "#CE1141" },
   { key: "cubs", league: "MLB", abbreviation: "CHC", scheduleTeamId: "chc", label: "Cubs", fullName: "Chicago Cubs", color: "#0E3386" },
+  { key: "whitesox", league: "MLB", abbreviation: "CHW", scheduleTeamId: "chw", label: "White Sox", fullName: "Chicago White Sox", color: "#27251F" },
   { key: "blackhawks", league: "NHL", abbreviation: "CHI", scheduleTeamId: "chi", label: "Blackhawks", fullName: "Chicago Blackhawks", color: "#CE1126" },
   { key: "fire", league: "MLS", abbreviation: "CHI", scheduleTeamId: "182", label: "Fire", fullName: "Chicago Fire FC", color: "#AF2626" },
 ];
@@ -51,8 +52,17 @@ function escapeHtml(text) {
   return element.innerHTML;
 }
 
+// "Bears" -> "BE", "White Sox" -> "WS"
 function initials(label) {
-  return label.slice(0, 2).toUpperCase();
+  const words = label.split(" ");
+  const letters = words.length > 1 ? words.map((word) => word[0]).join("") : label.slice(0, 2);
+  return letters.toUpperCase();
+}
+
+// A league can have more than one Chicago team (MLB has the Cubs and the
+// White Sox).
+function favoriteAbbreviations(leagueKey) {
+  return FAVORITE_TEAMS.filter((team) => team.league === leagueKey).map((team) => team.abbreviation);
 }
 
 function ordinal(n) {

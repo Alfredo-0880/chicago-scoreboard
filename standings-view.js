@@ -1,5 +1,5 @@
 // Draws the League standings tab: division tables or the wild card race for
-// the selected league, with the Chicago team highlighted.
+// the selected league, with the Chicago teams highlighted.
 
 function standingsPageHtml() {
   const leagueTabs = LEAGUES.map(
@@ -32,22 +32,22 @@ function standingsBodyHtml() {
   }
 
   const standings = leagueState.value;
-  const favorite = FAVORITE_TEAMS.find((team) => team.league === state.selectedLeague);
   const note = `<div class="season-note">${escapeHtml(standings.season.name)} ${escapeHtml(standings.season.type)} standings, live from ESPN</div>`;
 
   if (state.standingsView === "wildcard") {
-    const races = wildCardRaces(standings).map((race) => standingsTableHtml(race.title, race.teams, favorite, race));
+    const races = wildCardRaces(standings).map((race) => standingsTableHtml(race.title, race.teams, standings.league, race));
     return note + races.join("");
   }
-  return note + standings.divisions.map((division) => standingsTableHtml(division.title, division.teams, favorite)).join("");
+  return note + standings.divisions.map((division) => standingsTableHtml(division.title, division.teams, standings.league)).join("");
 }
 
 // race (optional) draws a dashed line under the last team that gets in.
-function standingsTableHtml(title, teams, favorite, race) {
-  const showPoints = leagueInfoFor(favorite.league).rankedByPoints;
+function standingsTableHtml(title, teams, leagueKey, race) {
+  const showPoints = leagueInfoFor(leagueKey).rankedByPoints;
+  const chicagoTeams = favoriteAbbreviations(leagueKey);
   const rows = teams.map((team, index) => {
     const row = `
-      <tr class="${team.abbreviation === favorite.abbreviation ? "favorite" : ""}">
+      <tr class="${chicagoTeams.includes(team.abbreviation) ? "favorite" : ""}">
         <td>${escapeHtml(team.name)}</td>
         <td>${escapeHtml(team.record)}</td>
         ${showPoints ? `<td>${team.points}</td>` : ""}
