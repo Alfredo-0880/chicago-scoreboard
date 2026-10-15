@@ -1,0 +1,739 @@
+/* Chicago Scoreboard look, carried over from the claude.ai prototype. */
+
+:root {
+  --navy: #0c1f3f;
+  --navy-2: #142b52;
+  --flag-red: #c8102e;
+  --flag-red-2: #e23350;
+  --paper: #f5f3ec;
+  --paper-dim: #e9e5d8;
+  --card: #ffffff;
+  --ink: #17140f;
+  --ink-soft: #57534a;
+  --gold: #e8ae1c;
+  --line: rgba(23, 20, 15, 0.1);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(23, 20, 15, 0.05), 0 1px 1px rgba(23, 20, 15, 0.04);
+  --shadow-md: 0 6px 18px rgba(23, 20, 15, 0.08), 0 2px 6px rgba(23, 20, 15, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #131019;
+    --paper-dim: #1b1723;
+    --card: #1f1b28;
+    --ink: #f1eee4;
+    --ink-soft: #b0a9c4;
+    --line: rgba(241, 238, 228, 0.1);
+    --navy: #142b52;
+    --navy-2: #1b3868;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.35);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Header */
+
+.hero {
+  background:
+    radial-gradient(ellipse 480px 260px at 12% -10%, rgba(232, 174, 28, 0.2), transparent 60%),
+    radial-gradient(ellipse 420px 240px at 92% 8%, rgba(200, 16, 46, 0.22), transparent 55%),
+    linear-gradient(165deg, var(--navy-2) 0%, var(--navy) 55%, #081326 100%);
+  color: #f5f3ec;
+  padding: 46px 20px 50px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, var(--flag-red) 0 34px, transparent 34px 44px);
+}
+
+.skyline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  width: 100%;
+  height: 68px;
+  opacity: 0.5;
+  fill: #081326;
+  pointer-events: none;
+}
+
+.hero-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.eyebrow {
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 10px;
+}
+
+.hero h1 {
+  font-family: "Archivo Black", "Oswald", sans-serif;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  line-height: 0.98;
+  margin: 0 0 8px;
+}
+
+.hero-inner p:last-child {
+  margin: 0;
+  color: #c9d2e4;
+  font-size: 0.98rem;
+  max-width: 46ch;
+}
+
+/* Favorite team cards */
+
+.team-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  max-width: 720px;
+  margin: -26px auto 0;
+  padding: 0 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.team-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 14px 15px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--team-color) 7%, var(--card)), var(--card) 60%);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-3px);
+}
+
+.team-card.selected {
+  border: 2px solid var(--team-color);
+  padding: 13px 13px 14px;
+}
+
+.card-team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.card-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--team-color);
+  color: #fff;
+  font-family: "Oswald", sans-serif;
+  font-weight: 700;
+  font-size: 0.62rem;
+}
+
+.card-name {
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.card-record {
+  font-family: "Archivo Black", sans-serif;
+  font-size: 1.5rem;
+  line-height: 1;
+  margin-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-record.placeholder {
+  width: 60%;
+  border-radius: 6px;
+  background: var(--paper-dim);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.card-detail {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.card-season {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Tabs, filters, and buttons */
+
+.page-tabs {
+  display: flex;
+  gap: 4px;
+  max-width: 720px;
+  margin: 26px auto 0;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+
+.page-tab {
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  padding: 12px 14px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.page-tab:hover {
+  color: var(--ink);
+}
+
+.page-tab.active {
+  color: var(--ink);
+  border-bottom-color: var(--flag-red);
+}
+
+.refresh {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.updated-at,
+.count {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.team-filter,
+.league-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.league-tabs {
+  margin-top: 0;
+}
+
+.pill-button,
+.league-tab,
+.team-button {
+  font-family: "Oswald", sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  min-height: 40px;
+  padding: 8px 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  color: var(--ink-soft);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.pill-button:hover,
+.league-tab:hover,
+.team-button:hover {
+  color: var(--ink);
+  border-color: var(--ink-soft);
+}
+
+.pill-button:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.league-tab.active {
+  background: var(--navy);
+  color: #fff;
+  border-color: transparent;
+}
+
+.team-button .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background: var(--team-color);
+}
+
+.team-button.active {
+  background: var(--team-color);
+  color: #fff;
+  border-color: transparent;
+}
+
+.team-button.active .dot {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.toggle {
+  display: flex;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle button {
+  font-weight: 600;
+  font-size: 0.88rem;
+  min-height: 38px;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-pill);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.toggle button.active {
+  background: linear-gradient(135deg, var(--flag-red-2), var(--flag-red));
+  color: #fff;
+}
+
+.notice {
+  margin-top: 14px;
+  font-size: 0.85rem;
+  color: var(--flag-red);
+}
+
+/* Games */
+
+.month {
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 22px 2px 10px;
+}
+
+.game {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px 12px 12px;
+  margin-bottom: 8px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--team-color);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.game-date {
+  text-align: center;
+  font-family: "Oswald", sans-serif;
+}
+
+.day-of-week {
+  display: block;
+  font-weight: 600;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.day {
+  display: block;
+  font-family: "Archivo Black", sans-serif;
+  font-size: 1.15rem;
+}
+
+.matchup {
+  min-width: 0;
+}
+
+.teams {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.our-team {
+  color: var(--flag-red);
+}
+
+.at {
+  margin: 0 4px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.game-detail {
+  margin-top: 3px;
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+}
+
+.result {
+  text-align: right;
+}
+
+.score {
+  font-family: "Archivo Black", sans-serif;
+  font-size: 1.2rem;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.outcome {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 4px;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.outcome.win {
+  background: #1e7a34;
+}
+
+.outcome.loss {
+  background: var(--flag-red);
+}
+
+.outcome.tie {
+  background: var(--ink-soft);
+}
+
+.live {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--flag-red);
+}
+
+.start-time {
+  font-family: "Oswald", sans-serif;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* Division tables */
+
+.season-note,
+.message {
+  margin-top: 18px;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  background: var(--paper-dim);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+
+.message {
+  padding: 32px 20px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.message.error {
+  border: 1px dashed var(--flag-red);
+}
+
+.message-title {
+  font-family: "Archivo Black", sans-serif;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.retry-button {
+  margin-top: 14px;
+}
+
+.division {
+  margin-top: 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 4px 16px 8px;
+}
+
+.division-title {
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0;
+  padding: 14px 0 10px;
+}
+
+.standings-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.standings-table th {
+  text-align: right;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  padding: 0 8px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.standings-table th:first-child,
+.standings-table td:first-child {
+  text-align: left;
+}
+
+.standings-table td {
+  padding: 9px 8px;
+  font-size: 0.92rem;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.standings-table td:first-child {
+  font-weight: 500;
+  white-space: normal;
+  border-radius: 7px 0 0 7px;
+}
+
+.standings-table td:last-child {
+  border-radius: 0 7px 7px 0;
+}
+
+.standings-table tbody tr:nth-child(odd) td {
+  background: var(--paper-dim);
+}
+
+.standings-table tbody tr.favorite td {
+  font-weight: 700;
+  color: var(--flag-red);
+  background: color-mix(in srgb, var(--flag-red) 12%, var(--paper-dim));
+}
+
+.footer {
+  margin: 34px auto 40px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+/* Wild card line */
+
+.standings-table tr.cutoff td {
+  padding: 4px 0;
+  background: none;
+  border-top: 2px dashed var(--gold);
+  text-align: right;
+}
+
+.cutoff span {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #92670a;
+}
+
+/* Injuries */
+
+.injury-team {
+  margin-top: 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 4px 16px 6px;
+}
+
+.injury-team-name {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  padding: 14px 0 10px;
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.injury-empty {
+  margin: 0 0 12px;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.injury {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 10px;
+  padding: 12px 4px 12px 12px;
+  border-top: 1px solid var(--line);
+  border-left: 3px solid var(--severity-color);
+}
+
+.player {
+  font-weight: 600;
+}
+
+.position {
+  margin-left: 6px;
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+}
+
+.injury-facts,
+.injury-comment {
+  margin-top: 4px;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.status-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  color: var(--severity-color);
+  background: color-mix(in srgb, var(--severity-color) 14%, transparent);
+}
+
+.out {
+  --severity-color: var(--flag-red);
+}
+
+.doubtful,
+.questionable {
+  --severity-color: #a8770c;
+}
+
+.probable {
+  --severity-color: #1e7a34;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cutoff span {
+    color: var(--gold);
+  }
+
+  .doubtful,
+  .questionable {
+    --severity-color: var(--gold);
+  }
+
+  .probable {
+    --severity-color: #6fd98a;
+  }
+}
+
+/* Small screens */
+
+@media (max-width: 700px) {
+  .team-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 0 16px;
+  }
+
+  .wrap,
+  .page-tabs {
+    padding: 0 16px;
+  }
+
+  .game {
+    grid-template-columns: 40px 1fr auto;
+    gap: 10px;
+  }
+}
