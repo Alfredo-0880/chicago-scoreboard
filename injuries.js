@@ -4,6 +4,10 @@
 async function fetchTeamInjuries(favorite) {
   const leagueInfo = leagueInfoFor(favorite.league);
   const report = await fetchJson(`${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/injuries`);
+  return teamInjuriesFromReport(favorite, report);
+}
+
+function teamInjuriesFromReport(favorite, report) {
   const teamReport = (report.injuries || []).find((team) => team.displayName === favorite.fullName);
   // ESPN also lists healthy ("Active") players when there is news about them.
   const injured = teamReport ? teamReport.injuries.filter((injury) => !isActive(injury)) : [];
