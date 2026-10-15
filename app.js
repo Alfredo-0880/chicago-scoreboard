@@ -13,6 +13,7 @@ const state = {
   injuries: {},
   lastUpdated: null,
   refreshing: false,
+  calendarMessage: null, // confirmation shown after downloading a calendar
 };
 
 const PAGES = [
@@ -152,6 +153,13 @@ const ACTIONS = {
   "filter-team": (button) => {
     state.selectedTeam = button.dataset.team;
   },
+  "download-calendar": () => {
+    const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
+    const games = loadState("games", favorite.key).value;
+    downloadCalendar(favorite, buildCalendar(favorite, games, new Date()));
+    const count = calendarGames(games).length;
+    state.calendarMessage = `Downloaded ${favorite.key}-games.ics with ${count} games. Open it to add them to your calendar.`;
+  },
   page: (button) => {
     state.page = button.dataset.page;
   },
@@ -172,6 +180,7 @@ const ACTIONS = {
 document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-action]");
   if (!button) return;
+  if (button.dataset.action !== "download-calendar") state.calendarMessage = null;
   ACTIONS[button.dataset.action](button);
   render();
 });

@@ -44,8 +44,27 @@ function gamesPageHtml() {
       </div>
       <span class="count">${countText}</span>
     </div>
+    ${calendarHtml()}
     ${failedNote}
     ${body}`;
+}
+
+// With one team selected, offer its upcoming games as a calendar file.
+function calendarHtml() {
+  const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
+  const gamesState = favorite && loadState("games", favorite.key);
+  if (!gamesState || gamesState.status !== "loaded") return "";
+
+  const count = calendarGames(gamesState.value).length;
+  if (count === 0) return "";
+  return `
+    <div class="calendar">
+      <button class="pill-button" data-action="download-calendar">Add ${favorite.label} games to calendar</button>
+      <span class="calendar-note">${
+        state.calendarMessage ||
+        `${count} upcoming ${count === 1 ? "game" : "games"}, each with a reminder 1 hour before`
+      }</span>
+    </div>`;
 }
 
 function toggleButtonHtml(action, dataName, value, label, current) {

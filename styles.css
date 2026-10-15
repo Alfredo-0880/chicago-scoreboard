@@ -375,6 +375,21 @@ button {
   color: var(--flag-red);
 }
 
+/* Calendar download */
+
+.calendar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.calendar-note {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
 /* Games */
 
 .month {
