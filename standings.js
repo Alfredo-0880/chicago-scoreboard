@@ -63,6 +63,7 @@ function teamFromEntry(leagueKey, entry) {
     winPercent: number("winPercent"),
     playoffSeed: number("playoffSeed"),
     rank: number("rank"),
+    logos: logosFrom(entry.team),
   };
   team.record = formatRecord(leagueKey, team);
   return team;

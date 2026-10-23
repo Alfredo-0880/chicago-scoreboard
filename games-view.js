@@ -102,9 +102,9 @@ function gameRowHtml(game) {
       </div>
       <div class="matchup">
         <div class="teams">
-          <span class="our-team">${favorite.label}</span>
+          <span class="our-team">${logoHtml(game.ourLogos, initials(favorite.label), "logo-small")}${favorite.label}</span>
           <span class="at">${game.isHome ? "vs" : "@"}</span>
-          <span class="opponent">${escapeHtml(game.opponent)}</span>
+          <span class="opponent">${logoHtml(game.opponentLogos, game.opponentAbbreviation || "", "logo-small")}${escapeHtml(game.opponent)}</span>
         </div>
         ${details.map((detail) => `<div class="game-detail">${escapeHtml(detail)}</div>`).join("")}
       </div>

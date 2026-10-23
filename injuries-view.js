@@ -25,7 +25,7 @@ function injuryBlockHtml(favorite) {
 
   return `
     <section class="injury-team" style="--team-color:${favorite.color}">
-      <h2 class="injury-team-name"><span class="card-badge">${initials(favorite.label)}</span>${favorite.label}</h2>
+      <h2 class="injury-team-name">${logoHtml(chicagoTeamLogos(favorite), initials(favorite.label), "logo-heading")}${favorite.label}</h2>
       ${body}
     </section>`;
 }

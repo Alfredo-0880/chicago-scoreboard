@@ -51,6 +51,13 @@ function loadState(bucket, key) {
   return state[bucket][key] || { status: "loading" };
 }
 
+// A Chicago team's logos come from its league's standings, once they load.
+function chicagoTeamLogos(favorite) {
+  const standingsState = loadState("standings", favorite.league);
+  const standing = standingsState.status === "loaded" && findTeamStanding(standingsState.value, favorite.abbreviation);
+  return standing ? standing.team.logos : null;
+}
+
 // Teams whose data a tab should show, following the team filter.
 function selectedFavorites() {
   return state.selectedTeam === "all"
@@ -101,7 +108,7 @@ function teamCardHtml(favorite) {
     <button class="team-card ${selected ? "selected" : ""}" style="--team-color:${favorite.color}"
             data-action="select-team" data-team="${favorite.key}" aria-pressed="${selected}">
       <div class="card-team">
-        <span class="card-badge">${initials(favorite.label)}</span>
+        ${logoHtml(chicagoTeamLogos(favorite), initials(favorite.label), "logo-badge")}
         <span class="card-name">${favorite.label} · ${favorite.league}</span>
       </div>
       ${body}

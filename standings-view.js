@@ -51,7 +51,7 @@ function standingsTableHtml(title, teams, leagueKey, race) {
   const rows = teams.map((team, index) => {
     const row = `
       <tr class="${chicagoTeams.includes(team.abbreviation) ? "favorite" : ""}">
-        <td>${escapeHtml(team.name)}</td>
+        <td><span class="team-name">${logoHtml(team.logos, team.abbreviation, "logo-small")}${escapeHtml(team.name)}</span></td>
         <td>${escapeHtml(team.record)}</td>
         ${showPoints ? `<td>${team.points}</td>` : ""}
       </tr>`;

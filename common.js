@@ -63,6 +63,35 @@ function initials(label) {
   return letters.toUpperCase();
 }
 
+// ESPN lists each team's logos with tags like ["full", "default"] and
+// ["full", "dark"] (for dark backgrounds). Only https links are kept.
+// Returns { light, dark } or null when ESPN has no usable logo.
+function logosFrom(espnTeam) {
+  const logos = ((espnTeam && espnTeam.logos) || []).filter((logo) => /^https:\/\//.test(logo.href || ""));
+  const tagged = (tag) => logos.find((logo) => (logo.rel || []).includes(tag));
+  const light = tagged("default") || logos[0];
+  if (!light) return null;
+  const dark = tagged("dark") || light;
+  return { light: light.href, dark: dark.href };
+}
+
+// A team logo that shows letters (like "BE") instead when there is no logo
+// or the image fails to load. sizeClass sets how big it is.
+function logoHtml(logos, fallbackText, sizeClass) {
+  const fallback = `data-fallback="${escapeHtml(fallbackText)}"`;
+  if (!logos) {
+    return `<span class="logo ${sizeClass} logo-failed" ${fallback}></span>`;
+  }
+  return `
+    <span class="logo ${sizeClass}" ${fallback}>
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="${escapeHtml(logos.dark)}">
+        <img src="${escapeHtml(logos.light)}" alt="" loading="lazy"
+             onerror="this.closest('.logo').classList.add('logo-failed')">
+      </picture>
+    </span>`;
+}
+
 // A league can have more than one Chicago team (MLB has the Cubs and the
 // White Sox).
 function favoriteAbbreviations(leagueKey) {

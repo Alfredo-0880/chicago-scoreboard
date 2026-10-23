@@ -167,19 +167,70 @@ button {
   margin-bottom: 10px;
 }
 
-.card-badge {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+/* Team logos. When a logo can't load, .logo-failed shows the team's
+   letters (data-fallback) in a colored circle instead. */
+
+.logo {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.logo picture,
+.logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.logo-badge {
+  width: 28px;
+  height: 28px;
+}
+
+.logo-heading {
+  width: 26px;
+  height: 26px;
+}
+
+.logo-small {
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+}
+
+.logo-failed picture {
+  display: none;
+}
+
+.logo-failed::after {
+  content: attr(data-fallback);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--team-color);
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--team-color, var(--ink-soft));
   color: #fff;
   font-family: "Oswald", sans-serif;
   font-weight: 700;
-  font-size: 0.62rem;
+  font-size: 0.55rem;
+  letter-spacing: -0.02em;
+}
+
+.team-name {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Other teams' letters stay gray; only Chicago teams use their color. */
+.opponent .logo-failed::after,
+.standings-table .logo-failed::after {
+  background: var(--ink-soft);
 }
 
 .card-name {
@@ -440,8 +491,17 @@ button {
 }
 
 .teams {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   font-size: 1rem;
   font-weight: 600;
+}
+
+.our-team,
+.opponent {
+  display: inline-flex;
+  align-items: center;
 }
 
 .our-team {
