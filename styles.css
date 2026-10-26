@@ -680,6 +680,82 @@ button {
   color: var(--ink-soft);
 }
 
+/* Playoff picture */
+
+.series {
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.series-team {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+  border-radius: 7px;
+  font-size: 0.92rem;
+}
+
+.series-team.winner {
+  font-weight: 700;
+}
+
+.series-team.eliminated {
+  color: var(--ink-soft);
+}
+
+.series-team.favorite {
+  color: var(--flag-red);
+  background: color-mix(in srgb, var(--flag-red) 12%, var(--paper-dim));
+}
+
+.series-wins {
+  font-family: "Archivo Black", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.series-summary {
+  margin: 4px 6px 0;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.picture-table .seed {
+  width: 2.5em;
+  text-align: left;
+  font-weight: 700;
+}
+
+.picture-table tr.outside td {
+  color: var(--ink-soft);
+}
+
+.picture-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.picture-status.division {
+  color: #1e7a34;
+}
+
+.picture-status.play-in {
+  color: #a8770c;
+}
+
+@media (prefers-color-scheme: dark) {
+  .picture-status.division {
+    color: #6fd98a;
+  }
+
+  .picture-status.play-in {
+    color: var(--gold);
+  }
+}
+
 /* Wild card line */
 
 .standings-table tr.cutoff td {

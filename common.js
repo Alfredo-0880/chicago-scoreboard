@@ -65,9 +65,12 @@ function initials(label) {
 
 // ESPN lists each team's logos with tags like ["full", "default"] and
 // ["full", "dark"] (for dark backgrounds). Only https links are kept.
+// Scoreboards give a single `logo` link instead of the list.
 // Returns { light, dark } or null when ESPN has no usable logo.
 function logosFrom(espnTeam) {
-  const logos = ((espnTeam && espnTeam.logos) || []).filter((logo) => /^https:\/\//.test(logo.href || ""));
+  const listed = (espnTeam && espnTeam.logos) || [];
+  const single = espnTeam && espnTeam.logo ? [{ rel: ["default"], href: espnTeam.logo }] : [];
+  const logos = [...listed, ...single].filter((logo) => /^https:\/\//.test(logo.href || ""));
   const tagged = (tag) => logos.find((logo) => (logo.rel || []).includes(tag));
   const light = tagged("default") || logos[0];
   if (!light) return null;

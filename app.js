@@ -1,8 +1,9 @@
 // The page's state, data loading, team cards, and tabs. Each tab's content is
-// drawn by its own file: games-view.js, standings-view.js, injuries-view.js.
+// drawn by its own file: games-view.js, standings-view.js, playoffs-view.js,
+// injuries-view.js.
 
 const state = {
-  page: "games", // "games" | "standings" | "injuries"
+  page: "games", // "games" | "standings" | "playoffs" | "injuries"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   selectedLeague: "NFL",
@@ -11,6 +12,7 @@ const state = {
   standings: {},
   games: {},
   injuries: {},
+  playoffs: {}, // loaded per league, the first time its Playoff picture is opened
   lastUpdated: null,
   refreshing: false,
   calendarMessage: null, // confirmation shown after downloading a calendar
@@ -19,6 +21,7 @@ const state = {
 const PAGES = [
   { key: "games", label: "Games" },
   { key: "standings", label: "League standings" },
+  { key: "playoffs", label: "Playoff picture" },
   { key: "injuries", label: "Injuries" },
 ];
 
@@ -34,9 +37,19 @@ async function load(bucket, key, fetchValue) {
   render();
 }
 
+// The Playoff picture loads only for leagues someone actually looks at.
+function loadPlayoffsIfNeeded() {
+  if (state.page === "playoffs" && !state.playoffs[state.selectedLeague]) {
+    const leagueInfo = leagueInfoFor(state.selectedLeague);
+    load("playoffs", leagueInfo.key, () => fetchPlayoffs(leagueInfo, new Date()));
+  }
+}
+
 async function loadEverything() {
   state.refreshing = true;
+  state.playoffs = {};
   render();
+  loadPlayoffsIfNeeded();
   await Promise.all([
     ...LEAGUES.map((leagueInfo) => load("standings", leagueInfo.key, () => fetchLeagueStandings(leagueInfo))),
     ...FAVORITE_TEAMS.map((favorite) => load("games", favorite.key, () => fetchTeamGames(favorite))),
@@ -72,6 +85,7 @@ function render() {
   const page = document.getElementById("page");
   if (state.page === "games") page.innerHTML = gamesPageHtml();
   else if (state.page === "standings") page.innerHTML = standingsPageHtml();
+  else if (state.page === "playoffs") page.innerHTML = playoffsPageHtml();
   else page.innerHTML = injuriesPageHtml();
 }
 
@@ -189,6 +203,7 @@ document.addEventListener("click", (event) => {
   if (!button) return;
   if (button.dataset.action !== "download-calendar") state.calendarMessage = null;
   ACTIONS[button.dataset.action](button);
+  loadPlayoffsIfNeeded();
   render();
 });
 

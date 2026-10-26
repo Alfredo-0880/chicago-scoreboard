@@ -1,13 +1,17 @@
 // Draws the League standings tab: division tables or the wild card race for
 // the selected league, with the Chicago teams highlighted.
 
-function standingsPageHtml() {
-  const leagueTabs = LEAGUES.map(
+// One button per league; shared with the Playoff picture tab.
+function leagueTabsHtml() {
+  return LEAGUES.map(
     (leagueInfo) => `
       <button class="league-tab ${leagueInfo.key === state.selectedLeague ? "active" : ""}" role="tab"
               aria-selected="${leagueInfo.key === state.selectedLeague}"
               data-action="league" data-league="${leagueInfo.key}">${leagueInfo.key}</button>`
   ).join("");
+}
+
+function standingsPageHtml() {
   const loaded = loadState("standings", state.selectedLeague).value;
   let groupLabel = "Divisions";
   if (loaded && loaded.divisions.length === 1) groupLabel = "Table";
@@ -16,7 +20,7 @@ function standingsPageHtml() {
 
   return `
     <div class="controls">
-      <div class="league-tabs" role="tablist" aria-label="League">${leagueTabs}</div>
+      <div class="league-tabs" role="tablist" aria-label="League">${leagueTabsHtml()}</div>
       <div class="toggle" role="group" aria-label="Standings view">
         ${toggleButtonHtml("standings-view", "view", "divisions", groupLabel, state.standingsView)}
         ${toggleButtonHtml("standings-view", "view", "wildcard", raceLabel, state.standingsView)}
