@@ -1,9 +1,9 @@
 // The page's state, data loading, team cards, and tabs. Each tab's content is
 // drawn by its own file: games-view.js, standings-view.js, playoffs-view.js,
-// injuries-view.js.
+// rosters-view.js, injuries-view.js.
 
 const state = {
-  page: "games", // "games" | "standings" | "playoffs" | "injuries"
+  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "injuries"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   selectedLeague: "NFL",
@@ -13,6 +13,7 @@ const state = {
   games: {},
   injuries: {},
   playoffs: {}, // loaded per league, the first time its Playoff picture is opened
+  rosters: {}, // loaded per team, the first time its roster is opened
   lastUpdated: null,
   refreshing: false,
   calendarMessage: null, // confirmation shown after downloading a calendar
@@ -23,6 +24,7 @@ const PAGES = [
   { key: "games", label: "Games" },
   { key: "standings", label: "League standings" },
   { key: "playoffs", label: "Playoff picture" },
+  { key: "rosters", label: "Rosters" },
   { key: "injuries", label: "Injuries" },
 ];
 
@@ -46,11 +48,21 @@ function loadPlayoffsIfNeeded() {
   }
 }
 
+// A roster loads the first time someone opens that team on the Rosters tab.
+function loadRosterIfNeeded() {
+  const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
+  if (state.page === "rosters" && favorite && !state.rosters[favorite.key]) {
+    load("rosters", favorite.key, () => fetchRoster(favorite));
+  }
+}
+
 async function loadEverything() {
   state.refreshing = true;
   state.playoffs = {};
+  state.rosters = {};
   render();
   loadPlayoffsIfNeeded();
+  loadRosterIfNeeded();
   await Promise.all([
     ...LEAGUES.map((leagueInfo) => load("standings", leagueInfo.key, () => fetchLeagueStandings(leagueInfo))),
     ...FAVORITE_TEAMS.map((favorite) => load("games", favorite.key, () => fetchTeamGames(favorite))),
@@ -94,6 +106,7 @@ function render() {
   if (state.page === "games") page.innerHTML = gamesPageHtml();
   else if (state.page === "standings") page.innerHTML = standingsPageHtml();
   else if (state.page === "playoffs") page.innerHTML = playoffsPageHtml();
+  else if (state.page === "rosters") page.innerHTML = rostersPageHtml();
   else page.innerHTML = injuriesPageHtml();
 }
 
@@ -225,6 +238,7 @@ document.addEventListener("click", (event) => {
   if (button.dataset.action !== "download-calendar") state.calendarMessage = null;
   ACTIONS[button.dataset.action](button);
   loadPlayoffsIfNeeded();
+  loadRosterIfNeeded();
   render();
 });
 

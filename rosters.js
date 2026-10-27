@@ -1,0 +1,59 @@
+// Team rosters from ESPN. Some sports send players in groups (football:
+// offense, defense...; baseball: pitchers, catchers...), others as one list,
+// which is grouped here by position.
+
+async function fetchRoster(favorite) {
+  const leagueInfo = leagueInfoFor(favorite.league);
+  const url = `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/teams/${favorite.scheduleTeamId}/roster`;
+  return parseRoster(await fetchJson(url));
+}
+
+// ESPN's names for football's roster groups, made readable.
+const ROSTER_GROUP_NAMES = {
+  offense: "Offense",
+  defense: "Defense",
+  specialTeam: "Special teams",
+  injuredReserveOrOut: "Injured reserve or out",
+  suspended: "Suspended",
+  practiceSquad: "Practice squad",
+};
+
+// Returns [{ name: "Offense", players: [{ name, jersey, position, positionName }] }].
+function parseRoster(espnData) {
+  const athletes = espnData.athletes || [];
+  const isGrouped = athletes.length > 0 && Array.isArray(athletes[0].items);
+  const groups = isGrouped
+    ? athletes.map((group) => ({ name: ROSTER_GROUP_NAMES[group.position] || group.position, players: group.items.map(parsePlayer) }))
+    : groupByPosition(athletes.map(parsePlayer));
+
+  return groups
+    .filter((group) => group.players.length > 0)
+    .map((group) => ({ ...group, players: group.players.sort(byJerseyNumber) }));
+}
+
+function parsePlayer(athlete) {
+  const position = athlete.position || {};
+  return {
+    name: athlete.displayName || athlete.fullName || "Unknown player",
+    jersey: athlete.jersey || "",
+    position: position.abbreviation || "",
+    positionName: position.displayName || position.name || "",
+  };
+}
+
+// One list -> groups like "Guards", "Forwards", in the order positions first appear.
+function groupByPosition(players) {
+  const groups = new Map();
+  for (const player of players) {
+    const name = player.positionName ? `${player.positionName}s` : "Players";
+    groups.set(name, [...(groups.get(name) || []), player]);
+  }
+  return [...groups].map(([name, groupPlayers]) => ({ name, players: groupPlayers }));
+}
+
+// Lowest number first; players without a number go last.
+function byJerseyNumber(a, b) {
+  const numberA = a.jersey === "" ? Infinity : Number(a.jersey);
+  const numberB = b.jersey === "" ? Infinity : Number(b.jersey);
+  return numberA - numberB || a.name.localeCompare(b.name);
+}

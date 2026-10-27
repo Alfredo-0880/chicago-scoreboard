@@ -789,6 +789,19 @@ button {
   color: var(--gold);
 }
 
+/* Rosters */
+
+.roster-table .jersey {
+  width: 2.5em;
+  text-align: left;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.roster-table td:last-child {
+  text-align: right;
+}
+
 /* Wild card line */
 
 .standings-table tr.cutoff td {
