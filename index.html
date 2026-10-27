@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="theme.js"></script>
 </head>
 <body>
   <header class="hero">
@@ -27,6 +28,7 @@
 
   <main class="wrap">
     <div class="refresh">
+      <div class="toggle theme-toggle" id="themeToggle" role="group" aria-label="Theme"></div>
       <span class="updated-at" id="updatedAt"></span>
       <button class="pill-button" id="refreshButton" data-action="refresh">Refresh</button>
     </div>

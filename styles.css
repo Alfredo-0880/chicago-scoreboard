@@ -19,19 +19,20 @@
   --shadow-md: 0 6px 18px rgba(23, 20, 15, 0.08), 0 2px 6px rgba(23, 20, 15, 0.05);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #131019;
-    --paper-dim: #1b1723;
-    --card: #1f1b28;
-    --ink: #f1eee4;
-    --ink-soft: #b0a9c4;
-    --line: rgba(241, 238, 228, 0.1);
-    --navy: #142b52;
-    --navy-2: #1b3868;
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.35);
-  }
+/* Dark theme: theme.js sets data-theme on <html> from the Auto / Light /
+   Dark switch (Auto follows the device's setting). */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #131019;
+  --paper-dim: #1b1723;
+  --card: #1f1b28;
+  --ink: #f1eee4;
+  --ink-soft: #b0a9c4;
+  --line: rgba(241, 238, 228, 0.1);
+  --navy: #142b52;
+  --navy-2: #1b3868;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
 * {
@@ -178,7 +179,6 @@ button {
   vertical-align: middle;
 }
 
-.logo picture,
 .logo img {
   display: block;
   width: 100%;
@@ -202,7 +202,7 @@ button {
   margin-right: 6px;
 }
 
-.logo-failed picture {
+.logo-failed img {
   display: none;
 }
 
@@ -307,8 +307,15 @@ button {
   border-bottom-color: var(--flag-red);
 }
 
+.theme-toggle button {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
 .refresh {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
@@ -393,6 +400,11 @@ button {
 
 .team-button.active .dot {
   background: rgba(255, 255, 255, 0.85);
+}
+
+/* Navy and black team colors would vanish on the dark background. */
+[data-theme="dark"] .team-button .dot {
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.55);
 }
 
 .toggle {
@@ -769,14 +781,12 @@ button {
   color: #a8770c;
 }
 
-@media (prefers-color-scheme: dark) {
-  .picture-status.division {
-    color: #6fd98a;
-  }
+[data-theme="dark"] .picture-status.division {
+  color: #6fd98a;
+}
 
-  .picture-status.play-in {
-    color: var(--gold);
-  }
+[data-theme="dark"] .picture-status.play-in {
+  color: var(--gold);
 }
 
 /* Wild card line */
@@ -877,19 +887,17 @@ button {
   --severity-color: #1e7a34;
 }
 
-@media (prefers-color-scheme: dark) {
-  .cutoff span {
-    color: var(--gold);
-  }
+[data-theme="dark"] .cutoff span {
+  color: var(--gold);
+}
 
-  .doubtful,
-  .questionable {
-    --severity-color: var(--gold);
-  }
+[data-theme="dark"] .doubtful,
+[data-theme="dark"] .questionable {
+  --severity-color: var(--gold);
+}
 
-  .probable {
-    --severity-color: #6fd98a;
-  }
+[data-theme="dark"] .probable {
+  --severity-color: #6fd98a;
 }
 
 /* Small screens */

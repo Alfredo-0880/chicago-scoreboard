@@ -79,19 +79,18 @@ function logosFrom(espnTeam) {
 }
 
 // A team logo that shows letters (like "BE") instead when there is no logo
-// or the image fails to load. sizeClass sets how big it is.
+// or the image fails to load. sizeClass sets how big it is. In the dark
+// theme it uses ESPN's logo made for dark backgrounds.
 function logoHtml(logos, fallbackText, sizeClass) {
   const fallback = `data-fallback="${escapeHtml(fallbackText)}"`;
   if (!logos) {
     return `<span class="logo ${sizeClass} logo-failed" ${fallback}></span>`;
   }
+  const darkTheme = document.documentElement.dataset.theme === "dark";
   return `
     <span class="logo ${sizeClass}" ${fallback}>
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="${escapeHtml(logos.dark)}">
-        <img src="${escapeHtml(logos.light)}" alt="" loading="lazy"
-             onerror="this.closest('.logo').classList.add('logo-failed')">
-      </picture>
+      <img src="${escapeHtml(darkTheme ? logos.dark : logos.light)}" alt="" loading="lazy"
+           onerror="this.closest('.logo').classList.add('logo-failed')">
     </span>`;
 }
 

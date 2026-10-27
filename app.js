@@ -16,6 +16,7 @@ const state = {
   lastUpdated: null,
   refreshing: false,
   calendarMessage: null, // confirmation shown after downloading a calendar
+  themeChoice: savedThemeChoice(), // "auto" | "light" | "dark", from theme.js
 };
 
 const PAGES = [
@@ -87,6 +88,7 @@ function selectedFavorites() {
 function render() {
   renderTeamCards();
   renderPageTabs();
+  renderThemeToggle();
   renderUpdatedAt();
   const page = document.getElementById("page");
   if (state.page === "games") page.innerHTML = gamesPageHtml();
@@ -144,6 +146,13 @@ function renderPageTabs() {
   ).join("");
 }
 
+function renderThemeToggle() {
+  const labels = { auto: "Auto", light: "Light", dark: "Dark" };
+  document.getElementById("themeToggle").innerHTML = THEME_CHOICES.map((choice) =>
+    toggleButtonHtml("theme", "choice", choice, labels[choice], state.themeChoice)
+  ).join("");
+}
+
 function renderUpdatedAt() {
   document.getElementById("updatedAt").textContent = state.lastUpdated
     ? `Updated ${chicagoDate(state.lastUpdated, { hour: "numeric", minute: "2-digit" })}`
@@ -197,6 +206,11 @@ const ACTIONS = {
   league: (button) => {
     state.selectedLeague = button.dataset.league;
   },
+  theme: (button) => {
+    state.themeChoice = button.dataset.choice;
+    saveThemeChoice(state.themeChoice);
+    applyTheme(state.themeChoice);
+  },
   "standings-view": (button) => {
     state.standingsView = button.dataset.view;
   },
@@ -217,3 +231,8 @@ document.addEventListener("click", (event) => {
 loadEverything();
 // Keep live scores current; this loads nothing while no game is on.
 setInterval(updateLiveScores, LIVE_CHECK_SECONDS * 1000);
+// In Auto, follow the device when it switches between light and dark.
+systemDarkQuery.addEventListener("change", () => {
+  applyTheme(state.themeChoice);
+  render();
+});
