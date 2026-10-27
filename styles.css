@@ -441,6 +441,29 @@ button {
   color: var(--ink-soft);
 }
 
+/* Live games */
+
+.live-now {
+  margin-top: 6px;
+}
+
+.live-heading {
+  color: var(--flag-red);
+}
+
+.live-badge {
+  margin-left: auto;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--flag-red);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
 /* Games */
 
 .month {

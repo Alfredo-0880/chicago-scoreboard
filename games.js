@@ -61,15 +61,21 @@ function scoreOf(competitor) {
 
 const GAMES_PER_TEAM = 10;
 
+// Games being played right now, for the Live now section.
+function liveGames(gamesByTeam) {
+  return gamesByTeam.flat().filter((game) => game.state === "in").sort((a, b) => a.date - b.date);
+}
+
 // Final: each team's most recent results, newest first.
-// Upcoming: games being played now, then each team's next games, soonest first.
+// Upcoming: each team's next games, soonest first. (Games being played now
+// are shown separately, in Live now.)
 function selectGames(gamesByTeam, show) {
   const selected = [];
   for (const games of gamesByTeam) {
     if (show === "final") {
       selected.push(...games.filter((game) => game.completed).slice(-GAMES_PER_TEAM));
     } else {
-      selected.push(...games.filter((game) => game.state === "pre" || game.state === "in").slice(0, GAMES_PER_TEAM));
+      selected.push(...games.filter((game) => game.state === "pre").slice(0, GAMES_PER_TEAM));
     }
   }
   return selected.sort((a, b) => (show === "final" ? b.date - a.date : a.date - b.date));

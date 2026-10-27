@@ -58,10 +58,16 @@ async function loadEverything() {
   state.refreshing = false;
   state.lastUpdated = new Date();
   render();
+  updateLiveScores();
 }
 
 function loadState(bucket, key) {
   return state[bucket][key] || { status: "loading" };
+}
+
+function hasLiveGame(favorite) {
+  const gamesState = loadState("games", favorite.key);
+  return gamesState.status === "loaded" && gamesState.value.some((game) => game.state === "in");
 }
 
 // A Chicago team's logos come from its league's standings, once they load.
@@ -124,6 +130,7 @@ function teamCardHtml(favorite) {
       <div class="card-team">
         ${logoHtml(chicagoTeamLogos(favorite), initials(favorite.label), "logo-badge")}
         <span class="card-name">${favorite.label} · ${favorite.league}</span>
+        ${hasLiveGame(favorite) ? `<span class="live-badge">Live</span>` : ""}
       </div>
       ${body}
     </button>`;
@@ -208,3 +215,5 @@ document.addEventListener("click", (event) => {
 });
 
 loadEverything();
+// Keep live scores current; this loads nothing while no game is on.
+setInterval(updateLiveScores, LIVE_CHECK_SECONDS * 1000);

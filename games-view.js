@@ -35,8 +35,14 @@ function gamesPageHtml() {
       ? `<div class="notice">Couldn't load games for ${failed.map((teamState) => teamState.favorite.label).join(", ")}. Try Refresh.</div>`
       : "";
 
+  const live = liveGames(loaded.map((teamState) => teamState.value));
+  const liveSection = live.length
+    ? `<section class="live-now"><h3 class="month live-heading">Live now</h3>${live.map(gameRowHtml).join("")}</section>`
+    : "";
+
   return `
     ${teamFilterHtml()}
+    ${liveSection}
     <div class="controls">
       <div class="toggle" role="group" aria-label="Which games">
         ${toggleButtonHtml("games-shown", "shown", "final", "Final", state.gamesShown)}
@@ -112,7 +118,16 @@ function gameRowHtml(game) {
     </article>`;
 }
 
+// "21–27", or null when ESPN hasn't sent the score yet.
+function scoreText(game) {
+  if (game.ourScore === null || game.theirScore === null) return null;
+  return `${escapeHtml(game.ourScore)}–${escapeHtml(game.theirScore)}`;
+}
+
 function resultHtml(game) {
+  if (game.completed && scoreText(game) === null) {
+    return `<div class="start-time">Final</div>`;
+  }
   if (game.completed) {
     const tied = game.ourScore === game.theirScore;
     const outcome = tied ? "tie" : game.won ? "win" : "loss";
@@ -121,12 +136,13 @@ function resultHtml(game) {
     const labels = { win: ["W", "win"], loss: ["L", "loss"], tie: isSoccer ? ["D", "draw"] : ["T", "tie"] };
     const [letter, word] = labels[outcome];
     return `
-      <div class="score">${escapeHtml(game.ourScore)}–${escapeHtml(game.theirScore)}</div>
+      <div class="score">${scoreText(game)}</div>
       <span class="outcome ${outcome}" title="${word}">${letter}</span>`;
   }
   if (game.state === "in") {
+    const score = scoreText(game);
     return `
-      <div class="score">${escapeHtml(game.ourScore)}–${escapeHtml(game.theirScore)}</div>
+      ${score ? `<div class="score">${score}</div>` : `<div class="start-time">Score loading…</div>`}
       <span class="live">Live · ${escapeHtml(game.statusDetail)}</span>`;
   }
   const time = game.timeKnown ? chicagoDate(game.date, { hour: "numeric", minute: "2-digit" }) : "Time TBD";
