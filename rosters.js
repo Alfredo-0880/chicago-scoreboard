@@ -49,7 +49,22 @@ function playerDetails(athlete) {
   const years = athlete.experience && athlete.experience.years;
   const salary = athlete.contract && athlete.contract.salary;
   const hand = (field) => (athlete[field] && athlete[field].displayValue) || "—";
+  const stat = seasonStats(athlete);
   return {
+    nationality: athlete.citizenship || "—",
+    // Soccer season stats.
+    appearances: stat("appearances"),
+    substitutions: stat("subIns"),
+    assists: stat("goalAssists"),
+    goals: stat("totalGoals"),
+    totalShots: stat("totalShots"),
+    shotsOnGoal: stat("shotsOnTarget"),
+    shotsSaved: stat("saves"),
+    goalsAgainst: stat("goalsConceded"),
+    foulsCommitted: stat("foulsCommitted"),
+    foulsAgainst: stat("foulsSuffered"),
+    yellowCards: stat("yellowCards"),
+    redCards: stat("redCards"),
     bats: hand("bats"),
     throws: hand("throws"),
     // Hockey: the side a skater shoots from, or a goalie's glove hand.
@@ -63,6 +78,19 @@ function playerDetails(athlete) {
     college: (athlete.college && athlete.college.name) || "—",
     salary: salary ? formatSalary(salary) : "—",
   };
+}
+
+// A player's season stats as a lookup: stat("appearances") -> "30", or a
+// dash when ESPN has no stats for the player.
+function seasonStats(athlete) {
+  const values = {};
+  const categories = (((athlete.statistics || {}).splits || {}).categories) || [];
+  for (const category of categories) {
+    for (const entry of category.stats || []) {
+      values[entry.name] = entry.displayValue;
+    }
+  }
+  return (name) => values[name] ?? "—";
 }
 
 // "2005-07-17T07:00Z" -> "Jul 17, 2005". Read in UTC so the day never

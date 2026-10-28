@@ -2,7 +2,9 @@
 
 // Which details each team's roster shows under a player's name, as
 // [label, detail] pairs. A label can depend on the player (hockey goalies
-// "catch" rather than "shoot"). Teams not listed show no details.
+// "catch" rather than "shoot"). Soccer shows two lines that depend on the
+// player, so its entry is a function returning the lines (see
+// rosterDetailLines). Teams not listed show no details.
 const CAREER_DETAILS = [
   ["Age", "age"],
   ["Height", "height"],
@@ -32,6 +34,37 @@ const SKY_DETAILS = [
   ["Height", "height"],
   ["College", "college"],
 ];
+const SOCCER_PLAYER_DETAILS = [
+  ["Age", "age"],
+  ["Height", "height"],
+  ["Weight", "weight"],
+  ["Nationality", "nationality"],
+];
+const SOCCER_SEASON_DETAILS = [
+  ["Appearances", "appearances"],
+  ["Substitutions", "substitutions"],
+  ["Assists", "assists"],
+  ["Fouls committed", "foulsCommitted"],
+  ["Fouls against", "foulsAgainst"],
+  ["Yellow cards", "yellowCards"],
+  ["Red cards", "redCards"],
+];
+const FIELD_PLAYER_DETAILS = [
+  ["Goals", "goals"],
+  ["Total shots", "totalShots"],
+  ["Shots on goal", "shotsOnGoal"],
+];
+const GOALKEEPER_DETAILS = [
+  ["Shots saved", "shotsSaved"],
+  ["Goals against", "goalsAgainst"],
+];
+
+// Line 1: the player. Line 2: this season, with goalkeeper or field player stats.
+function soccerDetails(player) {
+  const positionStats = player.position === "G" ? GOALKEEPER_DETAILS : FIELD_PLAYER_DETAILS;
+  return [SOCCER_PLAYER_DETAILS, [...SOCCER_SEASON_DETAILS, ...positionStats]];
+}
+
 const ROSTER_DETAILS = {
   bears: CAREER_DETAILS,
   bulls: CAREER_DETAILS,
@@ -39,7 +72,17 @@ const ROSTER_DETAILS = {
   whitesox: BASEBALL_DETAILS,
   blackhawks: HOCKEY_DETAILS,
   sky: SKY_DETAILS,
+  fire: soccerDetails,
+  stars: soccerDetails,
 };
+
+// The lines of details a team's roster shows for a player (none for
+// teams not in ROSTER_DETAILS).
+function rosterDetailLines(teamKey, player) {
+  const details = ROSTER_DETAILS[teamKey];
+  if (!details) return [];
+  return typeof details === "function" ? details(player) : [details];
+}
 
 function rostersPageHtml() {
   const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
@@ -61,7 +104,6 @@ function rosterHtml(favorite) {
   }
 
   const playerCount = rosterState.value.reduce((count, group) => count + group.players.length, 0);
-  const detailList = ROSTER_DETAILS[favorite.key];
   const groups = rosterState.value
     .map(
       (group) => `
@@ -75,7 +117,7 @@ function rosterHtml(favorite) {
                 (player) => `
               <tr>
                 <td class="jersey">${escapeHtml(player.jersey)}</td>
-                <td>${escapeHtml(player.name)}${detailList ? playerDetailsHtml(player, detailList) : ""}</td>
+                <td>${escapeHtml(player.name)}${rosterDetailLines(favorite.key, player).map((line) => playerDetailsHtml(player, line)).join("")}</td>
                 <td title="${escapeHtml(player.positionName)}">${escapeHtml(player.position)}</td>
               </tr>`
               )
