@@ -1,5 +1,9 @@
 // Draws the Rosters tab: tap a team name to see its players.
 
+// Teams whose roster also shows each player's age, height, weight,
+// experience, college, and salary.
+const DETAILED_ROSTER_TEAMS = ["bears"];
+
 function rostersPageHtml() {
   const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
   return `
@@ -20,6 +24,7 @@ function rosterHtml(favorite) {
   }
 
   const playerCount = rosterState.value.reduce((count, group) => count + group.players.length, 0);
+  const showDetails = DETAILED_ROSTER_TEAMS.includes(favorite.key);
   const groups = rosterState.value
     .map(
       (group) => `
@@ -33,7 +38,7 @@ function rosterHtml(favorite) {
                 (player) => `
               <tr>
                 <td class="jersey">${escapeHtml(player.jersey)}</td>
-                <td>${escapeHtml(player.name)}</td>
+                <td>${escapeHtml(player.name)}${showDetails ? playerDetailsHtml(player.details) : ""}</td>
                 <td title="${escapeHtml(player.positionName)}">${escapeHtml(player.position)}</td>
               </tr>`
               )
@@ -44,4 +49,20 @@ function rosterHtml(favorite) {
     )
     .join("");
   return `<div class="season-note">${favorite.label} roster: ${playerCount} players, live from ESPN.</div>${groups}`;
+}
+
+// "24 · 6' 1" · 226 lbs · 3 yrs · USC · $4.4M", each labeled for screen readers.
+function playerDetailsHtml(details) {
+  const items = [
+    ["Age", details.age],
+    ["Height", details.height],
+    ["Weight", details.weight],
+    ["Experience", details.experience],
+    ["College", details.college],
+    ["Salary", details.salary],
+  ];
+  return `
+    <div class="player-details">
+      ${items.map(([label, value]) => `<span title="${label}" aria-label="${label}: ${escapeHtml(value)}">${escapeHtml(value)}</span>`).join(" · ")}
+    </div>`;
 }

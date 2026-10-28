@@ -18,7 +18,7 @@ const ROSTER_GROUP_NAMES = {
   practiceSquad: "Practice squad",
 };
 
-// Returns [{ name: "Offense", players: [{ name, jersey, position, positionName }] }].
+// Returns [{ name: "Offense", players: [{ name, jersey, position, positionName, details }] }].
 function parseRoster(espnData) {
   const athletes = espnData.athletes || [];
   const isGrouped = athletes.length > 0 && Array.isArray(athletes[0].items);
@@ -38,7 +38,29 @@ function parsePlayer(athlete) {
     jersey: athlete.jersey || "",
     position: position.abbreviation || "",
     positionName: position.displayName || position.name || "",
+    details: playerDetails(athlete),
   };
+}
+
+// Age, height, weight, experience, college, and salary, ready to show.
+// Anything ESPN leaves out becomes a dash.
+function playerDetails(athlete) {
+  const years = athlete.experience && athlete.experience.years;
+  const salary = athlete.contract && athlete.contract.salary;
+  return {
+    age: athlete.age ? String(athlete.age) : "—",
+    height: athlete.displayHeight || "—",
+    weight: athlete.displayWeight || "—",
+    experience: years === undefined || years === null ? "—" : years === 0 ? "Rookie" : `${years} ${years === 1 ? "yr" : "yrs"}`,
+    college: (athlete.college && athlete.college.name) || "—",
+    salary: salary ? formatSalary(salary) : "—",
+  };
+}
+
+// 4384642 -> "$4.4M"; 915000 -> "$915K"
+function formatSalary(dollars) {
+  if (dollars >= 1000000) return `$${(dollars / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
+  return `$${Math.round(dollars / 1000)}K`;
 }
 
 // One list -> groups like "Guards", "Forwards", in the order positions first appear.

@@ -802,8 +802,24 @@ button {
   color: var(--ink-soft);
 }
 
+/* Standings tables right-align every column after the first; on rosters
+   the player's name is the second column and reads better on the left. */
+.roster-table th:nth-child(2),
+.roster-table td:nth-child(2) {
+  text-align: left;
+  white-space: normal;
+}
+
 .roster-table td:last-child {
   text-align: right;
+}
+
+.player-details {
+  margin-top: 3px;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--ink-soft);
+  white-space: normal;
 }
 
 /* Wild card line */
