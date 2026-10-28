@@ -51,7 +51,7 @@ function rosterHtml(favorite) {
   return `<div class="season-note">${favorite.label} roster: ${playerCount} players, live from ESPN.</div>${groups}`;
 }
 
-// "24 · 6' 1" · 226 lbs · 3 yrs · USC · $4.4M", each labeled for screen readers.
+// "Age 24 · Height 6' 1" · Weight 226 lbs · ...", each value with its label.
 function playerDetailsHtml(details) {
   const items = [
     ["Age", details.age],
@@ -63,6 +63,8 @@ function playerDetailsHtml(details) {
   ];
   return `
     <div class="player-details">
-      ${items.map(([label, value]) => `<span title="${label}" aria-label="${label}: ${escapeHtml(value)}">${escapeHtml(value)}</span>`).join(" · ")}
+      ${items
+        .map(([label, value]) => `<span class="detail"><span class="detail-label">${label}</span> ${escapeHtml(value)}</span>`)
+        .join(" · ")}
     </div>`;
 }
