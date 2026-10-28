@@ -1,8 +1,29 @@
 // Draws the Rosters tab: tap a team name to see its players.
 
-// Teams whose roster also shows each player's age, height, weight,
-// experience, college, and salary.
-const DETAILED_ROSTER_TEAMS = ["bears", "bulls"];
+// Which details each team's roster shows under a player's name, as
+// [label, detail] pairs. Teams not listed show no details.
+const CAREER_DETAILS = [
+  ["Age", "age"],
+  ["Height", "height"],
+  ["Weight", "weight"],
+  ["Experience", "experience"],
+  ["College", "college"],
+  ["Salary", "salary"],
+];
+const BASEBALL_DETAILS = [
+  ["Bats", "bats"],
+  ["Throws", "throws"],
+  ["Age", "age"],
+  ["Height", "height"],
+  ["Weight", "weight"],
+  ["Birth place", "birthPlace"],
+];
+const ROSTER_DETAILS = {
+  bears: CAREER_DETAILS,
+  bulls: CAREER_DETAILS,
+  cubs: BASEBALL_DETAILS,
+  whitesox: BASEBALL_DETAILS,
+};
 
 function rostersPageHtml() {
   const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
@@ -24,7 +45,7 @@ function rosterHtml(favorite) {
   }
 
   const playerCount = rosterState.value.reduce((count, group) => count + group.players.length, 0);
-  const showDetails = DETAILED_ROSTER_TEAMS.includes(favorite.key);
+  const detailList = ROSTER_DETAILS[favorite.key];
   const groups = rosterState.value
     .map(
       (group) => `
@@ -38,7 +59,7 @@ function rosterHtml(favorite) {
                 (player) => `
               <tr>
                 <td class="jersey">${escapeHtml(player.jersey)}</td>
-                <td>${escapeHtml(player.name)}${showDetails ? playerDetailsHtml(player.details) : ""}</td>
+                <td>${escapeHtml(player.name)}${detailList ? playerDetailsHtml(player.details, detailList) : ""}</td>
                 <td title="${escapeHtml(player.positionName)}">${escapeHtml(player.position)}</td>
               </tr>`
               )
@@ -52,19 +73,11 @@ function rosterHtml(favorite) {
 }
 
 // "Age 24 · Height 6' 1" · Weight 226 lbs · ...", each value with its label.
-function playerDetailsHtml(details) {
-  const items = [
-    ["Age", details.age],
-    ["Height", details.height],
-    ["Weight", details.weight],
-    ["Experience", details.experience],
-    ["College", details.college],
-    ["Salary", details.salary],
-  ];
+function playerDetailsHtml(details, detailList) {
   return `
     <div class="player-details">
-      ${items
-        .map(([label, value]) => `<span class="detail"><span class="detail-label">${label}</span> ${escapeHtml(value)}</span>`)
+      ${detailList
+        .map(([label, key]) => `<span class="detail"><span class="detail-label">${label}</span> ${escapeHtml(details[key])}</span>`)
         .join(" · ")}
     </div>`;
 }

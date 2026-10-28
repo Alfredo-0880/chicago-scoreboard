@@ -42,12 +42,17 @@ function parsePlayer(athlete) {
   };
 }
 
-// Age, height, weight, experience, college, and salary, ready to show.
-// Anything ESPN leaves out becomes a dash.
+// Everything a roster can show about a player, ready to show. Each team's
+// roster picks which ones (see ROSTER_DETAILS). Anything ESPN leaves out
+// becomes a dash.
 function playerDetails(athlete) {
   const years = athlete.experience && athlete.experience.years;
   const salary = athlete.contract && athlete.contract.salary;
+  const hand = (field) => (athlete[field] && athlete[field].displayValue) || "—";
   return {
+    bats: hand("bats"),
+    throws: hand("throws"),
+    birthPlace: (athlete.birthPlace && athlete.birthPlace.displayText) || "—",
     age: athlete.age ? String(athlete.age) : "—",
     height: athlete.displayHeight || "—",
     weight: athlete.displayWeight || "—",
