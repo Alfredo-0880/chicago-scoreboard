@@ -52,6 +52,9 @@ function playerDetails(athlete) {
   return {
     bats: hand("bats"),
     throws: hand("throws"),
+    // Hockey: the side a skater shoots from, or a goalie's glove hand.
+    hand: hand("hand"),
+    birthDate: athlete.dateOfBirth ? formatBirthDate(athlete.dateOfBirth) : "—",
     birthPlace: (athlete.birthPlace && athlete.birthPlace.displayText) || "—",
     age: athlete.age ? String(athlete.age) : "—",
     height: athlete.displayHeight || "—",
@@ -60,6 +63,12 @@ function playerDetails(athlete) {
     college: (athlete.college && athlete.college.name) || "—",
     salary: salary ? formatSalary(salary) : "—",
   };
+}
+
+// "2005-07-17T07:00Z" -> "Jul 17, 2005". Read in UTC so the day never
+// shifts with the viewer's time zone.
+function formatBirthDate(isoDate) {
+  return new Date(isoDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
 // 4384642 -> "$4.4M"; 915000 -> "$915K"

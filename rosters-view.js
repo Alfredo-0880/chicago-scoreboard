@@ -1,7 +1,8 @@
 // Draws the Rosters tab: tap a team name to see its players.
 
 // Which details each team's roster shows under a player's name, as
-// [label, detail] pairs. Teams not listed show no details.
+// [label, detail] pairs. A label can depend on the player (hockey goalies
+// "catch" rather than "shoot"). Teams not listed show no details.
 const CAREER_DETAILS = [
   ["Age", "age"],
   ["Height", "height"],
@@ -18,11 +19,20 @@ const BASEBALL_DETAILS = [
   ["Weight", "weight"],
   ["Birth place", "birthPlace"],
 ];
+const HOCKEY_DETAILS = [
+  ["Age", "age"],
+  ["Height", "height"],
+  ["Weight", "weight"],
+  [(player) => (player.position === "G" ? "Catches" : "Shoots"), "hand"],
+  ["Birth place", "birthPlace"],
+  ["Birthdate", "birthDate"],
+];
 const ROSTER_DETAILS = {
   bears: CAREER_DETAILS,
   bulls: CAREER_DETAILS,
   cubs: BASEBALL_DETAILS,
   whitesox: BASEBALL_DETAILS,
+  blackhawks: HOCKEY_DETAILS,
 };
 
 function rostersPageHtml() {
@@ -59,7 +69,7 @@ function rosterHtml(favorite) {
                 (player) => `
               <tr>
                 <td class="jersey">${escapeHtml(player.jersey)}</td>
-                <td>${escapeHtml(player.name)}${detailList ? playerDetailsHtml(player.details, detailList) : ""}</td>
+                <td>${escapeHtml(player.name)}${detailList ? playerDetailsHtml(player, detailList) : ""}</td>
                 <td title="${escapeHtml(player.positionName)}">${escapeHtml(player.position)}</td>
               </tr>`
               )
@@ -73,11 +83,14 @@ function rosterHtml(favorite) {
 }
 
 // "Age 24 · Height 6' 1" · Weight 226 lbs · ...", each value with its label.
-function playerDetailsHtml(details, detailList) {
+function playerDetailsHtml(player, detailList) {
   return `
     <div class="player-details">
       ${detailList
-        .map(([label, key]) => `<span class="detail"><span class="detail-label">${label}</span> ${escapeHtml(details[key])}</span>`)
+        .map(([label, key]) => {
+          const text = typeof label === "function" ? label(player) : label;
+          return `<span class="detail"><span class="detail-label">${text}</span> ${escapeHtml(player.details[key])}</span>`;
+        })
         .join(" · ")}
     </div>`;
 }
