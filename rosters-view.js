@@ -2,7 +2,7 @@
 
 // Teams whose roster also shows each player's age, height, weight,
 // experience, college, and salary.
-const DETAILED_ROSTER_TEAMS = ["bears"];
+const DETAILED_ROSTER_TEAMS = ["bears", "bulls"];
 
 function rostersPageHtml() {
   const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
