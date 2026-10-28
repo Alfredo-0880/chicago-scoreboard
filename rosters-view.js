@@ -27,12 +27,18 @@ const HOCKEY_DETAILS = [
   ["Birth place", "birthPlace"],
   ["Birthdate", "birthDate"],
 ];
+const SKY_DETAILS = [
+  ["Age", "age"],
+  ["Height", "height"],
+  ["College", "college"],
+];
 const ROSTER_DETAILS = {
   bears: CAREER_DETAILS,
   bulls: CAREER_DETAILS,
   cubs: BASEBALL_DETAILS,
   whitesox: BASEBALL_DETAILS,
   blackhawks: HOCKEY_DETAILS,
+  sky: SKY_DETAILS,
 };
 
 function rostersPageHtml() {
