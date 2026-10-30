@@ -902,6 +902,101 @@ button {
   opacity: 0.75;
 }
 
+/* Stats: a team's players, each opening their career stats */
+
+.stats-players {
+  display: grid;
+  gap: 6px;
+}
+
+.stats-player {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.stats-player.open {
+  border-left: 4px solid var(--team-color);
+}
+
+.stats-player-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stats-player-button .jersey {
+  width: 2em;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.stats-player-name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.stats-player-position,
+.stats-chevron {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.stats-panel {
+  padding: 4px 12px 14px;
+  border-top: 1px solid var(--line);
+}
+
+.stats-message,
+.stats-games {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.stats-section-title {
+  margin: 14px 0 6px;
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 6px;
+}
+
+.stat {
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
 /* News */
 
 .news-list {

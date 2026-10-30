@@ -49,7 +49,7 @@ const ROSTER_GROUP_NAMES = {
   practiceSquad: "Practice squad",
 };
 
-// Returns [{ name: "Offense", players: [{ name, jersey, position, positionName, details }] }].
+// Returns [{ name: "Offense", players: [{ id, name, jersey, position, positionName, details }] }].
 function parseRoster(espnData) {
   const athletes = espnData.athletes || [];
   const isGrouped = athletes.length > 0 && Array.isArray(athletes[0].items);
@@ -65,6 +65,7 @@ function parseRoster(espnData) {
 function parsePlayer(athlete) {
   const position = athlete.position || {};
   return {
+    id: athlete.id || "", // ESPN's number for the player, used to load career stats
     name: athlete.displayName || athlete.fullName || "Unknown player",
     jersey: athlete.jersey || "",
     position: position.abbreviation || "",

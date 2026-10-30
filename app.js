@@ -1,10 +1,11 @@
 // The page's state, data loading, team cards, and tabs. Each tab's content is
 // drawn by its own file: games-view.js, standings-view.js, playoffs-view.js,
 // rosters-view.js, news-view.js, highlights-view.js, history-view.js,
-// championships-view.js, funfacts-view.js, socials-view.js, injuries-view.js.
+// championships-view.js, funfacts-view.js, socials-view.js, careerstats-view.js,
+// injuries-view.js.
 
 const state = {
-  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "funfacts" | "social" | "injuries"
+  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "funfacts" | "social" | "stats" | "injuries"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   selectedLeague: "NFL",
@@ -14,7 +15,9 @@ const state = {
   games: {},
   injuries: {},
   playoffs: {}, // loaded per league, the first time its Playoff picture is opened
-  rosters: {}, // loaded per team, the first time its roster is opened
+  rosters: {}, // loaded per team, the first time its roster (or Stats) is opened
+  careerStats: {}, // each player's career stats, keyed "bears-4431611", loaded when tapped
+  statsPlayer: null, // the player open on the Stats tab (a careerStats key), or null
   news: {}, // each team's stories and videos, loaded the first time its News or Highlights is opened
   history: {}, // past seasons, keyed "bears-2005", loaded when picked
   historySeason: null, // season picked on Team history (null: most recent)
@@ -35,6 +38,7 @@ const PAGES = [
   { key: "championships", label: "Championships" },
   { key: "funfacts", label: "Fun facts" },
   { key: "social", label: "Social" },
+  { key: "stats", label: "Stats" },
   { key: "injuries", label: "Injuries" },
 ];
 
@@ -58,12 +62,21 @@ function loadPlayoffsIfNeeded() {
   }
 }
 
-// A roster loads the first time someone opens that team on the Rosters tab.
+// A roster loads the first time someone opens that team on the Rosters or Stats tab.
 function loadRosterIfNeeded() {
   const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
-  if (state.page === "rosters" && favorite && !state.rosters[favorite.key]) {
+  if ((state.page === "rosters" || state.page === "stats") && favorite && !state.rosters[favorite.key]) {
     load("rosters", favorite.key, () => fetchRoster(favorite));
   }
+}
+
+// A player's career stats load the first time they're tapped on the Stats tab.
+function loadCareerStatsIfNeeded() {
+  const key = state.statsPlayer;
+  if (state.page !== "stats" || !key || state.careerStats[key]) return;
+  const [teamKey, playerId] = key.split("-");
+  const favorite = FAVORITE_TEAMS.find((team) => team.key === teamKey);
+  load("careerStats", key, () => fetchCareerStats(favorite, playerId));
 }
 
 // News and highlights load for the teams on screen, the first time each is shown.
@@ -87,10 +100,12 @@ async function loadEverything() {
   state.refreshing = true;
   state.playoffs = {};
   state.rosters = {};
+  state.careerStats = {};
   state.news = {};
   render();
   loadPlayoffsIfNeeded();
   loadRosterIfNeeded();
+  loadCareerStatsIfNeeded();
   loadNewsIfNeeded();
   await Promise.all([
     ...LEAGUES.map((leagueInfo) => load("standings", leagueInfo.key, () => fetchLeagueStandings(leagueInfo))),
@@ -154,6 +169,7 @@ function render() {
   else if (state.page === "championships") page.innerHTML = championshipsPageHtml();
   else if (state.page === "funfacts") page.innerHTML = funFactsPageHtml();
   else if (state.page === "social") page.innerHTML = socialsPageHtml();
+  else if (state.page === "stats") page.innerHTML = careerStatsPageHtml();
   else page.innerHTML = injuriesPageHtml();
 }
 
@@ -277,6 +293,10 @@ const ACTIONS = {
     saveThemeChoice(state.themeChoice);
     applyTheme(state.themeChoice);
   },
+  "player-stats": (button) => {
+    // Tapping the open player again closes their stats.
+    state.statsPlayer = state.statsPlayer === button.dataset.player ? null : button.dataset.player;
+  },
   "standings-view": (button) => {
     state.standingsView = button.dataset.view;
   },
@@ -292,6 +312,7 @@ document.addEventListener("click", (event) => {
   ACTIONS[button.dataset.action](button);
   loadPlayoffsIfNeeded();
   loadRosterIfNeeded();
+  loadCareerStatsIfNeeded();
   loadNewsIfNeeded();
   loadHistoryIfNeeded();
   render();
