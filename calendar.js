@@ -14,17 +14,26 @@ function calendarGames(games) {
 }
 
 function buildCalendar(favorite, games, createdAt) {
-  const sport = leagueInfoFor(favorite.league).sport;
+  return buildMultiTeamCalendar(`${favorite.label} games`, [{ favorite, games }], createdAt);
+}
+
+// One calendar file for several teams: teams is [{ favorite, games }]. Each
+// game keeps the same ID as in that team's own file, so importing both
+// doesn't create duplicates.
+function buildMultiTeamCalendar(calendarName, teams, createdAt) {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//Chicago Scoreboard//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    `X-WR-CALNAME:${escapeCalendarText(`${favorite.label} games`)}`,
+    `X-WR-CALNAME:${escapeCalendarText(calendarName)}`,
   ];
-  for (const game of calendarGames(games)) {
-    lines.push(...calendarEventLines(favorite, sport, game, createdAt));
+  for (const { favorite, games } of teams) {
+    const sport = leagueInfoFor(favorite.league).sport;
+    for (const game of calendarGames(games)) {
+      lines.push(...calendarEventLines(favorite, sport, game, createdAt));
+    }
   }
   lines.push("END:VCALENDAR");
   return lines.map(foldCalendarLine).join("\r\n") + "\r\n";
@@ -89,11 +98,11 @@ function foldCalendarLine(line) {
 }
 
 // Hands the calendar file to the browser as a download, e.g. bulls-games.ics.
-function downloadCalendar(favorite, calendarText) {
+function downloadCalendar(fileName, calendarText) {
   const file = new Blob([calendarText], { type: "text/calendar;charset=utf-8" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(file);
-  link.download = `${favorite.key}-games.ics`;
+  link.download = fileName;
   document.body.appendChild(link);
   link.click();
   link.remove();

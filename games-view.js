@@ -55,20 +55,32 @@ function gamesPageHtml() {
     ${body}`;
 }
 
-// With one team selected, offer its upcoming games as a calendar file.
-function calendarHtml() {
-  const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
-  const gamesState = favorite && loadState("games", favorite.key);
-  if (!gamesState || gamesState.status !== "loaded") return "";
+// The teams (and their games) a calendar download covers: the selected team,
+// or every team with upcoming games when All teams is selected. Empty while
+// any of those teams' games are still loading.
+function calendarTeams() {
+  const states = selectedFavorites().map((favorite) => ({ favorite, ...loadState("games", favorite.key) }));
+  if (states.some((teamState) => teamState.status !== "loaded")) return [];
+  return states
+    .map(({ favorite, value }) => ({ favorite, games: value }))
+    .filter(({ games }) => calendarGames(games).length > 0);
+}
 
-  const count = calendarGames(gamesState.value).length;
+// Offers the upcoming games as a calendar file: one team's, or all teams'.
+function calendarHtml() {
+  const teams = calendarTeams();
+  const count = teams.reduce((total, { games }) => total + calendarGames(games).length, 0);
   if (count === 0) return "";
+
+  const isAllTeams = state.selectedTeam === "all";
+  const label = isAllTeams ? "Add all games to calendar" : `Add ${teams[0].favorite.label} games to calendar`;
+  const fromTeams = isAllTeams ? ` from ${teams.length} ${teams.length === 1 ? "team" : "teams"}` : "";
   return `
     <div class="calendar">
-      <button class="pill-button" data-action="download-calendar">Add ${favorite.label} games to calendar</button>
+      <button class="pill-button" data-action="download-calendar">${label}</button>
       <span class="calendar-note">${
         state.calendarMessage ||
-        `${count} upcoming ${count === 1 ? "game" : "games"}, each with a reminder 1 hour before`
+        `${count} upcoming ${count === 1 ? "game" : "games"}${fromTeams}, each with a reminder 1 hour before`
       }</span>
     </div>`;
 }

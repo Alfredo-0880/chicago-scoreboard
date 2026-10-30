@@ -217,11 +217,15 @@ const ACTIONS = {
     state.selectedTeam = button.dataset.team;
   },
   "download-calendar": () => {
-    const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
-    const games = loadState("games", favorite.key).value;
-    downloadCalendar(favorite, buildCalendar(favorite, games, new Date()));
-    const count = calendarGames(games).length;
-    state.calendarMessage = `Downloaded ${favorite.key}-games.ics with ${count} games. Open it to add them to your calendar.`;
+    const teams = calendarTeams();
+    const isAllTeams = state.selectedTeam === "all";
+    const fileName = isAllTeams ? "chicago-games.ics" : `${teams[0].favorite.key}-games.ics`;
+    const calendarText = isAllTeams
+      ? buildMultiTeamCalendar("Chicago games", teams, new Date())
+      : buildCalendar(teams[0].favorite, teams[0].games, new Date());
+    downloadCalendar(fileName, calendarText);
+    const count = teams.reduce((total, { games }) => total + calendarGames(games).length, 0);
+    state.calendarMessage = `Downloaded ${fileName} with ${count} games. Open it to add them to your calendar.`;
   },
   page: (button) => {
     state.page = button.dataset.page;
