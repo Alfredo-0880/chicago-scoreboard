@@ -957,6 +957,75 @@ button {
   border-top: 1px solid var(--line);
 }
 
+.stats-toggle {
+  margin-top: 12px;
+}
+
+.stats-toggle button {
+  flex: 1;
+  padding: 8px 6px;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.stats-season-heading {
+  margin-top: 12px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Past seasons: wide tables scroll sideways in their box, not the page */
+.stats-table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 6px 10px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.stats-table th {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: var(--paper);
+}
+
+/* The season column stays in place while the stats scroll past it */
+.stats-table td:first-child,
+.stats-table th:first-child {
+  position: sticky;
+  left: 0;
+  text-align: left;
+  font-weight: 700;
+  background: var(--card);
+  box-shadow: 1px 0 0 var(--line);
+}
+
+.stats-table th:first-child {
+  background: var(--paper);
+}
+
+.stats-table .stats-team {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.stats-table tbody tr + tr td {
+  border-top: 1px solid var(--line);
+}
+
 .stats-message,
 .stats-games {
   margin-top: 10px;

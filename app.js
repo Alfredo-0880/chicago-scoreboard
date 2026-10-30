@@ -18,6 +18,7 @@ const state = {
   rosters: {}, // loaded per team, the first time its roster (or Stats) is opened
   careerStats: {}, // each player's career stats, keyed "bears-4431611", loaded when tapped
   statsPlayer: null, // the player open on the Stats tab (a careerStats key), or null
+  statsView: "season", // "season" | "past" | "career", kept when opening another player
   news: {}, // each team's stories and videos, loaded the first time its News or Highlights is opened
   history: {}, // past seasons, keyed "bears-2005", loaded when picked
   historySeason: null, // season picked on Team history (null: most recent)
@@ -296,6 +297,9 @@ const ACTIONS = {
   "player-stats": (button) => {
     // Tapping the open player again closes their stats.
     state.statsPlayer = state.statsPlayer === button.dataset.player ? null : button.dataset.player;
+  },
+  "stats-view": (button) => {
+    state.statsView = button.dataset.view;
   },
   "standings-view": (button) => {
     state.standingsView = button.dataset.view;
