@@ -1,10 +1,10 @@
 // The page's state, data loading, team cards, and tabs. Each tab's content is
 // drawn by its own file: games-view.js, standings-view.js, playoffs-view.js,
 // rosters-view.js, news-view.js, highlights-view.js, history-view.js,
-// injuries-view.js.
+// championships-view.js, injuries-view.js.
 
 const state = {
-  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "injuries"
+  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "injuries"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   selectedLeague: "NFL",
@@ -32,6 +32,7 @@ const PAGES = [
   { key: "news", label: "News" },
   { key: "highlights", label: "Highlights" },
   { key: "history", label: "Team history" },
+  { key: "championships", label: "Championships" },
   { key: "injuries", label: "Injuries" },
 ];
 
@@ -136,6 +137,7 @@ function render() {
   else if (state.page === "news") page.innerHTML = newsPageHtml();
   else if (state.page === "highlights") page.innerHTML = highlightsPageHtml();
   else if (state.page === "history") page.innerHTML = historyPageHtml();
+  else if (state.page === "championships") page.innerHTML = championshipsPageHtml();
   else page.innerHTML = injuriesPageHtml();
 }
 

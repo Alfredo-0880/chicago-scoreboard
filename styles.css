@@ -1033,6 +1033,84 @@ button {
   color: var(--ink-soft);
 }
 
+/* Championships */
+
+.trophy-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.trophy-card {
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--team-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.trophy-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trophy-team {
+  margin: 0;
+  font-family: "Oswald", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.trophy-count {
+  margin-left: auto;
+  font-family: "Archivo Black", sans-serif;
+  font-size: 1.3rem;
+}
+
+.trophy-title {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.trophy-years {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.trophy-years li {
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--paper-dim);
+  font-size: 0.85rem;
+}
+
+.trophy-year {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.trophy-note {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+}
+
+.trophy-none {
+  margin: 10px 0 0;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
 /* Highlights */
 
 .video-thumb {
