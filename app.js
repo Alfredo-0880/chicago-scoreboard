@@ -1,9 +1,9 @@
 // The page's state, data loading, team cards, and tabs. Each tab's content is
 // drawn by its own file: games-view.js, standings-view.js, playoffs-view.js,
-// rosters-view.js, news-view.js, injuries-view.js.
+// rosters-view.js, news-view.js, highlights-view.js, injuries-view.js.
 
 const state = {
-  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "injuries"
+  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "injuries"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   selectedLeague: "NFL",
@@ -14,7 +14,7 @@ const state = {
   injuries: {},
   playoffs: {}, // loaded per league, the first time its Playoff picture is opened
   rosters: {}, // loaded per team, the first time its roster is opened
-  news: {}, // loaded per team, the first time its news is opened
+  news: {}, // each team's stories and videos, loaded the first time its News or Highlights is opened
   lastUpdated: null,
   refreshing: false,
   calendarMessage: null, // confirmation shown after downloading a calendar
@@ -27,6 +27,7 @@ const PAGES = [
   { key: "playoffs", label: "Playoff picture" },
   { key: "rosters", label: "Rosters" },
   { key: "news", label: "News" },
+  { key: "highlights", label: "Highlights" },
   { key: "injuries", label: "Injuries" },
 ];
 
@@ -58,11 +59,11 @@ function loadRosterIfNeeded() {
   }
 }
 
-// News loads for the teams on screen, the first time each is shown.
+// News and highlights load for the teams on screen, the first time each is shown.
 function loadNewsIfNeeded() {
-  if (state.page !== "news") return;
+  if (state.page !== "news" && state.page !== "highlights") return;
   for (const favorite of selectedFavorites()) {
-    if (!state.news[favorite.key]) load("news", favorite.key, () => fetchTeamNews(favorite));
+    if (!state.news[favorite.key]) load("news", favorite.key, () => fetchTeamArticles(favorite));
   }
 }
 
@@ -120,6 +121,7 @@ function render() {
   else if (state.page === "playoffs") page.innerHTML = playoffsPageHtml();
   else if (state.page === "rosters") page.innerHTML = rostersPageHtml();
   else if (state.page === "news") page.innerHTML = newsPageHtml();
+  else if (state.page === "highlights") page.innerHTML = highlightsPageHtml();
   else page.innerHTML = injuriesPageHtml();
 }
 

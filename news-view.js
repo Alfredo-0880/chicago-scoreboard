@@ -3,7 +3,7 @@
 
 function newsPageHtml() {
   const states = selectedFavorites().map((favorite) => ({ favorite, ...loadState("news", favorite.key) }));
-  const stories = mergeNews(states.filter((teamState) => teamState.status === "loaded").map((teamState) => teamState.value));
+  const stories = mergeNews(states.filter((teamState) => teamState.status === "loaded").map((teamState) => teamNews(teamState.value)));
   const stillLoading = states.some((teamState) => teamState.status === "loading");
   const failed = states.filter((teamState) => teamState.status === "error");
 

@@ -1,6 +1,7 @@
-// Recent news from ESPN for each Chicago team. ESPN tags league-wide stories
-// (power rankings, award races) with every team, so a story counts only if
-// its headline or summary names the team.
+// Recent news and highlight videos from ESPN for each Chicago team. ESPN
+// tags league-wide stories (power rankings, award races) with every team, so
+// an item counts only if its headline or summary names the team. One
+// download per team feeds both the News and Highlights tabs.
 
 const NEWS_PER_TEAM = 10;
 
@@ -11,22 +12,38 @@ const NEWS_NAMES = {
   stars: ["Chicago Stars", "Stars FC"],
 };
 
-async function fetchTeamNews(favorite) {
+// Every recent item about the team, stories and videos, newest first.
+async function fetchTeamArticles(favorite) {
   const leagueInfo = leagueInfoFor(favorite.league);
   const url = `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/news?team=${favorite.scheduleTeamId}&limit=50`;
-  return parseTeamNews(favorite, await fetchJson(url));
+  return parseTeamArticles(favorite, await fetchJson(url));
 }
 
-// The team's newest stories: [{ headline, summary, published, link, image, teamKey }].
-function parseTeamNews(favorite, espnData) {
+// [{ headline, summary, published, link, image, isVideo, teamKey }], newest first.
+function parseTeamArticles(favorite, espnData) {
   const names = NEWS_NAMES[favorite.key] || [favorite.label];
   const mentionsTeam = new RegExp(`\\b(${names.join("|")})\\b`);
   return (espnData.articles || [])
     .filter((article) => mentionsTeam.test(`${article.headline || ""} ${article.description || ""}`))
     .map((article) => parseArticle(favorite, article))
     .filter(Boolean)
-    .sort(newestFirst)
-    .slice(0, NEWS_PER_TEAM);
+    .sort(newestFirst);
+}
+
+// The News tab: the team's newest 10 items.
+function parseTeamNews(favorite, espnData) {
+  return teamNews(parseTeamArticles(favorite, espnData));
+}
+
+function teamNews(articles) {
+  return articles.slice(0, NEWS_PER_TEAM);
+}
+
+// The Highlights tab: the team's newest 10 game highlight videos. ESPN calls
+// videos "Media"; game highlights are titled "...Game Highlights", which
+// leaves out analysis and feature clips.
+function teamHighlights(articles) {
+  return articles.filter((article) => article.isVideo && /\bhighlights\b/i.test(article.headline)).slice(0, NEWS_PER_TEAM);
 }
 
 function parseArticle(favorite, article) {
@@ -39,6 +56,7 @@ function parseArticle(favorite, article) {
     published: new Date(article.published),
     link,
     image,
+    isVideo: article.type === "Media",
     teamKey: favorite.key,
   };
 }
