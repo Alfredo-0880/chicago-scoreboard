@@ -833,6 +833,69 @@ button {
   opacity: 0.75;
 }
 
+/* News */
+
+.news-list {
+  margin-top: 14px;
+}
+
+.story {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  padding: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--team-color);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  color: inherit;
+  text-decoration: none;
+}
+
+.story:hover .story-headline {
+  text-decoration: underline;
+}
+
+.story-image {
+  flex: none;
+  width: 96px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: var(--paper-dim);
+}
+
+.story-text {
+  min-width: 0;
+}
+
+.story-headline {
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.story-summary {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.story-meta {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
 /* Wild card line */
 
 .standings-table tr.cutoff td {

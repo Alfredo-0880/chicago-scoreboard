@@ -1,9 +1,9 @@
 // The page's state, data loading, team cards, and tabs. Each tab's content is
 // drawn by its own file: games-view.js, standings-view.js, playoffs-view.js,
-// rosters-view.js, injuries-view.js.
+// rosters-view.js, news-view.js, injuries-view.js.
 
 const state = {
-  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "injuries"
+  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "injuries"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   selectedLeague: "NFL",
@@ -14,6 +14,7 @@ const state = {
   injuries: {},
   playoffs: {}, // loaded per league, the first time its Playoff picture is opened
   rosters: {}, // loaded per team, the first time its roster is opened
+  news: {}, // loaded per team, the first time its news is opened
   lastUpdated: null,
   refreshing: false,
   calendarMessage: null, // confirmation shown after downloading a calendar
@@ -25,6 +26,7 @@ const PAGES = [
   { key: "standings", label: "League standings" },
   { key: "playoffs", label: "Playoff picture" },
   { key: "rosters", label: "Rosters" },
+  { key: "news", label: "News" },
   { key: "injuries", label: "Injuries" },
 ];
 
@@ -56,13 +58,23 @@ function loadRosterIfNeeded() {
   }
 }
 
+// News loads for the teams on screen, the first time each is shown.
+function loadNewsIfNeeded() {
+  if (state.page !== "news") return;
+  for (const favorite of selectedFavorites()) {
+    if (!state.news[favorite.key]) load("news", favorite.key, () => fetchTeamNews(favorite));
+  }
+}
+
 async function loadEverything() {
   state.refreshing = true;
   state.playoffs = {};
   state.rosters = {};
+  state.news = {};
   render();
   loadPlayoffsIfNeeded();
   loadRosterIfNeeded();
+  loadNewsIfNeeded();
   await Promise.all([
     ...LEAGUES.map((leagueInfo) => load("standings", leagueInfo.key, () => fetchLeagueStandings(leagueInfo))),
     ...FAVORITE_TEAMS.map((favorite) => load("games", favorite.key, () => fetchTeamGames(favorite))),
@@ -107,6 +119,7 @@ function render() {
   else if (state.page === "standings") page.innerHTML = standingsPageHtml();
   else if (state.page === "playoffs") page.innerHTML = playoffsPageHtml();
   else if (state.page === "rosters") page.innerHTML = rostersPageHtml();
+  else if (state.page === "news") page.innerHTML = newsPageHtml();
   else page.innerHTML = injuriesPageHtml();
 }
 
@@ -239,6 +252,7 @@ document.addEventListener("click", (event) => {
   ACTIONS[button.dataset.action](button);
   loadPlayoffsIfNeeded();
   loadRosterIfNeeded();
+  loadNewsIfNeeded();
   render();
 });
 
