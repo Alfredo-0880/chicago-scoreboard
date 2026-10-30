@@ -25,6 +25,7 @@ function newsPageHtml() {
 
   return `
     ${teamFilterHtml()}
+    ${reportersHtml()}
     <div class="season-note">The latest stories that name the team, from ESPN. Tap a story to read it on ESPN.</div>
     ${failedNote}
     <div class="news-list">${body}</div>`;
@@ -42,4 +43,32 @@ function storyHtml(story) {
         <div class="story-meta">${favorite.label} · ${date}</div>
       </div>
     </a>`;
+}
+
+// "Who covers the Bears": shown when one team is selected and its news has loaded.
+function reportersHtml() {
+  const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
+  const newsState = favorite && loadState("news", favorite.key);
+  if (!newsState || newsState.status !== "loaded") return "";
+
+  const reporters = teamReporters(newsState.value, loadState("injuries", favorite.key).value);
+  const list = reporters.length
+    ? `<ul class="reporter-list">${reporters
+        .map(
+          (reporter) => `
+        <li>
+          <span class="reporter-name">${escapeHtml(reporter.name)}</span>
+          <span class="reporter-outlet">${escapeHtml(reporter.outlet)}</span>
+          <span class="reporter-count">${reporter.mentions} recent ${reporter.mentions === 1 ? "mention" : "mentions"}</span>
+        </li>`
+        )
+        .join("")}</ul>`
+    : `<p class="reporter-empty">ESPN's recent stories don't name any reporters for the ${favorite.label}.</p>`;
+
+  return `
+    <section class="reporters" style="--team-color:${favorite.color}">
+      <h2 class="reporters-title">Who covers the ${favorite.label}</h2>
+      ${list}
+      <p class="reporter-note">Reporters named in recent ESPN bylines and injury reports.</p>
+    </section>`;
 }

@@ -896,6 +896,61 @@ button {
   color: var(--ink-soft);
 }
 
+/* Who covers the team */
+
+.reporters {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--team-color);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.reporters-title {
+  margin: 0 0 8px;
+  font-family: "Oswald", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.reporter-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reporter-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+
+.reporter-name {
+  font-weight: 700;
+}
+
+.reporter-outlet,
+.reporter-count,
+.reporter-note,
+.reporter-empty {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.reporter-count {
+  margin-left: auto;
+}
+
+.reporter-note,
+.reporter-empty {
+  margin: 8px 0 0;
+}
+
 /* Highlights */
 
 .video-thumb {

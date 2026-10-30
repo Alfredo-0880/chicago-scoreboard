@@ -19,7 +19,7 @@ async function fetchTeamArticles(favorite) {
   return parseTeamArticles(favorite, await fetchJson(url));
 }
 
-// [{ headline, summary, published, link, image, isVideo, teamKey }], newest first.
+// [{ headline, summary, published, link, image, isVideo, byline, teamKey }], newest first.
 function parseTeamArticles(favorite, espnData) {
   const names = NEWS_NAMES[favorite.key] || [favorite.label];
   const mentionsTeam = new RegExp(`\\b(${names.join("|")})\\b`);
@@ -57,6 +57,7 @@ function parseArticle(favorite, article) {
     link,
     image,
     isVideo: article.type === "Media",
+    byline: article.byline || "",
     teamKey: favorite.key,
   };
 }
@@ -82,4 +83,51 @@ function mergeNews(storiesByTeam) {
     if (!byLink.has(story.link)) byLink.set(story.link, story);
   }
   return [...byLink.values()].sort(newestFirst);
+}
+
+// Who covers a team: reporters named in the team's recent ESPN bylines and
+// credited in its injury notes ("..., Brad Biggs of the Chicago Tribune
+// reports"), most often named first. Returns [{ name, outlet, mentions }].
+const MAX_REPORTERS = 6;
+const NOT_A_REPORTER = /\b(staff|news services|associated press|field level media)\b/i;
+const REPORTER_CREDIT = /\b([A-Z][\w.'-]+(?: [A-Z][\w.'-]+){1,2}) of (?:the )?([A-Z][\w.&'-]*(?: [A-Z][\w.&'-]*){0,4})/g;
+
+function teamReporters(articles, injuries) {
+  const reporters = new Map();
+  const count = (name, outlet) => {
+    const reporter = reporters.get(name) || { name, mentions: 0, outlets: new Map() };
+    reporter.mentions += 1;
+    reporter.outlets.set(outlet, (reporter.outlets.get(outlet) || 0) + 1);
+    reporters.set(name, reporter);
+  };
+
+  for (const article of articles) {
+    for (const name of bylineNames(article.byline)) count(name, "ESPN");
+  }
+  for (const injury of injuries || []) {
+    for (const credit of (injury.comment || "").matchAll(REPORTER_CREDIT)) {
+      count(credit[1], cleanOutlet(credit[2]));
+    }
+  }
+
+  return [...reporters.values()]
+    .map(({ name, mentions, outlets }) => ({ name, mentions, outlet: [...outlets].sort((a, b) => b[1] - a[1])[0][0] }))
+    .sort((a, b) => b.mentions - a.mentions || a.name.localeCompare(b.name))
+    .slice(0, MAX_REPORTERS);
+}
+
+// "Mike Reiss and Courtney Cronin" -> ["Mike Reiss", "Courtney Cronin"],
+// leaving out wire credits like "Associated Press" and "ESPN staff", and
+// one-word bylines like "ESPN" (a reporter has a first and last name).
+function bylineNames(byline) {
+  return (byline || "")
+    .split(/,\s*|\s+and\s+/)
+    .map((name) => name.trim())
+    .filter((name) => name.includes(" ") && !NOT_A_REPORTER.test(name));
+}
+
+// "ESPN.com" -> "ESPN"; drops a trailing period.
+function cleanOutlet(outlet) {
+  const trimmed = outlet.trim().replace(/\.$/, "");
+  return /^ESPN(\.com)?$/i.test(trimmed) ? "ESPN" : trimmed;
 }
