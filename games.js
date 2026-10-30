@@ -19,7 +19,11 @@ async function fetchTeamGames(favorite) {
 function parseGame(favorite, event) {
   const competition = event.competitions && event.competitions[0];
   if (!competition) return null;
-  const ours = competition.competitors.find((c) => c.team.abbreviation === favorite.abbreviation);
+  // Match by full name too: ESPN's abbreviations change over the years
+  // (the White Sox were "CWS" in older seasons, "CHW" now).
+  const ours = competition.competitors.find(
+    (c) => c.team.abbreviation === favorite.abbreviation || c.team.displayName === favorite.fullName
+  );
   const theirs = competition.competitors.find((c) => c !== ours);
   if (!ours || !theirs) return null;
 

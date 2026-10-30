@@ -1,9 +1,10 @@
 // The page's state, data loading, team cards, and tabs. Each tab's content is
 // drawn by its own file: games-view.js, standings-view.js, playoffs-view.js,
-// rosters-view.js, news-view.js, highlights-view.js, injuries-view.js.
+// rosters-view.js, news-view.js, highlights-view.js, history-view.js,
+// injuries-view.js.
 
 const state = {
-  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "injuries"
+  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "injuries"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   selectedLeague: "NFL",
@@ -15,6 +16,8 @@ const state = {
   playoffs: {}, // loaded per league, the first time its Playoff picture is opened
   rosters: {}, // loaded per team, the first time its roster is opened
   news: {}, // each team's stories and videos, loaded the first time its News or Highlights is opened
+  history: {}, // past seasons, keyed "bears-2005", loaded when picked
+  historySeason: null, // season picked on Team history (null: most recent)
   lastUpdated: null,
   refreshing: false,
   calendarMessage: null, // confirmation shown after downloading a calendar
@@ -28,6 +31,7 @@ const PAGES = [
   { key: "rosters", label: "Rosters" },
   { key: "news", label: "News" },
   { key: "highlights", label: "Highlights" },
+  { key: "history", label: "Team history" },
   { key: "injuries", label: "Injuries" },
 ];
 
@@ -65,6 +69,15 @@ function loadNewsIfNeeded() {
   for (const favorite of selectedFavorites()) {
     if (!state.news[favorite.key]) load("news", favorite.key, () => fetchTeamArticles(favorite));
   }
+}
+
+// A past season loads the first time it's shown.
+function loadHistoryIfNeeded() {
+  const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
+  if (state.page !== "history" || !favorite) return;
+  const season = historySeasonFor(favorite);
+  const key = historyKey(favorite, season);
+  if (!state.history[key]) load("history", key, () => fetchSeasonHistory(favorite, season));
 }
 
 async function loadEverything() {
@@ -122,6 +135,7 @@ function render() {
   else if (state.page === "rosters") page.innerHTML = rostersPageHtml();
   else if (state.page === "news") page.innerHTML = newsPageHtml();
   else if (state.page === "highlights") page.innerHTML = highlightsPageHtml();
+  else if (state.page === "history") page.innerHTML = historyPageHtml();
   else page.innerHTML = injuriesPageHtml();
 }
 
@@ -213,10 +227,12 @@ const ACTIONS = {
     const favorite = FAVORITE_TEAMS.find((team) => team.key === button.dataset.team);
     // Tapping the selected card again goes back to all teams.
     state.selectedTeam = state.selectedTeam === favorite.key ? "all" : favorite.key;
+    state.historySeason = null;
     state.selectedLeague = favorite.league;
   },
   "filter-team": (button) => {
     state.selectedTeam = button.dataset.team;
+    state.historySeason = null;
   },
   "download-calendar": () => {
     const teams = calendarTeams();
@@ -259,6 +275,15 @@ document.addEventListener("click", (event) => {
   loadPlayoffsIfNeeded();
   loadRosterIfNeeded();
   loadNewsIfNeeded();
+  loadHistoryIfNeeded();
+  render();
+});
+
+// The Team history season picker.
+document.addEventListener("change", (event) => {
+  if (event.target.dataset.action !== "history-season") return;
+  state.historySeason = Number(event.target.value);
+  loadHistoryIfNeeded();
   render();
 });
 

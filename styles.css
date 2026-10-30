@@ -978,6 +978,61 @@ button {
   margin: 8px 0 0;
 }
 
+/* Team history */
+
+.season-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.season-picker select {
+  min-height: 38px;
+  padding: 6px 10px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.history-summary {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--team-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.history-season {
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+}
+
+.history-record {
+  font-family: "Archivo Black", sans-serif;
+  font-size: 2rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-heading {
+  margin: 24px 0 0;
+  font-family: "Oswald", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.history-detail {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
 /* Highlights */
 
 .video-thumb {
