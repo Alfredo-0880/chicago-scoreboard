@@ -9,7 +9,7 @@ const state = {
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   selectedLeague: "NFL",
-  standingsView: "divisions", // "divisions" | "wildcard"
+  playoffsView: "picture", // Playoff Picture: "picture" (seeds or bracket) | "race" (wild card)
   // Each entry: { status: "loading" | "loaded" | "error", value }
   standings: {},
   games: {},
@@ -301,8 +301,8 @@ const ACTIONS = {
   "stats-view": (button) => {
     state.statsView = button.dataset.view;
   },
-  "standings-view": (button) => {
-    state.standingsView = button.dataset.view;
+  "playoffs-view": (button) => {
+    state.playoffsView = button.dataset.view;
   },
   refresh: () => {
     loadEverything();

@@ -1,5 +1,6 @@
-// Draws the League Standings tab: division tables or the wild card race for
-// the selected league, with the Chicago teams highlighted.
+// Draws the League Standings tab: the selected league's division tables,
+// with the Chicago teams highlighted. The wild card race is on the Playoff
+// Picture tab (playoffs-view.js).
 
 // One button per league; shared with the Playoff Picture tab.
 function leagueTabsHtml() {
@@ -12,39 +13,23 @@ function leagueTabsHtml() {
 }
 
 function standingsPageHtml() {
-  const loaded = loadState("standings", state.selectedLeague).value;
-  let groupLabel = "Divisions";
-  if (loaded && loaded.divisions.length === 1) groupLabel = "Table";
-  else if (loaded && loaded.divisions[0].isConference) groupLabel = "Conferences";
-  const raceLabel = { NBA: "Play-in", MLS: "Playoff race", WNBA: "Playoff race", NWSL: "Playoff race" }[state.selectedLeague] || "Wild card";
-
   return `
     <div class="controls">
       <div class="league-tabs" role="tablist" aria-label="League">${leagueTabsHtml()}</div>
-      <div class="toggle" role="group" aria-label="Standings view">
-        ${toggleButtonHtml("standings-view", "view", "divisions", groupLabel, state.standingsView)}
-        ${toggleButtonHtml("standings-view", "view", "wildcard", raceLabel, state.standingsView)}
-      </div>
     </div>
-    ${standingsBodyHtml()}`;
+    ${standingsBodyHtml(state.selectedLeague, loadState("standings", state.selectedLeague))}`;
 }
 
-function standingsBodyHtml() {
-  const leagueState = loadState("standings", state.selectedLeague);
+function standingsBodyHtml(leagueKey, leagueState) {
   if (leagueState.status === "loading") {
-    return `<div class="message">Loading ${state.selectedLeague} standings…</div>`;
+    return `<div class="message">Loading ${leagueKey} standings…</div>`;
   }
   if (leagueState.status === "error") {
-    return errorMessageHtml(`Couldn't load ${state.selectedLeague} standings`);
+    return errorMessageHtml(`Couldn't load ${leagueKey} standings`);
   }
 
   const standings = leagueState.value;
   const note = `<div class="season-note">${escapeHtml(standings.season.name)} ${escapeHtml(standings.season.type)} standings, live from ESPN</div>`;
-
-  if (state.standingsView === "wildcard") {
-    const races = wildCardRaces(standings).map((race) => standingsTableHtml(race.title, race.teams, standings.league, race));
-    return note + races.join("");
-  }
   return note + standings.divisions.map((division) => standingsTableHtml(division.title, division.teams, standings.league)).join("");
 }
 

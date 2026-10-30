@@ -1,13 +1,44 @@
-// Draws the Playoff Picture tab: a round-by-round bracket during a league's
-// postseason, or "if the season ended today" seeds during its season.
+// Draws the Playoff Picture tab. Two buttons pick the view:
+// - "If It Ended Today" seeds during a league's season, or a round-by-round
+//   Bracket during its postseason.
+// - The wild card race (called Play-In in the NBA, Playoff Race in leagues
+//   without wild cards): who's in, who's chasing, and the cutoff line.
+
+// What each league calls the race for the last playoff spots.
+const RACE_BUTTON_LABELS = { NBA: "Play-In", WNBA: "Playoff Race", MLS: "Playoff Race", NWSL: "Playoff Race" };
+
+function raceLabel(leagueKey) {
+  return RACE_BUTTON_LABELS[leagueKey] || "Wild Card";
+}
 
 function playoffsPageHtml() {
   const leagueKey = state.selectedLeague;
+  const playoffState = loadState("playoffs", leagueKey);
+  const inPostseason = playoffState.status === "loaded" && playoffState.value.inPostseason;
+  const standingsState = loadState("standings", leagueKey);
   return `
     <div class="controls">
       <div class="league-tabs" role="tablist" aria-label="League">${leagueTabsHtml()}</div>
+      <div class="toggle" role="group" aria-label="Playoff view">
+        ${toggleButtonHtml("playoffs-view", "view", "picture", inPostseason ? "Bracket" : "If It Ended Today", state.playoffsView)}
+        ${toggleButtonHtml("playoffs-view", "view", "race", raceLabel(leagueKey), state.playoffsView)}
+      </div>
     </div>
-    ${playoffsBodyHtml(leagueKey)}`;
+    ${state.playoffsView === "race" ? wildCardHtml(leagueKey, standingsState) : playoffsBodyHtml(leagueKey)}`;
+}
+
+// The race for the last playoff spots, from the league's standings, with a
+// dashed line under the last team that gets in.
+function wildCardHtml(leagueKey, standingsState) {
+  if (standingsState.status === "loading") {
+    return `<div class="message">Loading ${leagueKey} standings…</div>`;
+  }
+  if (standingsState.status === "error") {
+    return errorMessageHtml(`Couldn't load ${leagueKey} standings`);
+  }
+  const standings = standingsState.value;
+  const races = wildCardRaces(standings).map((race) => standingsTableHtml(race.title, race.teams, standings.league, race));
+  return `<div class="season-note">${escapeHtml(standings.season.name)} ${escapeHtml(standings.season.type)} standings, live from ESPN</div>${races.join("")}`;
 }
 
 function playoffsBodyHtml(leagueKey) {
