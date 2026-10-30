@@ -1,4 +1,4 @@
-// Draws the Playoff picture tab: a round-by-round bracket during a league's
+// Draws the Playoff Picture tab: a round-by-round bracket during a league's
 // postseason, or "if the season ended today" seeds during its season.
 
 function playoffsPageHtml() {

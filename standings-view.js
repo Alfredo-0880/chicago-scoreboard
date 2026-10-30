@@ -1,7 +1,7 @@
-// Draws the League standings tab: division tables or the wild card race for
+// Draws the League Standings tab: division tables or the wild card race for
 // the selected league, with the Chicago teams highlighted.
 
-// One button per league; shared with the Playoff picture tab.
+// One button per league; shared with the Playoff Picture tab.
 function leagueTabsHtml() {
   return LEAGUES.map(
     (leagueInfo) => `

@@ -1,4 +1,4 @@
-// Draws the Team history tab: pick a team and a past season to see its
+// Draws the Team History tab: pick a team and a past season to see its
 // record and every game result.
 
 function historyPageHtml() {

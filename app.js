@@ -14,14 +14,14 @@ const state = {
   standings: {},
   games: {},
   injuries: {},
-  playoffs: {}, // loaded per league, the first time its Playoff picture is opened
+  playoffs: {}, // loaded per league, the first time its Playoff Picture is opened
   rosters: {}, // loaded per team, the first time its roster (or Stats) is opened
   careerStats: {}, // each player's career stats, keyed "bears-4431611", loaded when tapped
   statsPlayer: null, // the player open on the Stats tab (a careerStats key), or null
   statsView: "season", // "season" | "past" | "career", kept when opening another player
   news: {}, // each team's stories and videos, loaded the first time its News or Highlights is opened
   history: {}, // past seasons, keyed "bears-2005", loaded when picked
-  historySeason: null, // season picked on Team history (null: most recent)
+  historySeason: null, // season picked on Team History (null: most recent)
   lastUpdated: null,
   refreshing: false,
   calendarMessage: null, // confirmation shown after downloading a calendar
@@ -30,17 +30,17 @@ const state = {
 
 const PAGES = [
   { key: "games", label: "Games" },
-  { key: "standings", label: "League standings" },
-  { key: "playoffs", label: "Playoff picture" },
+  { key: "standings", label: "League Standings" },
+  { key: "playoffs", label: "Playoff Picture" },
   { key: "rosters", label: "Rosters" },
-  { key: "news", label: "News" },
-  { key: "highlights", label: "Highlights" },
-  { key: "history", label: "Team history" },
-  { key: "championships", label: "Championships" },
-  { key: "funfacts", label: "Fun facts" },
-  { key: "social", label: "Social" },
   { key: "stats", label: "Stats" },
   { key: "injuries", label: "Injuries" },
+  { key: "news", label: "News" },
+  { key: "highlights", label: "Highlights" },
+  { key: "social", label: "Social" },
+  { key: "history", label: "Team History" },
+  { key: "championships", label: "Championships" },
+  { key: "funfacts", label: "Fun Facts" },
 ];
 
 // Load one piece of data into state[bucket][key], redrawing as it arrives.
@@ -55,7 +55,7 @@ async function load(bucket, key, fetchValue) {
   render();
 }
 
-// The Playoff picture loads only for leagues someone actually looks at.
+// The Playoff Picture loads only for leagues someone actually looks at.
 function loadPlayoffsIfNeeded() {
   if (state.page === "playoffs" && !state.playoffs[state.selectedLeague]) {
     const leagueInfo = leagueInfoFor(state.selectedLeague);
@@ -322,7 +322,7 @@ document.addEventListener("click", (event) => {
   render();
 });
 
-// The Team history season picker.
+// The Team History season picker.
 document.addEventListener("change", (event) => {
   if (event.target.dataset.action !== "history-season") return;
   state.historySeason = Number(event.target.value);

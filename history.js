@@ -1,4 +1,4 @@
-// Team history: a past season's record and game results, from ESPN's
+// Team History: a past season's record and game results, from ESPN's
 // schedules. (ESPN doesn't keep past rosters or coaches; for those it
 // returns today's, so they aren't shown.)
 

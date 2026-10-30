@@ -1,4 +1,4 @@
-// Fun facts about each Chicago team and its people. ESPN's data has none,
+// Fun Facts about each Chicago team and its people. ESPN's data has none,
 // so these are written by hand from well-documented history and were
 // reviewed by Alfredo. Add, fix, or remove facts here.
 

@@ -1,4 +1,4 @@
-// Draws the Fun facts tab: a card of facts for each selected team.
+// Draws the Fun Facts tab: a card of facts for each selected team.
 
 function funFactsPageHtml() {
   const cards = selectedFavorites()
