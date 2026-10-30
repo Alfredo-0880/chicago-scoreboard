@@ -126,7 +126,19 @@ function selectedFavorites() {
     : FAVORITE_TEAMS.filter((favorite) => favorite.key === state.selectedTeam);
 }
 
+// Redraws the header's logo ticker only when its logos change, so the
+// sliding animation isn't restarted by every redraw of the page.
+let shownTickerHtml = null;
+
+function renderLogoTicker() {
+  const html = logoTickerHtml(FAVORITE_TEAMS.map((favorite) => ({ label: favorite.label, logos: chicagoTeamLogos(favorite) })));
+  if (html === shownTickerHtml) return;
+  document.getElementById("logoTrack").innerHTML = html;
+  shownTickerHtml = html;
+}
+
 function render() {
+  renderLogoTicker();
   renderTeamCards();
   renderPageTabs();
   renderThemeToggle();

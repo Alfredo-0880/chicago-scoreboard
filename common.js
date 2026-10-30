@@ -111,3 +111,16 @@ function ordinal(n) {
 function chicagoDate(date, options) {
   return date.toLocaleString("en-US", { timeZone: "America/Chicago", ...options });
 }
+
+// The header's row of team logos, repeated so it can slide in a seamless
+// loop (styles.css moves the strip by exactly one set). The header is
+// always dark, so each team's dark-background logo is used.
+// entries: [{ label, logos }], where logos may be null (shows letters).
+const LOGO_TICKER_COPIES = 4;
+
+function logoTickerHtml(entries) {
+  const oneSet = entries
+    .map(({ label, logos }) => logoHtml(logos ? { light: logos.dark, dark: logos.dark } : null, initials(label), "logo-ticker-item"))
+    .join("");
+  return oneSet.repeat(LOGO_TICKER_COPIES);
+}
