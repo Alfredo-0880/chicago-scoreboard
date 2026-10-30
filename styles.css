@@ -1121,6 +1121,40 @@ button {
   margin-top: 6px;
 }
 
+.team-website {
+  margin: 10px 0 0;
+}
+
+.website-link {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--paper-dim);
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.social-link:hover {
+  border-color: var(--team-color);
+}
+
 .trophy-none {
   margin: 10px 0 0;
   font-size: 0.88rem;

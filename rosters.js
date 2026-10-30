@@ -2,11 +2,28 @@
 // offense, defense...; baseball: pitchers, catchers...), others as one list,
 // which is grouped here by position.
 
+// Players who have left a team but that ESPN still lists, by team. Remove
+// a name once ESPN drops the player on its own.
+//   Marcus Davenport (Bears): retired, per Alfredo, 2026-10-30; ESPN still
+//   listed him as active.
+const NO_LONGER_WITH_TEAM = {
+  bears: ["Marcus Davenport"],
+};
+
 async function fetchRoster(favorite) {
   const leagueInfo = leagueInfoFor(favorite.league);
   const url = `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/teams/${favorite.scheduleTeamId}/roster`;
   const espnData = await fetchJson(url);
-  return { groups: parseRoster(espnData), coach: parseCoach(espnData) };
+  return { groups: withoutDepartedPlayers(favorite, parseRoster(espnData)), coach: parseCoach(espnData) };
+}
+
+// The roster without players listed in NO_LONGER_WITH_TEAM. A group left
+// empty is dropped.
+function withoutDepartedPlayers(favorite, groups) {
+  const departed = NO_LONGER_WITH_TEAM[favorite.key] || [];
+  return groups
+    .map((group) => ({ ...group, players: group.players.filter((player) => !departed.includes(player.name)) }))
+    .filter((group) => group.players.length > 0);
 }
 
 // The head coach ESPN lists with the roster: { name, experience }, or null
