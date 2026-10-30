@@ -1,9 +1,29 @@
 // Loads league standings from ESPN's public feed and turns them into a
 // simple shape the page can draw.
 
-async function fetchLeagueStandings(leagueInfo) {
-  const url = `${ESPN_SITE_API}/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/standings?level=3`;
+// season: a past season's year (2005), or leave it out for the current one.
+async function fetchLeagueStandings(leagueInfo, season) {
+  const seasonQuery = season ? `&season=${season}` : "";
+  const url = `${ESPN_SITE_API}/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/standings?level=3${seasonQuery}`;
   return parseLeagueStandings(leagueInfo.key, await fetchJson(url));
+}
+
+// Past standings go back to 2005 (like Team History), except where a league
+// is younger or skipped a season.
+const STANDINGS_FIRST_SEASON = 2005;
+const LEAGUE_FIRST_SEASON = { NWSL: 2013 }; // the NWSL's first season
+const SEASONS_NOT_PLAYED = { NHL: [2005] }; // the 2004-05 lockout
+
+// A league's past seasons for the League Standings picker, newest first,
+// starting with the one before the current season.
+function pastStandingsSeasons(leagueKey, today) {
+  const first = LEAGUE_FIRST_SEASON[leagueKey] || STANDINGS_FIRST_SEASON;
+  const skipped = SEASONS_NOT_PLAYED[leagueKey] || [];
+  const seasons = [];
+  for (let season = currentSeasonYear(leagueKey, today) - 1; season >= first; season--) {
+    if (!skipped.includes(season)) seasons.push(season);
+  }
+  return seasons;
 }
 
 // ESPN nests league -> conferences -> divisions -> entries, and each team's

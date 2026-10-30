@@ -1,6 +1,6 @@
 // Draws the League Standings tab: the selected league's division tables,
-// with the Chicago teams highlighted. The wild card race is on the Playoff
-// Picture tab (playoffs-view.js).
+// this season or a past one, with the Chicago teams highlighted. The wild
+// card race is on the Playoff Picture tab (playoffs-view.js).
 
 // One button per league; shared with the Playoff Picture tab.
 function leagueTabsHtml() {
@@ -13,11 +13,33 @@ function leagueTabsHtml() {
 }
 
 function standingsPageHtml() {
+  const leagueKey = state.selectedLeague;
+  const season = standingsSeasonFor(leagueKey);
+  const options = [
+    `<option value="">Current season</option>`,
+    ...pastStandingsSeasons(leagueKey, new Date()).map(
+      (year) => `<option value="${year}" ${year === season ? "selected" : ""}>${seasonLabel({ league: leagueKey }, year)}</option>`
+    ),
+  ].join("");
+  const leagueState = season ? loadState("pastStandings", pastStandingsKey(leagueKey, season)) : loadState("standings", leagueKey);
   return `
     <div class="controls">
       <div class="league-tabs" role="tablist" aria-label="League">${leagueTabsHtml()}</div>
+      <label class="season-picker">Season
+        <select data-action="standings-season" aria-label="Season">${options}</select>
+      </label>
     </div>
-    ${standingsBodyHtml(state.selectedLeague, loadState("standings", state.selectedLeague))}`;
+    ${standingsBodyHtml(leagueKey, leagueState)}`;
+}
+
+// The past season picked for this league, or null for the current season
+// (also when the pick doesn't exist in this league, like the NHL in 2005).
+function standingsSeasonFor(leagueKey) {
+  return pastStandingsSeasons(leagueKey, new Date()).includes(state.standingsSeason) ? state.standingsSeason : null;
+}
+
+function pastStandingsKey(leagueKey, season) {
+  return `${leagueKey}-${season}`;
 }
 
 function standingsBodyHtml(leagueKey, leagueState) {

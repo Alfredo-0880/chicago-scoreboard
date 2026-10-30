@@ -9,7 +9,7 @@ const state = {
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   selectedLeague: "NFL",
-  playoffsView: "picture", // Playoff Picture: "picture" (seeds or bracket) | "race" (wild card)
+  playoffsView: "seeds", // Playoff Picture: "bracket" | "seeds" (Playoff Race) | "race" (Wild Card)
   // Each entry: { status: "loading" | "loaded" | "error", value }
   standings: {},
   games: {},
@@ -22,6 +22,8 @@ const state = {
   news: {}, // each team's stories and videos, loaded the first time its News or Highlights is opened
   history: {}, // past seasons, keyed "bears-2005", loaded when picked
   historySeason: null, // season picked on Team History (null: most recent)
+  pastStandings: {}, // past seasons' standings, keyed "NFL-2005", loaded when picked
+  standingsSeason: null, // season picked on League Standings (null: current season)
   lastUpdated: null,
   refreshing: false,
   calendarMessage: null, // confirmation shown after downloading a calendar
@@ -86,6 +88,14 @@ function loadNewsIfNeeded() {
   for (const favorite of selectedFavorites()) {
     if (!state.news[favorite.key]) load("news", favorite.key, () => fetchTeamArticles(favorite));
   }
+}
+
+// A past season's standings load the first time they're picked.
+function loadPastStandingsIfNeeded() {
+  const season = standingsSeasonFor(state.selectedLeague);
+  if (state.page !== "standings" || !season) return;
+  const key = pastStandingsKey(state.selectedLeague, season);
+  if (!state.pastStandings[key]) load("pastStandings", key, () => fetchLeagueStandings(leagueInfoFor(state.selectedLeague), season));
 }
 
 // A past season loads the first time it's shown.
@@ -319,14 +329,22 @@ document.addEventListener("click", (event) => {
   loadCareerStatsIfNeeded();
   loadNewsIfNeeded();
   loadHistoryIfNeeded();
+  loadPastStandingsIfNeeded();
   render();
 });
 
-// The Team History season picker.
+// The season pickers on Team History and League Standings.
 document.addEventListener("change", (event) => {
-  if (event.target.dataset.action !== "history-season") return;
-  state.historySeason = Number(event.target.value);
-  loadHistoryIfNeeded();
+  const action = event.target.dataset.action;
+  if (action === "history-season") {
+    state.historySeason = Number(event.target.value);
+    loadHistoryIfNeeded();
+  } else if (action === "standings-season") {
+    state.standingsSeason = event.target.value ? Number(event.target.value) : null;
+    loadPastStandingsIfNeeded();
+  } else {
+    return;
+  }
   render();
 });
 
