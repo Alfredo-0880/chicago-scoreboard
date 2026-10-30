@@ -793,6 +793,33 @@ button {
   color: var(--gold);
 }
 
+/* Head coach, above a roster */
+
+.coach {
+  margin-top: 16px;
+  padding: 10px 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--team-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.coach-label {
+  margin-right: 6px;
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.coach-name {
+  font-weight: 700;
+  color: var(--ink);
+}
+
 /* Rosters */
 
 .roster-table .jersey {

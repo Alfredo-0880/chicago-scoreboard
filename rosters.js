@@ -5,7 +5,21 @@
 async function fetchRoster(favorite) {
   const leagueInfo = leagueInfoFor(favorite.league);
   const url = `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/teams/${favorite.scheduleTeamId}/roster`;
-  return parseRoster(await fetchJson(url));
+  const espnData = await fetchJson(url);
+  return { groups: parseRoster(espnData), coach: parseCoach(espnData) };
+}
+
+// The head coach ESPN lists with the roster: { name, experience }, or null
+// when there isn't one (ESPN lists none for the Fire or Stars, and no
+// assistant coaches for any team).
+function parseCoach(espnData) {
+  const coach = (espnData.coach || [])[0];
+  if (!coach || !coach.firstName || !coach.lastName) return null;
+  const years = coach.experience;
+  return {
+    name: `${coach.firstName} ${coach.lastName}`,
+    experience: typeof years === "number" ? `${years} ${years === 1 ? "yr" : "yrs"}` : null,
+  };
 }
 
 // ESPN's names for football's roster groups, made readable.

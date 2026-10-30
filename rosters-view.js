@@ -99,12 +99,13 @@ function rosterHtml(favorite) {
   if (rosterState.status === "error") {
     return errorMessageHtml(`Couldn't load the ${favorite.label} roster`);
   }
-  if (rosterState.value.length === 0) {
+  const { groups: rosterGroups, coach } = rosterState.value;
+  if (rosterGroups.length === 0) {
     return `<div class="message">ESPN hasn't listed a ${favorite.label} roster.</div>`;
   }
 
-  const playerCount = rosterState.value.reduce((count, group) => count + group.players.length, 0);
-  const groups = rosterState.value
+  const playerCount = rosterGroups.reduce((count, group) => count + group.players.length, 0);
+  const groups = rosterGroups
     .map(
       (group) => `
       <section class="division">
@@ -127,7 +128,7 @@ function rosterHtml(favorite) {
       </section>`
     )
     .join("");
-  return `<div class="season-note">${favorite.label} roster: ${playerCount} players, live from ESPN.</div>${groups}`;
+  return `${coachHtml(favorite, coach)}<div class="season-note">${favorite.label} roster: ${playerCount} players, live from ESPN.</div>${groups}`;
 }
 
 // "Age 24 · Height 6' 1" · Weight 226 lbs · ...", each value with its label.
@@ -140,5 +141,20 @@ function playerDetailsHtml(player, detailList) {
           return `<span class="detail"><span class="detail-label">${text}</span> ${escapeHtml(player.details[key])}</span>`;
         })
         .join(" · ")}
+    </div>`;
+}
+
+// "Head coach: Ben Johnson · Experience 1 yr", above the players.
+function coachHtml(favorite, coach) {
+  if (!coach) {
+    return `<div class="coach" style="--team-color:${favorite.color}"><span class="coach-label">Head coach</span> ESPN doesn't list a coach for the ${favorite.label}.</div>`;
+  }
+  const experience = coach.experience
+    ? ` · <span class="detail-label">Experience</span> ${escapeHtml(coach.experience)}`
+    : "";
+  return `
+    <div class="coach" style="--team-color:${favorite.color}">
+      <span class="coach-label">Head coach</span>
+      <span class="coach-name">${escapeHtml(coach.name)}</span>${experience}
     </div>`;
 }
