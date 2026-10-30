@@ -1042,6 +1042,11 @@ button {
   margin-top: 14px;
 }
 
+/* One team selected: its card uses the full width. */
+.trophy-list:has(> .trophy-card:only-child) {
+  grid-template-columns: 1fr;
+}
+
 .trophy-card {
   padding: 14px 16px;
   background: var(--card);
@@ -1103,6 +1108,17 @@ button {
 .trophy-note {
   color: var(--ink-soft);
   font-size: 0.78rem;
+}
+
+.fact-list {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.fact-list li + li {
+  margin-top: 6px;
 }
 
 .trophy-none {
