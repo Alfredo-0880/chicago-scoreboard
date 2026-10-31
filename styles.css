@@ -796,9 +796,56 @@ button {
 }
 
 .series-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
   margin: 4px 6px 0;
   font-size: 0.78rem;
   color: var(--ink-soft);
+}
+
+/* Show/hide a series' games */
+.series-games-toggle {
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.series-games {
+  margin: 8px 6px 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.84rem;
+}
+
+.series-game {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  padding: 6px 0;
+  border-top: 1px dashed var(--line);
+}
+
+.series-game-number {
+  min-width: 4.5em;
+  font-weight: 700;
+}
+
+.series-game-date {
+  color: var(--ink-soft);
+}
+
+/* The score always gets its own line, so every game lines up the same way */
+.series-game-score {
+  width: 100%;
 }
 
 .picture-table .seed {

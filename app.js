@@ -24,6 +24,9 @@ const state = {
   historySeason: null, // season picked on Team History (null: most recent)
   pastStandings: {}, // past seasons' standings, keyed "NFL-2005", loaded when picked
   standingsSeason: null, // season picked on League Standings (null: current season)
+  playoffsSeason: null, // season picked on Playoff Picture (null: current season)
+  pastPlayoffs: {}, // past seasons' playoff games, keyed "MLB-2016", loaded when picked
+  openSeries: [], // bracket series whose games are shown (seriesKey in playoffs-view.js)
   lastUpdated: null,
   refreshing: false,
   calendarMessage: null, // confirmation shown after downloading a calendar
@@ -96,6 +99,17 @@ function loadPastStandingsIfNeeded() {
   if (state.page !== "standings" || !season) return;
   const key = pastStandingsKey(state.selectedLeague, season);
   if (!state.pastStandings[key]) load("pastStandings", key, () => fetchLeagueStandings(leagueInfoFor(state.selectedLeague), season));
+}
+
+// A past season's playoffs (and the standings its Playoff Race and Wild Card
+// come from) load the first time they're picked on Playoff Picture.
+function loadPastPlayoffsIfNeeded() {
+  const season = playoffsSeasonFor(state.selectedLeague);
+  if (state.page !== "playoffs" || !season) return;
+  const leagueInfo = leagueInfoFor(state.selectedLeague);
+  const key = pastStandingsKey(leagueInfo.key, season);
+  if (!state.pastStandings[key]) load("pastStandings", key, () => fetchLeagueStandings(leagueInfo, season));
+  if (hasPastBracket(leagueInfo.key) && !state.pastPlayoffs[key]) load("pastPlayoffs", key, () => fetchPastPlayoffs(leagueInfo, season));
 }
 
 // A past season loads the first time it's shown.
@@ -311,6 +325,10 @@ const ACTIONS = {
   "stats-view": (button) => {
     state.statsView = button.dataset.view;
   },
+  "series-games": (button) => {
+    const key = button.dataset.series;
+    state.openSeries = state.openSeries.includes(key) ? state.openSeries.filter((open) => open !== key) : [...state.openSeries, key];
+  },
   "playoffs-view": (button) => {
     state.playoffsView = button.dataset.view;
   },
@@ -330,10 +348,11 @@ document.addEventListener("click", (event) => {
   loadNewsIfNeeded();
   loadHistoryIfNeeded();
   loadPastStandingsIfNeeded();
+  loadPastPlayoffsIfNeeded();
   render();
 });
 
-// The season pickers on Team History and League Standings.
+// The season pickers on Team History, League Standings, and Playoff Picture.
 document.addEventListener("change", (event) => {
   const action = event.target.dataset.action;
   if (action === "history-season") {
@@ -342,6 +361,9 @@ document.addEventListener("change", (event) => {
   } else if (action === "standings-season") {
     state.standingsSeason = event.target.value ? Number(event.target.value) : null;
     loadPastStandingsIfNeeded();
+  } else if (action === "playoffs-season") {
+    state.playoffsSeason = event.target.value ? Number(event.target.value) : null;
+    loadPastPlayoffsIfNeeded();
   } else {
     return;
   }

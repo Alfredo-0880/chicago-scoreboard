@@ -83,6 +83,10 @@ function teamFromEntry(leagueKey, entry) {
     winPercent: number("winPercent"),
     playoffSeed: number("playoffSeed"),
     rank: number("rank"),
+    // ESPN's description of a playoff clinch, like "Clinched Division" or
+    // "Clinched Wild Card" (its letters, x/y/z, mean different things in
+    // different years), or "" when the team didn't clinch.
+    clinch: /^Clinched/i.test((stats.clincher && stats.clincher.description) || "") ? stats.clincher.description : "",
     logos: logosFrom(entry.team),
   };
   team.record = formatRecord(leagueKey, team);

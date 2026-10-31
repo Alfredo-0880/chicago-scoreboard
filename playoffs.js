@@ -36,30 +36,47 @@ function monthKey(date, offset) {
   return `${month.getUTCFullYear()}${String(month.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
-// Groups playoff games into series (same round, same two teams), and series
-// into rounds, earliest round first.
+// Groups playoff games into series (same two teams, same round), and
+// series into rounds, earliest round first. ESPN writes round names
+// differently from game to game ("WNBA Finals", "WNBA FINALS" in 2025), so
+// they're compared ignoring capitals, and it leaves the name off some games
+// (Game 3 of the 2016 Red Sox-Indians ALDS), which then join the two teams'
+// latest series. Teams can meet twice in one postseason (a 2020 NHL bubble
+// round robin, then a series), so the round still matters.
 function buildRounds(events) {
-  const seriesByKey = new Map();
+  const seriesByTeams = new Map(); // "5-16" -> that pair's series, oldest first
   const sorted = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
 
   for (const event of sorted) {
     const competition = event.competitions && event.competitions[0];
     if (!competition || competition.competitors.length !== 2) continue;
+    const teams = competition.competitors.map((competitor) => competitor.id).sort().join("-");
+    const pairSeries = seriesByTeams.get(teams) || [];
     const round = roundName(competition);
-    const teamIds = competition.competitors.map((competitor) => competitor.id).sort();
-    const key = `${round}|${teamIds.join("-")}`;
-    const series = seriesByKey.get(key) || { round, start: new Date(event.date), games: [] };
+    const unnamed = round === GENERIC_ROUND_NAME;
+    let series = unnamed
+      ? pairSeries.at(-1)
+      : pairSeries.find((existing) => existing.round.toLowerCase() === round.toLowerCase() || existing.round === GENERIC_ROUND_NAME);
+    if (!series) {
+      series = { round, start: new Date(event.date), games: [] };
+      pairSeries.push(series);
+    } else if (series.round === GENERIC_ROUND_NAME) {
+      series.round = round;
+    }
     series.games.push(competition);
-    seriesByKey.set(key, series);
+    seriesByTeams.set(teams, pairSeries);
   }
 
-  const rounds = new Map();
-  for (const series of seriesByKey.values()) {
-    const list = rounds.get(series.round) || [];
-    list.push(summarizeSeries(series));
-    rounds.set(series.round, list);
+  // Rounds in the order they started, each named as ESPN first wrote it.
+  const allSeries = [...seriesByTeams.values()].flat().sort((a, b) => a.start - b.start);
+  const rounds = new Map(); // "wnba finals" -> { name, series }
+  for (const series of allSeries) {
+    const key = series.round.toLowerCase();
+    const round = rounds.get(key) || { name: series.round, series: [] };
+    round.series.push(summarizeSeries(series));
+    rounds.set(key, round);
   }
-  return [...rounds].map(([name, seriesList]) => ({ name, series: seriesList }));
+  return [...rounds.values()];
 }
 
 // ESPN's shorthand for MLB rounds, spelled out for readers who don't know it.
@@ -72,15 +89,22 @@ const ROUND_NAMES = {
   NLCS: "NL Championship Series",
 };
 
-// "ALCS - Game 5" -> "AL Championship Series"; "World Series - Game 1" -> "World Series"
+// The name for a game ESPN gives no round name.
+const GENERIC_ROUND_NAME = "Playoffs";
+
+// "ALCS - Game 5" -> "AL Championship Series"; "World Series - Game 1" -> "World Series".
+// ESPN sometimes numbers a round's series ("WNBA SEMIFINALS 2" in 2019); the
+// number is dropped so they share one round. A game named just "PLAYOFFS"
+// counts as unnamed.
 function roundName(competition) {
-  const headline = (competition.notes && competition.notes[0] && competition.notes[0].headline) || "Playoffs";
-  const shortName = headline.split(" - ")[0].trim();
+  const headline = (competition.notes && competition.notes[0] && competition.notes[0].headline) || GENERIC_ROUND_NAME;
+  const shortName = headline.split(" - ")[0].trim().replace(/\s+\d$/, "");
+  if (/^playoffs?$/i.test(shortName)) return GENERIC_ROUND_NAME;
   return ROUND_NAMES[shortName] || shortName;
 }
 
-// One series: both teams with their wins, whether it's over, and ESPN's
-// one-line summary ("TB wins series 4-2").
+// One series: both teams with their wins, whether it's over, ESPN's
+// one-line summary ("TB wins series 4-2"), and each game (seriesGame).
 function summarizeSeries(series) {
   const latest = series.games[series.games.length - 1];
   const espnSeries = latest.series || null;
@@ -107,6 +131,41 @@ function summarizeSeries(series) {
     winner: completed ? leader : null,
     summary: (espnSeries && espnSeries.summary) || (completed && leader ? `${leader.name} win` : "Scheduled"),
     start: series.start,
+    games: withoutMadeUpRainouts(series.games.map(seriesGame)),
+  };
+}
+
+// ESPN keeps a postponed game next to the one that made it up (2016 ALDS
+// Game 3 was rained out, then played the next day), so it's left out once
+// the same game number has been played.
+function withoutMadeUpRainouts(games) {
+  return games.filter(
+    (game) => game.completed || !/Postponed|Canceled/i.test(game.detail) || !games.some((other) => other !== game && other.number === game.number)
+  );
+}
+
+// One game of a series: { number, date, away, home, completed, detail }, where
+// away and home are { name, score, winner } and detail is ESPN's status
+// ("Final", "Final/10" for 10 innings, "Final/OT").
+function seriesGame(competition, index) {
+  const headline = (competition.notes && competition.notes[0] && competition.notes[0].headline) || "";
+  const gameNumber = headline.match(/Game (\d+)/i);
+  const side = (homeAway) => {
+    const competitor = competition.competitors.find((c) => c.homeAway === homeAway) || competition.competitors[homeAway === "away" ? 0 : 1];
+    return {
+      name: competitor.team.shortDisplayName || competitor.team.displayName,
+      score: competitor.score === undefined || competitor.score === null ? null : String(competitor.score.displayValue ?? competitor.score),
+      winner: competitor.winner === true,
+    };
+  };
+  const statusType = (competition.status && competition.status.type) || {};
+  return {
+    number: gameNumber ? Number(gameNumber[1]) : index + 1,
+    date: competition.date ? new Date(competition.date) : null,
+    away: side("away"),
+    home: side("home"),
+    completed: statusType.completed === true,
+    detail: statusType.shortDetail || statusType.detail || "",
   };
 }
 
@@ -165,4 +224,137 @@ function distanceBehind(leagueKey, team, lastIn) {
   }
   const games = (lastIn.wins - team.wins + (team.losses - lastIn.losses)) / 2;
   return games === 0 ? "Out on tiebreaker" : `${games} ${games === 1 ? "game" : "games"} back`;
+}
+
+// Past seasons ---------------------------------------------------------------
+
+// When each league's playoffs are played, as [first month, last month]
+// (1 is January). The NFL's are in the January and February after its
+// season. MLS and the NWSL are missing: ESPN doesn't mark their past
+// playoff games, so they have no past brackets.
+const POSTSEASON_MONTHS = {
+  NFL: { months: [1, 2], yearAfter: true },
+  MLB: { months: [9, 11] },
+  NBA: { months: [4, 6], bySeason: { 2020: [8, 10], 2021: [5, 7] } }, // 2020 bubble, 2021 late start
+  NHL: { months: [4, 6], bySeason: { 2020: [8, 9], 2021: [5, 7] } },
+  WNBA: { months: [8, 10] },
+};
+
+function hasPastBracket(leagueKey) {
+  return Boolean(POSTSEASON_MONTHS[leagueKey]);
+}
+
+// A past season's playoffs, in the same shape fetchPlayoffs returns.
+async function fetchPastPlayoffs(leagueInfo, season) {
+  const baseUrl = `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/scoreboard`;
+  const pages = await Promise.all(postseasonMonths(leagueInfo.key, season).map((month) => fetchJson(`${baseUrl}?dates=${month}&limit=1000`)));
+  const events = pages.flatMap((page) => page.events || []).filter((event) => isPostseasonEvent(event) && !isAllStarGame(event));
+  return { inPostseason: true, rounds: buildRounds(events) };
+}
+
+// ("MLB", 2016) -> ["201609", "201610", "201611"]
+function postseasonMonths(leagueKey, season) {
+  const timing = POSTSEASON_MONTHS[leagueKey];
+  const [first, last] = (timing.bySeason && timing.bySeason[season]) || timing.months;
+  const year = timing.yearAfter ? season + 1 : season;
+  const months = [];
+  for (let month = first; month <= last; month++) months.push(`${year}${String(month).padStart(2, "0")}`);
+  return months;
+}
+
+// ESPN files the NFL's Pro Bowl (AFC vs NFC) as a postseason game.
+function isAllStarGame(event) {
+  const competitors = (event.competitions && event.competitions[0] && event.competitions[0].competitors) || [];
+  return competitors.some((competitor) => /^(AFC|NFC)$/.test((competitor.team && competitor.team.abbreviation) || ""));
+}
+
+// How a past season ended, from ESPN's clinch marks rather than today's
+// playoff rules (which have changed: MLB had 1 wild card per league until
+// 2012, the NFL 6 playoff teams per conference until 2020). Same shape as
+// playoffPicture. Empty when ESPN marked no clinches (past MLS and NWSL).
+function pastPlayoffPicture(leagueStandings, season) {
+  const teams = leagueStandings.divisions.flatMap((division) => division.teams);
+  if (!teams.some((team) => team.clinch)) return [];
+  const leagueKey = leagueStandings.league;
+  return playoffGroups(leagueStandings, season).map(({ title, teams: groupTeams }) => {
+    const madeIt = groupTeams.filter(madePlayoffs).sort(bySeed);
+    const missed = groupTeams.filter((team) => !madePlayoffs(team)).sort(bySeed);
+    return {
+      title,
+      spotsIn: madeIt.length,
+      lineLabel: "playoff line",
+      entries: [
+        ...madeIt.map((team) => clinchEntry(leagueKey, team)),
+        ...missed.map((team) => ({ team, status: "out", label: lostPlayIn(team) ? "Lost in play-in" : "Missed playoffs" })),
+      ],
+    };
+  });
+}
+
+// The WNBA has seeded its whole league together since 2016; other leagues
+// (and the WNBA before then) seed each conference.
+const WHOLE_LEAGUE_PLAYOFFS_SINCE = { WNBA: 2016, NWSL: 2013 };
+
+function playoffGroups(leagueStandings, season) {
+  const since = WHOLE_LEAGUE_PLAYOFFS_SINCE[leagueStandings.league];
+  const teams = leagueStandings.divisions.flatMap((division) => division.teams);
+  if (since && season >= since) return [{ title: leagueStandings.league, teams }];
+  const byConference = new Map();
+  for (const division of leagueStandings.divisions) {
+    byConference.set(division.conference, [...(byConference.get(division.conference) || []), ...division.teams]);
+  }
+  return [...byConference].map(([title, conferenceTeams]) => ({ title, teams: conferenceTeams }));
+}
+
+// ESPN's clinch descriptions vary by league and year. A few seen:
+// "Clinched Division", "Clinched Division and Bye", "Clinched Best League
+// Record", "Clinched Wild Card", "Clinched Playoff Berth", "Clinched
+// Play-in Berth" (reached the NBA play-in and lost there), and "Clinched
+// Playoff - Won Play-In".
+function lostPlayIn(team) {
+  return /Play-?in Berth/i.test(team.clinch);
+}
+
+function madePlayoffs(team) {
+  return Boolean(team.clinch) && !lostPlayIn(team);
+}
+
+function wonDivision(team) {
+  return /Division|Best League Record/i.test(team.clinch);
+}
+
+// Only MLB and the NFL call their non-division teams wild cards; in other
+// leagues "Clinched Playoff Berth" just means the team got in.
+function clinchEntry(leagueKey, team) {
+  if (wonDivision(team)) return { team, status: "division", label: "Division winner" };
+  if (/Won Play-?In/i.test(team.clinch)) return { team, status: "in", label: "Won play-in" };
+  if ((leagueKey === "MLB" || leagueKey === "NFL") && /Wild Card|Playoff Berth/i.test(team.clinch)) {
+    return { team, status: "wild card", label: "Wild card" };
+  }
+  return { team, status: "in", label: "Made playoffs" };
+}
+
+// Past wild card races for MLB and the NFL, where division winners are in
+// and everyone else chases the wild cards: as many spots as ESPN marked.
+function pastWildCardRaces(leagueStandings, season) {
+  return playoffGroups(leagueStandings, season).map(({ title, teams }) => {
+    const contenders = teams.filter((team) => !wonDivision(team)).sort(bySeed);
+    return {
+      title: `${title} wild card race`,
+      lineLabel: "wild card line",
+      spots: contenders.filter(madePlayoffs).length,
+      teams: contenders,
+    };
+  });
+}
+
+// Which past seasons have a Wild Card view, and how it's built: MLB and the
+// NFL from ESPN's clinch marks; the NHL (since its 2013-14 format, skipping
+// the 2020 bubble and 2021's realigned divisions) and the NBA (since the
+// 2020-21 play-in) with today's rules.
+function pastRaceSource(leagueKey, season) {
+  if (leagueKey === "MLB" || leagueKey === "NFL") return "clinches";
+  if (leagueKey === "NHL" && season >= 2014 && season !== 2020 && season !== 2021) return "rules";
+  if (leagueKey === "NBA" && season >= 2021) return "rules";
+  return null;
 }
