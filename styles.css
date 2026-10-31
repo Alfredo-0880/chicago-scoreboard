@@ -1286,6 +1286,30 @@ button {
   color: var(--ink-soft);
 }
 
+/* Team History: a past season's leaders and everyone who played */
+.season-leaders,
+.season-players {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+}
+
+.season-leaders li {
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+
+.season-players {
+  columns: 2 11em;
+  column-gap: 16px;
+}
+
+.season-players li {
+  padding: 3px 0;
+  break-inside: avoid;
+}
+
 .history-coach {
   margin-top: 6px;
   font-size: 0.9rem;

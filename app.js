@@ -23,6 +23,8 @@ const state = {
   news: {}, // each team's stories and videos, loaded the first time its News or Highlights is opened
   history: {}, // past seasons, keyed "bears-2005", loaded when picked
   historySeason: null, // season picked on Team History (null: most recent)
+  seasonLeaders: {}, // a past season's team leaders, keyed like history, loaded with it
+  seasonPlayers: {}, // everyone who played in a past season, loaded on Show all players
   pastStandings: {}, // past seasons' standings, keyed "NFL-2005", loaded when picked
   standingsSeason: null, // season picked on League Standings (null: current season)
   playoffsSeason: null, // season picked on Playoff Picture (null: current season)
@@ -128,6 +130,7 @@ function loadHistoryIfNeeded() {
   const season = historySeasonFor(favorite);
   const key = historyKey(favorite, season);
   if (!state.history[key]) load("history", key, () => fetchSeasonHistory(favorite, season));
+  if (!state.seasonLeaders[key]) load("seasonLeaders", key, () => fetchSeasonLeaders(favorite, season));
 }
 
 async function loadEverything() {
@@ -329,6 +332,13 @@ const ACTIONS = {
     saveThemeChoice(state.themeChoice);
     applyTheme(state.themeChoice);
   },
+  "season-players": () => {
+    // Everyone who played in the Team History season on screen, from its games.
+    const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
+    const key = historyKey(favorite, historySeasonFor(favorite));
+    const { regular, postseason } = state.history[key].value;
+    load("seasonPlayers", key, () => fetchSeasonPlayers(favorite, [...regular, ...postseason]));
+  },
   "player-stats": (button) => {
     // Tapping the open player again closes their stats.
     state.statsPlayer = state.statsPlayer === button.dataset.player ? null : button.dataset.player;
@@ -350,7 +360,8 @@ const ACTIONS = {
 
 document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-action]");
-  if (!button) return;
+  // Season pickers also carry a data-action, but they act on "change" (below).
+  if (!button || !ACTIONS[button.dataset.action]) return;
   if (button.dataset.action !== "download-calendar") state.calendarMessage = null;
   ACTIONS[button.dataset.action](button);
   loadPlayoffsIfNeeded();
