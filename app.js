@@ -14,6 +14,7 @@ const state = {
   standings: {},
   games: {},
   injuries: {},
+  injuryHistory: {}, // each team's recent injury updates, loaded when picked on Injuries
   playoffs: {}, // loaded per league, the first time its Playoff Picture is opened
   rosters: {}, // loaded per team, the first time its roster (or Stats) is opened
   careerStats: {}, // each player's career stats, keyed "bears-4431611", loaded when tapped
@@ -112,6 +113,14 @@ function loadPastPlayoffsIfNeeded() {
   if (hasPastBracket(leagueInfo.key) && !state.pastPlayoffs[key]) load("pastPlayoffs", key, () => fetchPastPlayoffs(leagueInfo, season));
 }
 
+// A team's injury history loads the first time it's picked on Injuries.
+function loadInjuryHistoryIfNeeded() {
+  const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
+  if (state.page === "injuries" && favorite && !state.injuryHistory[favorite.key]) {
+    load("injuryHistory", favorite.key, () => fetchInjuryHistory(favorite));
+  }
+}
+
 // A past season loads the first time it's shown.
 function loadHistoryIfNeeded() {
   const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
@@ -126,11 +135,13 @@ async function loadEverything() {
   state.playoffs = {};
   state.rosters = {};
   state.careerStats = {};
+  state.injuryHistory = {};
   state.news = {};
   render();
   loadPlayoffsIfNeeded();
   loadRosterIfNeeded();
   loadCareerStatsIfNeeded();
+  loadInjuryHistoryIfNeeded();
   loadNewsIfNeeded();
   await Promise.all([
     ...LEAGUES.map((leagueInfo) => load("standings", leagueInfo.key, () => fetchLeagueStandings(leagueInfo))),
@@ -349,6 +360,7 @@ document.addEventListener("click", (event) => {
   loadHistoryIfNeeded();
   loadPastStandingsIfNeeded();
   loadPastPlayoffsIfNeeded();
+  loadInjuryHistoryIfNeeded();
   render();
 });
 

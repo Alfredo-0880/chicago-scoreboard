@@ -24,15 +24,16 @@ const LEAGUES = [
 
 // scheduleTeamId is what ESPN's schedule URLs use for the team. It is usually
 // the abbreviation, but in soccer abbreviations are countries (chi = Chile),
-// so the Fire and Stars use ESPN's team numbers.
+// so the Fire and Stars use ESPN's team numbers. espnTeamId is ESPN's team
+// number, which its injury history needs (MLS and the NWSL have none).
 const FAVORITE_TEAMS = [
-  { key: "bears", league: "NFL", abbreviation: "CHI", scheduleTeamId: "chi", label: "Bears", fullName: "Chicago Bears", color: "#0B162A" },
-  { key: "bulls", league: "NBA", abbreviation: "CHI", scheduleTeamId: "chi", label: "Bulls", fullName: "Chicago Bulls", color: "#CE1141" },
-  { key: "cubs", league: "MLB", abbreviation: "CHC", scheduleTeamId: "chc", label: "Cubs", fullName: "Chicago Cubs", color: "#0E3386" },
-  { key: "whitesox", league: "MLB", abbreviation: "CHW", scheduleTeamId: "chw", label: "White Sox", fullName: "Chicago White Sox", color: "#27251F" },
-  { key: "blackhawks", league: "NHL", abbreviation: "CHI", scheduleTeamId: "chi", label: "Blackhawks", fullName: "Chicago Blackhawks", color: "#CE1126" },
+  { key: "bears", league: "NFL", abbreviation: "CHI", scheduleTeamId: "chi", espnTeamId: "3", label: "Bears", fullName: "Chicago Bears", color: "#0B162A" },
+  { key: "bulls", league: "NBA", abbreviation: "CHI", scheduleTeamId: "chi", espnTeamId: "4", label: "Bulls", fullName: "Chicago Bulls", color: "#CE1141" },
+  { key: "cubs", league: "MLB", abbreviation: "CHC", scheduleTeamId: "chc", espnTeamId: "16", label: "Cubs", fullName: "Chicago Cubs", color: "#0E3386" },
+  { key: "whitesox", league: "MLB", abbreviation: "CHW", scheduleTeamId: "chw", espnTeamId: "4", label: "White Sox", fullName: "Chicago White Sox", color: "#27251F" },
+  { key: "blackhawks", league: "NHL", abbreviation: "CHI", scheduleTeamId: "chi", espnTeamId: "4", label: "Blackhawks", fullName: "Chicago Blackhawks", color: "#CE1126" },
   { key: "fire", league: "MLS", abbreviation: "CHI", scheduleTeamId: "182", label: "Fire", fullName: "Chicago Fire FC", color: "#AF2626" },
-  { key: "sky", league: "WNBA", abbreviation: "CHI", scheduleTeamId: "chi", label: "Sky", fullName: "Chicago Sky", color: "#2A6EBB" },
+  { key: "sky", league: "WNBA", abbreviation: "CHI", scheduleTeamId: "chi", espnTeamId: "19", label: "Sky", fullName: "Chicago Sky", color: "#2A6EBB" },
   { key: "stars", league: "NWSL", abbreviation: "CHI", scheduleTeamId: "15360", label: "Stars", fullName: "Chicago Stars FC", color: "#C7102E" },
 ];
 

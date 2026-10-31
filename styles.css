@@ -1526,8 +1526,42 @@ button {
   --severity-color: #a8770c;
 }
 
-.probable {
+.probable,
+.returned {
   --severity-color: #1e7a34;
+}
+
+/* Recent injury history: one line per update, newest first */
+.injury-history-note {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.injury-history {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.injury-update {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+
+.injury-update-date {
+  min-width: 7.5em;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.injury-update .injury-facts {
+  width: 100%;
+  margin-top: 0;
 }
 
 [data-theme="dark"] .cutoff span {
@@ -1539,7 +1573,8 @@ button {
   --severity-color: var(--gold);
 }
 
-[data-theme="dark"] .probable {
+[data-theme="dark"] .probable,
+[data-theme="dark"] .returned {
   --severity-color: #6fd98a;
 }
 
