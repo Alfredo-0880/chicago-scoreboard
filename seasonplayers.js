@@ -62,7 +62,8 @@ function leaderValue(displayValue) {
 // Box scores are requested a batch at a time; a baseball season has 162.
 const BOX_SCORES_AT_ONCE = 20;
 
-// Everyone who played in the season's games: [{ name, position }], by name.
+// Everyone who played in the season's games: [{ id, name, position }], by
+// name, where id is ESPN's player number (for loading their stats).
 // Returns [] when ESPN has no box scores with players (past NWSL seasons).
 async function fetchSeasonPlayers(favorite, games) {
   const leagueInfo = leagueInfoFor(favorite.league);
@@ -76,8 +77,8 @@ async function fetchSeasonPlayers(favorite, games) {
     );
     for (const summary of summaries.filter(Boolean)) {
       for (const player of boxScorePlayers(favorite, summary)) {
-        const known = players.get(player.name);
-        if (!known || (!known.position && player.position)) players.set(player.name, player);
+        const known = players.get(player.id);
+        if (!known || (!known.position && player.position)) players.set(player.id, player);
       }
     }
   }
@@ -93,6 +94,7 @@ function boxScorePlayers(favorite, summary) {
   if (box) {
     return box.statistics.flatMap((group) =>
       (group.athletes || []).map(({ athlete }) => ({
+        id: athlete.id,
         name: athlete.displayName,
         position: (athlete.position && athlete.position.abbreviation) || "",
       }))
@@ -105,7 +107,7 @@ function boxScorePlayers(favorite, summary) {
     .map((entry) => {
       // A substitute's position is "SUB", which says nothing about where they play.
       const position = (entry.position && entry.position.abbreviation) || "";
-      return { name: entry.athlete.displayName, position: position === "SUB" ? "" : position };
+      return { id: entry.athlete.id, name: entry.athlete.displayName, position: position === "SUB" ? "" : position };
     });
 }
 

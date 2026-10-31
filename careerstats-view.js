@@ -1,11 +1,55 @@
 // Draws the Stats tab: tap a team, then a player, to see their stats for
-// this season, each past season, or their whole career.
+// this season, each past season, or their whole career. A Season picker
+// lists a past season's players instead (from its box scores, since ESPN
+// keeps no past rosters), whose first stats button is that season.
 
 function careerStatsPageHtml() {
   const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
+  if (!favorite) {
+    return `
+      ${teamFilterHtml()}
+      <div class="message">Tap a team name, then a player, to see their career stats.</div>`;
+  }
+  const season = statsSeasonFor(favorite);
+  const options = [
+    `<option value="">Current season</option>`,
+    ...pastSeasons(favorite, new Date()).map(
+      (year) => `<option value="${year}" ${year === season ? "selected" : ""}>${seasonLabel(favorite, year)}</option>`
+    ),
+  ].join("");
   return `
     ${teamFilterHtml()}
-    ${favorite ? careerStatsTeamHtml(favorite) : `<div class="message">Tap a team name, then a player, to see their career stats.</div>`}`;
+    <div class="controls">
+      <label class="season-picker">Season
+        <select data-action="stats-season" aria-label="Season">${options}</select>
+      </label>
+    </div>
+    ${season ? pastSeasonPlayersHtml(favorite, season) : careerStatsTeamHtml(favorite)}`;
+}
+
+// The past season picked on Stats (Team History's seasons), or null for now.
+function statsSeasonFor(favorite) {
+  return pastSeasons(favorite, new Date()).includes(state.statsSeason) ? state.statsSeason : null;
+}
+
+// Everyone who played in a past season, each opening their stats.
+function pastSeasonPlayersHtml(favorite, season) {
+  const label = seasonLabel(favorite, season);
+  const playersState = loadState("seasonPlayers", historyKey(favorite, season));
+  if (playersState.status === "loading") {
+    return `<div class="message">Loading everyone who played for the ${label} ${favorite.label}, from that season's box scores…</div>`;
+  }
+  if (playersState.status === "error") {
+    return errorMessageHtml(`Couldn't load the ${label} ${favorite.label} players`);
+  }
+  if (playersState.value.length === 0) {
+    return `<div class="message">ESPN's box scores don't list the ${label} ${favorite.label} players.</div>`;
+  }
+  return `
+    <div class="season-note">${playersState.value.length} players appeared in a ${label} game. Tap one to see their ${label} stats, every season, and their career, from ESPN.</div>
+    <div class="stats-players">
+      ${playersState.value.map((player) => careerStatsPlayerHtml(favorite, { ...player, jersey: "", positionName: "" }, season)).join("")}
+    </div>`;
 }
 
 // The team's roster, each player a button that opens their stats.
@@ -44,7 +88,8 @@ function careerStatsKey(favorite, player) {
   return `${favorite.key}-${player.id}`;
 }
 
-function careerStatsPlayerHtml(favorite, player) {
+// seasonYear: the past season the player is listed under, or undefined now.
+function careerStatsPlayerHtml(favorite, player, seasonYear) {
   const key = careerStatsKey(favorite, player);
   const isOpen = state.statsPlayer === key;
   return `
@@ -55,12 +100,14 @@ function careerStatsPlayerHtml(favorite, player) {
         <span class="stats-player-position" title="${escapeHtml(player.positionName)}">${escapeHtml(player.position)}</span>
         <span class="stats-chevron" aria-hidden="true">${isOpen ? "▾" : "▸"}</span>
       </button>
-      ${isOpen ? careerStatsPanelHtml(player, loadState("careerStats", key), state.statsView) : ""}
+      ${isOpen ? careerStatsPanelHtml(player, loadState("careerStats", key), state.statsView, seasonYear && { year: seasonYear, label: seasonLabel(favorite, seasonYear) }) : ""}
     </div>`;
 }
 
 // view: "season" | "past" | "career"
-function careerStatsPanelHtml(player, statsState, view) {
+// pastSeason: { year, label } when the first button shows a past season
+// (picked on the Season dropdown) instead of this one.
+function careerStatsPanelHtml(player, statsState, view, pastSeason) {
   const message = (text) => `<div class="stats-panel"><div class="stats-message">${text}</div></div>`;
   if (statsState.status === "loading") return message(`Loading ${escapeHtml(player.name)}'s stats…`);
   if (statsState.status === "error") {
@@ -69,7 +116,7 @@ function careerStatsPanelHtml(player, statsState, view) {
   const { sport, currentYear, career, seasons } = statsState.value;
   const toggle = `
     <div class="toggle stats-toggle" role="group" aria-label="Which stats">
-      ${toggleButtonHtml("stats-view", "view", "season", "This season", view)}
+      ${toggleButtonHtml("stats-view", "view", "season", pastSeason ? `${escapeHtml(pastSeason.label)} Season` : "This season", view)}
       ${toggleButtonHtml("stats-view", "view", "past", "Past seasons", view)}
       ${toggleButtonHtml("stats-view", "view", "career", "Career", view)}
     </div>`;
@@ -84,14 +131,16 @@ function careerStatsPanelHtml(player, statsState, view) {
       ? tables.map(seasonTableHtml).join("")
       : `<div class="stats-message">${escapeHtml(player.name)} has no stats from past seasons.</div>`;
   } else {
-    const current = currentSeasonSummaries(sport, seasons, currentYear);
+    const current = currentSeasonSummaries(sport, seasons, pastSeason ? pastSeason.year : currentYear);
     body = current.length > 0
       ? current
           .map(({ label, team, summary }) => `
             <div class="stats-season-heading">${escapeHtml(label)}${team ? ` · ${escapeHtml(team)}` : ""}</div>
             ${statTilesHtml(summary)}`)
           .join("")
-      : `<div class="stats-message">${escapeHtml(player.name)} hasn't played yet this season.</div>`;
+      : `<div class="stats-message">${
+          pastSeason ? `ESPN has no ${escapeHtml(pastSeason.label)} stats for ${escapeHtml(player.name)}.` : `${escapeHtml(player.name)} hasn't played yet this season.`
+        }</div>`;
   }
   return `<div class="stats-panel">${toggle}${body}</div>`;
 }

@@ -20,6 +20,7 @@ const state = {
   careerStats: {}, // each player's career stats, keyed "bears-4431611", loaded when tapped
   statsPlayer: null, // the player open on the Stats tab (a careerStats key), or null
   statsView: "season", // "season" | "past" | "career", kept when opening another player
+  statsSeason: null, // past season picked on Stats (null: current roster)
   news: {}, // each team's stories and videos, loaded the first time its News or Highlights is opened
   history: {}, // past seasons, keyed "bears-2005", loaded when picked
   historySeason: null, // season picked on Team History (null: most recent)
@@ -77,6 +78,20 @@ function loadRosterIfNeeded() {
   if ((state.page === "rosters" || state.page === "stats") && favorite && !state.rosters[favorite.key]) {
     load("rosters", favorite.key, () => fetchRoster(favorite));
   }
+}
+
+// A past season's players load the first time it's picked on Stats, from
+// its box scores (shared with Team History's Show all players).
+function loadStatsSeasonIfNeeded() {
+  const favorite = FAVORITE_TEAMS.find((team) => team.key === state.selectedTeam);
+  if (state.page !== "stats" || !favorite) return;
+  const season = statsSeasonFor(favorite);
+  const key = season && historyKey(favorite, season);
+  if (!season || state.seasonPlayers[key]) return;
+  load("seasonPlayers", key, async () => {
+    const history = (state.history[key] && state.history[key].value) || (await fetchSeasonHistory(favorite, season));
+    return fetchSeasonPlayers(favorite, [...history.regular, ...history.postseason]);
+  });
 }
 
 // A player's career stats load the first time they're tapped on the Stats tab.
@@ -372,10 +387,11 @@ document.addEventListener("click", (event) => {
   loadPastStandingsIfNeeded();
   loadPastPlayoffsIfNeeded();
   loadInjuryHistoryIfNeeded();
+  loadStatsSeasonIfNeeded();
   render();
 });
 
-// The season pickers on Team History, League Standings, and Playoff Picture.
+// The season pickers on Team History, League Standings, Playoff Picture, and Stats.
 document.addEventListener("change", (event) => {
   const action = event.target.dataset.action;
   if (action === "history-season") {
@@ -384,6 +400,10 @@ document.addEventListener("change", (event) => {
   } else if (action === "standings-season") {
     state.standingsSeason = event.target.value ? Number(event.target.value) : null;
     loadPastStandingsIfNeeded();
+  } else if (action === "stats-season") {
+    state.statsSeason = event.target.value ? Number(event.target.value) : null;
+    state.statsPlayer = null;
+    loadStatsSeasonIfNeeded();
   } else if (action === "playoffs-season") {
     state.playoffsSeason = event.target.value ? Number(event.target.value) : null;
     loadPastPlayoffsIfNeeded();
