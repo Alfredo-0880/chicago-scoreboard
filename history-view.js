@@ -57,9 +57,16 @@ function seasonHistoryHtml(favorite, season) {
       <div class="history-detail">Regular season${recordStyle}${
         postseasonRecord ? ` · Playoffs ${escapeHtml(postseasonRecord)}` : " · No playoff games"
       }</div>
+      ${headCoachHtml(favorite, season)}
     </div>
     ${postseason.length ? `<h2 class="history-heading">Playoffs</h2>${gameListHtml(postseason)}` : ""}
     <h2 class="history-heading">Regular season</h2>
     ${gameListHtml(regular)}
-    <div class="season-note">Results from ESPN. ESPN doesn't keep past rosters or coaches, so they aren't shown.</div>`;
+    <div class="season-note">Results from ESPN. Head coaches are kept by this app, since ESPN doesn't keep past coaches. ESPN doesn't keep past rosters either, so they aren't shown.</div>`;
+}
+
+// "Head coach Lovie Smith", from the hand-kept list in coaches.js.
+function headCoachHtml(favorite, season) {
+  const coach = pastHeadCoach(favorite, season);
+  return `<div class="history-coach"><span class="detail-label">Head coach</span> ${coach ? escapeHtml(coach) : "Not listed for this season"}</div>`;
 }

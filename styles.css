@@ -1286,6 +1286,13 @@ button {
   color: var(--ink-soft);
 }
 
+.history-coach {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
 /* Championships */
 
 .trophy-list {
