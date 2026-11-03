@@ -283,6 +283,16 @@ function renderThemeToggle() {
   ).join("");
 }
 
+// Drawn once, not on every render, so a live score update can't close the
+// dropdown while someone is choosing.
+function renderColorsPicker() {
+  const labels = { classic: "Classic" };
+  for (const team of FAVORITE_TEAMS) labels[team.key] = team.label;
+  const picker = document.getElementById("colorsPicker");
+  picker.innerHTML = COLOR_CHOICES.map((choice) => `<option value="${choice}">${labels[choice]}</option>`).join("");
+  picker.value = savedColorChoice();
+}
+
 function renderUpdatedAt() {
   document.getElementById("updatedAt").textContent = state.lastUpdated
     ? `Updated ${chicagoDate(state.lastUpdated, { hour: "numeric", minute: "2-digit" })}`
@@ -394,6 +404,11 @@ document.addEventListener("click", (event) => {
 // The season pickers on Team History, League Standings, Playoff Picture, and Stats.
 document.addEventListener("change", (event) => {
   const action = event.target.dataset.action;
+  if (action === "colors") {
+    saveColorChoice(event.target.value);
+    applyColors(event.target.value);
+    return;
+  }
   if (action === "history-season") {
     state.historySeason = Number(event.target.value);
     loadHistoryIfNeeded();
@@ -413,6 +428,7 @@ document.addEventListener("change", (event) => {
   render();
 });
 
+renderColorsPicker();
 loadEverything();
 // Keep live scores current; this loads nothing while no game is on.
 setInterval(updateLiveScores, LIVE_CHECK_SECONDS * 1000);

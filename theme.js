@@ -1,5 +1,6 @@
-// Light or dark theme. The choice (Auto, Light, or Dark) is saved in this
-// browser; Auto follows the device's own setting. This file loads in the
+// Light or dark theme, and team colors. The theme choice (Auto, Light, or
+// Dark) is saved in this browser; Auto follows the device's own setting.
+// The colors choice (Classic or a team) is saved too. This file loads in the
 // page's <head> so the theme is set before anything is drawn, with no flash
 // of the wrong colors.
 
@@ -37,3 +38,34 @@ function applyTheme(choice) {
 }
 
 applyTheme(savedThemeChoice());
+
+// Classic is the original navy and red; each team's colors are in
+// styles.css. Listed here, not taken from FAVORITE_TEAMS, because this file
+// loads before common.js.
+const COLOR_CHOICES = ["classic", "bears", "bulls", "cubs", "whitesox", "blackhawks", "fire", "sky", "stars"];
+const COLORS_STORAGE_KEY = "chicago-scoreboard-colors";
+
+// Saved choice, or "classic" if there is none or the browser blocks storage.
+function savedColorChoice() {
+  try {
+    const choice = localStorage.getItem(COLORS_STORAGE_KEY);
+    return COLOR_CHOICES.includes(choice) ? choice : "classic";
+  } catch {
+    return "classic";
+  }
+}
+
+function saveColorChoice(choice) {
+  try {
+    localStorage.setItem(COLORS_STORAGE_KEY, choice);
+  } catch {
+    // As with the theme, the colors still apply until the page closes.
+  }
+}
+
+function applyColors(choice) {
+  if (choice === "classic") delete document.documentElement.dataset.colors;
+  else document.documentElement.dataset.colors = choice;
+}
+
+applyColors(savedColorChoice());

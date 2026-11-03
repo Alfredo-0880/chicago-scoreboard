@@ -10,6 +10,7 @@
   --card: #ffffff;
   --ink: #17140f;
   --ink-soft: #57534a;
+  --navy-3: #081326;
   --gold: #e8ae1c;
   --line: rgba(23, 20, 15, 0.1);
   --radius: 14px;
@@ -33,6 +34,82 @@
   --navy-2: #1b3868;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* Team colors: theme.js sets data-colors on <html> from the Colors
+   dropdown. Each team replaces the header color (--navy, lightest to
+   darkest: --navy-2, --navy, --navy-3) and the accent (--flag-red, with
+   --flag-red-2 a lighter shade). These come after the dark theme so they
+   apply in both. */
+:root[data-colors="bears"] {
+  --navy-2: #1c2f52;
+  --navy: #0b162a;
+  --navy-3: #050a14;
+  --flag-red: #c83803;
+  --flag-red-2: #e5591f;
+}
+
+:root[data-colors="bulls"] {
+  --navy-2: #2b2b2b;
+  --navy: #111111;
+  --navy-3: #000000;
+  --flag-red: #ce1141;
+  --flag-red-2: #e2365f;
+}
+
+:root[data-colors="cubs"] {
+  --navy-2: #1f4bab;
+  --navy: #0e3386;
+  --navy-3: #071d4d;
+  --flag-red: #cc3433;
+  --flag-red-2: #e0504f;
+}
+
+:root[data-colors="whitesox"] {
+  --navy-2: #3d3a33;
+  --navy: #27251f;
+  --navy-3: #121110;
+  --flag-red: #5b666e;
+  --flag-red-2: #7a858d;
+}
+
+/* Black text on the dark theme's background would disappear, so the White
+   Sox accent turns silver there. */
+:root[data-theme="dark"][data-colors="whitesox"] {
+  --flag-red: #8a959c;
+  --flag-red-2: #a7b1b7;
+}
+
+:root[data-colors="blackhawks"] {
+  --navy-2: #4a0c17;
+  --navy: #1a1a1a;
+  --navy-3: #000000;
+  --flag-red: #cf0a2c;
+  --flag-red-2: #e3304d;
+}
+
+:root[data-colors="fire"] {
+  --navy-2: #26306e;
+  --navy: #141946;
+  --navy-3: #0a0d26;
+  --flag-red: #af2626;
+  --flag-red-2: #d03c3c;
+}
+
+:root[data-colors="sky"] {
+  --navy-2: #418fde;
+  --navy: #1f5ba8;
+  --navy-3: #0f2f5c;
+  --flag-red: #2a6ebb;
+  --flag-red-2: #418fde;
+}
+
+:root[data-colors="stars"] {
+  --navy-2: #2f7fb5;
+  --navy: #1b365d;
+  --navy-3: #0c1a2e;
+  --flag-red: #c8102e;
+  --flag-red-2: #e23350;
 }
 
 * {
@@ -65,7 +142,7 @@ button {
   background:
     radial-gradient(ellipse 480px 260px at 12% -10%, rgba(232, 174, 28, 0.2), transparent 60%),
     radial-gradient(ellipse 420px 240px at 92% 8%, rgba(200, 16, 46, 0.22), transparent 55%),
-    linear-gradient(165deg, var(--navy-2) 0%, var(--navy) 55%, #081326 100%);
+    linear-gradient(165deg, var(--navy-2) 0%, var(--navy) 55%, var(--navy-3) 100%);
   color: #f5f3ec;
   padding: 46px 20px 50px;
   position: relative;
@@ -94,7 +171,7 @@ button {
   opacity: 0.25;
   -webkit-mask-image: linear-gradient(to top, #000 30%, transparent);
   mask-image: linear-gradient(to top, #000 30%, transparent);
-  fill: #081326;
+  fill: var(--navy-3);
   pointer-events: none;
 }
 
@@ -357,6 +434,15 @@ button {
   min-height: 34px;
   padding: 6px 12px;
   font-size: 0.8rem;
+}
+
+.colors-picker {
+  font-size: 0.8rem;
+}
+
+.colors-picker select {
+  min-height: 34px;
+  padding: 4px 8px;
 }
 
 .refresh {
