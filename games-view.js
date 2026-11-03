@@ -1,6 +1,11 @@
 // Draws the Games tab: recent results or upcoming games for the selected
 // team(s), grouped by month.
 
+// Games happening now, above the rest.
+function liveSectionHtml(live) {
+  return `<section class="live-now"><h3 class="month live-heading">Live now</h3>${live.map(gameRowHtml).join("")}</section>`;
+}
+
 function gamesPageHtml() {
   const favorites = selectedFavorites();
   const states = favorites.map((favorite) => ({ favorite, ...loadState("games", favorite.key) }));
@@ -36,9 +41,7 @@ function gamesPageHtml() {
       : "";
 
   const live = liveGames(loaded.map((teamState) => teamState.value));
-  const liveSection = live.length
-    ? `<section class="live-now"><h3 class="month live-heading">Live now</h3>${live.map(gameRowHtml).join("")}</section>`
-    : "";
+  const liveSection = live.length ? liveSectionHtml(live) : "";
 
   return `
     ${teamFilterHtml()}

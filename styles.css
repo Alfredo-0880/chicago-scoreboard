@@ -505,8 +505,15 @@ button {
   margin-top: 6px;
 }
 
-.live-heading {
-  color: var(--flag-red);
+/* Written as .month.live-heading so it wins over the plain .month style
+   further down. */
+.month.live-heading {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--flag-red);
+  color: #fff;
+  animation: pulse 1.6s ease-in-out infinite;
 }
 
 .live-badge {
