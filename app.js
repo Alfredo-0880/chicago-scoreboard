@@ -8,6 +8,7 @@ const state = {
   page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "funfacts" | "social" | "stats" | "injuries"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
+  allFinals: false, // Final shows every result this season, not just the last 10
   selectedLeague: "NFL",
   playoffsView: "seeds", // Playoff Picture: "bracket" | "seeds" (Playoff Race) | "race" (Wild Card)
   // Each entry: { status: "loading" | "loaded" | "error", value }
@@ -348,6 +349,9 @@ const ACTIONS = {
   },
   "games-shown": (button) => {
     state.gamesShown = button.dataset.shown;
+  },
+  "all-finals": () => {
+    state.allFinals = !state.allFinals;
   },
   league: (button) => {
     state.selectedLeague = button.dataset.league;

@@ -617,6 +617,11 @@ button {
 
 /* Games */
 
+.show-all-games {
+  display: block;
+  margin: 16px auto 0;
+}
+
 .month {
   font-family: "Oswald", sans-serif;
   font-weight: 600;

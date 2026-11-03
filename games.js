@@ -65,19 +65,26 @@ function scoreOf(competitor) {
 
 const GAMES_PER_TEAM = 10;
 
+// Whether Final leaves out any team's older results.
+function hasHiddenFinals(gamesByTeam) {
+  return gamesByTeam.some((games) => games.filter((game) => game.completed).length > GAMES_PER_TEAM);
+}
+
 // Games being played right now, for the Live now section.
 function liveGames(gamesByTeam) {
   return gamesByTeam.flat().filter((game) => game.state === "in").sort((a, b) => a.date - b.date);
 }
 
-// Final: each team's most recent results, newest first.
+// Final: each team's most recent results (or, with allFinals, every result
+// this season), newest first.
 // Upcoming: each team's next games, soonest first. (Games being played now
 // are shown separately, in Live now.)
-function selectGames(gamesByTeam, show) {
+function selectGames(gamesByTeam, show, allFinals = false) {
   const selected = [];
   for (const games of gamesByTeam) {
     if (show === "final") {
-      selected.push(...games.filter((game) => game.completed).slice(-GAMES_PER_TEAM));
+      const finals = games.filter((game) => game.completed);
+      selected.push(...(allFinals ? finals : finals.slice(-GAMES_PER_TEAM)));
     } else {
       selected.push(...games.filter((game) => game.state === "pre").slice(0, GAMES_PER_TEAM));
     }

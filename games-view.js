@@ -13,7 +13,8 @@ function gamesPageHtml() {
   const failed = states.filter((teamState) => teamState.status === "error");
   const stillLoading = states.some((teamState) => teamState.status === "loading");
 
-  const games = selectGames(loaded.map((teamState) => teamState.value), state.gamesShown);
+  const gamesByTeam = loaded.map((teamState) => teamState.value);
+  const games = selectGames(gamesByTeam, state.gamesShown, state.allFinals);
   const countText = stillLoading && games.length === 0 ? "" : `${games.length} ${games.length === 1 ? "game" : "games"}`;
 
   let body;
@@ -40,7 +41,7 @@ function gamesPageHtml() {
       ? `<div class="notice">Couldn't load games for ${failed.map((teamState) => teamState.favorite.label).join(", ")}. Try Refresh.</div>`
       : "";
 
-  const live = liveGames(loaded.map((teamState) => teamState.value));
+  const live = liveGames(gamesByTeam);
   const liveSection = live.length ? liveSectionHtml(live) : "";
 
   return `
@@ -55,7 +56,15 @@ function gamesPageHtml() {
     </div>
     ${calendarHtml()}
     ${failedNote}
-    ${body}`;
+    ${body}
+    ${state.gamesShown === "final" && hasHiddenFinals(gamesByTeam) ? allFinalsButtonHtml() : ""}`;
+}
+
+// Below Final: switches between the last 10 results per team and the whole
+// season.
+function allFinalsButtonHtml() {
+  const label = state.allFinals ? `Show only the last ${GAMES_PER_TEAM}` : "Show all games";
+  return `<button class="pill-button show-all-games" data-action="all-finals">${label}</button>`;
 }
 
 // The teams (and their games) a calendar download covers: the selected team,
