@@ -3,7 +3,7 @@
 
 // Games happening now, above the rest.
 function liveSectionHtml(live) {
-  return `<section class="live-now"><h3 class="month live-heading">Live now</h3>${live.map(gameRowHtml).join("")}</section>`;
+  return `<section class="live-now"><h3 class="month live-heading">Live now</h3>${live.map((game) => gameRowHtml(game)).join("")}</section>`;
 }
 
 function gamesPageHtml() {
@@ -19,7 +19,7 @@ function gamesPageHtml() {
 
   let body;
   if (games.length > 0) {
-    body = gameListHtml(games);
+    body = gameListHtml(games, gamesTabBoxScore);
   } else if (stillLoading) {
     body = `<div class="message">Loading games…</div>`;
   } else if (failed.length === states.length) {
@@ -102,7 +102,9 @@ function toggleButtonHtml(action, dataName, value, label, current) {
                   aria-pressed="${value === current}">${label}</button>`;
 }
 
-function gameListHtml(games) {
+// boxScoreFor(game), when given, says whether a game offers a box score and
+// whether it is open (see gameRowHtml); Team History leaves it out.
+function gameListHtml(games, boxScoreFor = () => null) {
   let html = "";
   let currentMonth = "";
   for (const game of games) {
@@ -111,18 +113,36 @@ function gameListHtml(games) {
       html += `<h3 class="month">${month}</h3>`;
       currentMonth = month;
     }
-    html += gameRowHtml(game);
+    html += gameRowHtml(game, boxScoreFor(game));
   }
   return html;
+}
+
+// On the Games tab, every finished game offers its box score.
+function gamesTabBoxScore(game) {
+  if (!game.completed) return null;
+  const key = boxScoreKey(game);
+  return { open: state.openBoxScores.includes(key), state: loadState("boxScores", key) };
+}
+
+function boxScoreKey(game) {
+  return `${game.teamKey}:${game.id}`;
 }
 
 function teamFor(game) {
   return FAVORITE_TEAMS.find((team) => team.key === game.teamKey);
 }
 
-function gameRowHtml(game) {
+// boxScore: null for no box score button, or { open, state } where state is
+// the box score's load state (only read while open).
+function gameRowHtml(game, boxScore = null) {
   const favorite = teamFor(game);
   const details = [game.note, game.venue && `${game.venue.name} · ${game.venue.city}`].filter(Boolean);
+  const boxScoreButton = boxScore
+    ? `<button class="series-games-toggle box-score-toggle" data-action="box-score" data-game="${escapeHtml(boxScoreKey(game))}" aria-expanded="${boxScore.open}">
+         ${boxScore.open ? "Hide box score ▾" : "Box score ▸"}
+       </button>`
+    : "";
 
   return `
     <article class="game" style="--team-color:${favorite.color}">
@@ -137,9 +157,38 @@ function gameRowHtml(game) {
           <span class="opponent">${logoHtml(game.opponentLogos, game.opponentAbbreviation || "", "logo-small")}${escapeHtml(game.opponent)}</span>
         </div>
         ${details.map((detail) => `<div class="game-detail">${escapeHtml(detail)}</div>`).join("")}
+        ${boxScoreButton}
       </div>
       <div class="result">${resultHtml(game)}</div>
+      ${boxScore && boxScore.open ? boxScorePanelHtml(boxScore.state, boxScoreKey(game)) : ""}
     </article>`;
+}
+
+// A finished game's box score, under its row: a table per kind of player.
+function boxScorePanelHtml(boxScoreState, key) {
+  if (boxScoreState.status === "loading") return `<div class="box-score"><p class="box-score-note">Loading box score…</p></div>`;
+  if (boxScoreState.status === "error") {
+    return `
+      <div class="box-score">
+        <p class="box-score-note">Couldn't load the box score. Check your internet connection.</p>
+        <button class="pill-button" data-action="box-score-retry" data-game="${escapeHtml(key)}">Try again</button>
+      </div>`;
+  }
+  if (boxScoreState.value.length === 0) return `<div class="box-score"><p class="box-score-note">ESPN has no box score for this game.</p></div>`;
+  return `<div class="box-score">${boxScoreState.value.map(boxScoreTableHtml).join("")}</div>`;
+}
+
+function boxScoreTableHtml(table) {
+  return `
+    <h4 class="box-score-title">${escapeHtml(table.title)}</h4>
+    <div class="stats-table-scroll">
+      <table class="stats-table">
+        <thead><tr><th>Player</th>${table.columns.map((column) => `<th>${escapeHtml(column)}</th>`).join("")}</tr></thead>
+        <tbody>
+          ${table.rows.map((row) => `<tr><td>${escapeHtml(row.name)}</td>${row.values.map((value) => `<td>${escapeHtml(value)}</td>`).join("")}</tr>`).join("")}
+        </tbody>
+      </table>
+    </div>`;
 }
 
 // "21–27", or null when ESPN hasn't sent the score yet.

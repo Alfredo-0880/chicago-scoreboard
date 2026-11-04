@@ -617,6 +617,33 @@ button {
 
 /* Games */
 
+/* A box score spans the whole game row, under the matchup. */
+.box-score {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.box-score-toggle {
+  margin-top: 6px;
+  font-size: 0.75rem;
+}
+
+.box-score-title {
+  margin: 12px 0 6px;
+  font-family: "Oswald", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.box-score-note {
+  margin: 4px 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
 .show-all-games {
   display: block;
   margin: 16px auto 0;

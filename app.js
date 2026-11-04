@@ -9,6 +9,8 @@ const state = {
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   allFinals: false, // Final shows every result this season, not just the last 10
+  openBoxScores: [], // Games tab games whose box score is shown (boxScoreKey in games-view.js)
+  boxScores: {}, // boxScoreKey -> load state
   selectedLeague: "NFL",
   playoffsView: "seeds", // Playoff Picture: "bracket" | "seeds" (Playoff Race) | "race" (Wild Card)
   // Each entry: { status: "loading" | "loaded" | "error", value }
@@ -63,6 +65,13 @@ async function load(bucket, key, fetchValue) {
     state[bucket][key] = { status: "error" };
   }
   render();
+}
+
+// A box score loads the first time its game is opened. key is "teamKey:gameId".
+function loadBoxScore(key) {
+  const [teamKey, gameId] = key.split(":");
+  const favorite = FAVORITE_TEAMS.find((team) => team.key === teamKey);
+  load("boxScores", key, () => fetchBoxScore(favorite, gameId));
 }
 
 // The Playoff Picture loads only for leagues someone actually looks at.
@@ -349,6 +358,15 @@ const ACTIONS = {
   },
   "games-shown": (button) => {
     state.gamesShown = button.dataset.shown;
+  },
+  "box-score": (button) => {
+    const key = button.dataset.game;
+    const isOpen = state.openBoxScores.includes(key);
+    state.openBoxScores = isOpen ? state.openBoxScores.filter((open) => open !== key) : [...state.openBoxScores, key];
+    if (!isOpen && !state.boxScores[key]) loadBoxScore(key);
+  },
+  "box-score-retry": (button) => {
+    loadBoxScore(button.dataset.game);
   },
   "all-finals": () => {
     state.allFinals = !state.allFinals;
