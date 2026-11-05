@@ -1465,6 +1465,88 @@ button {
 
 /* Championships */
 
+/* Stadiums */
+
+.stadium-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.stadium-card {
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--team-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.stadium-photo {
+  margin: 0;
+}
+
+.stadium-photo img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: var(--line);
+}
+
+/* A photo that fails to load leaves no broken image behind. */
+.stadium-photo.missing {
+  display: none;
+}
+
+.stadium-photo figcaption {
+  padding: 4px 16px 0;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.stadium-photo figcaption a {
+  color: inherit;
+}
+
+.stadium-body {
+  padding: 8px 16px 14px;
+}
+
+.stadium-name {
+  margin: 0;
+  font-family: "Oswald", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.stadium-home {
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+
+.stadium-facts {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.stadium-facts div {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 8px;
+}
+
+.stadium-facts dt {
+  font-weight: 600;
+}
+
+.stadium-facts dd {
+  margin: 0;
+}
+
 .trophy-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

@@ -1,11 +1,11 @@
 // The page's state, data loading, team cards, and tabs. Each tab's content is
 // drawn by its own file: games-view.js, standings-view.js, playoffs-view.js,
 // rosters-view.js, news-view.js, highlights-view.js, history-view.js,
-// championships-view.js, funfacts-view.js, socials-view.js, careerstats-view.js,
+// championships-view.js, stadiums-view.js, funfacts-view.js, socials-view.js, careerstats-view.js,
 // injuries-view.js.
 
 const state = {
-  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "funfacts" | "social" | "stats" | "injuries"
+  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "funfacts" | "social" | "stats" | "injuries"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   allFinals: false, // Final shows every result this season, not just the last 10
@@ -54,6 +54,7 @@ const PAGES = [
   { key: "social", label: "Social" },
   { key: "history", label: "Team History" },
   { key: "championships", label: "Championships" },
+  { key: "stadiums", label: "Stadiums" },
   { key: "funfacts", label: "Fun Facts" },
 ];
 
@@ -242,6 +243,7 @@ function render() {
   else if (state.page === "highlights") page.innerHTML = highlightsPageHtml();
   else if (state.page === "history") page.innerHTML = historyPageHtml();
   else if (state.page === "championships") page.innerHTML = championshipsPageHtml();
+  else if (state.page === "stadiums") page.innerHTML = stadiumsPageHtml();
   else if (state.page === "funfacts") page.innerHTML = funFactsPageHtml();
   else if (state.page === "social") page.innerHTML = socialsPageHtml();
   else if (state.page === "stats") page.innerHTML = careerStatsPageHtml();
