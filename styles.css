@@ -1465,6 +1465,24 @@ button {
 
 /* Championships */
 
+/* Rivals (cards reuse the uniform card styles) */
+
+.rival-name {
+  margin-top: 6px;
+  font-family: "Oswald", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.rival-history {
+  margin: 4px 0 10px;
+}
+
+.rival-record {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
 /* Uniforms */
 
 .uniform-list {

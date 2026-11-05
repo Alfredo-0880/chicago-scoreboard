@@ -52,6 +52,8 @@ function parseGame(favorite, event) {
     won: ours.winner === true,
     venue: venue.fullName ? { name: venue.fullName, city: [address.city, address.state].filter(Boolean).join(", ") } : null,
     note: note || (seasonType && seasonType !== "Regular Season" ? seasonType : ""),
+    // Preseason (spring training in baseball) is ESPN's season type 1.
+    preseason: Boolean(event.seasonType && event.seasonType.type === 1),
   };
 }
 

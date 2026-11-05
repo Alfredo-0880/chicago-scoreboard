@@ -1,11 +1,11 @@
 // The page's state, data loading, team cards, and tabs. Each tab's content is
 // drawn by its own file: games-view.js, standings-view.js, playoffs-view.js,
 // rosters-view.js, news-view.js, highlights-view.js, history-view.js,
-// championships-view.js, stadiums-view.js, uniforms-view.js, mascots-view.js, funfacts-view.js, socials-view.js, careerstats-view.js,
+// championships-view.js, stadiums-view.js, uniforms-view.js, mascots-view.js, rivals-view.js, funfacts-view.js, socials-view.js, careerstats-view.js,
 // injuries-view.js.
 
 const state = {
-  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "uniforms" | "mascots" | "funfacts" | "social" | "stats" | "injuries"
+  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "uniforms" | "mascots" | "rivals" | "funfacts" | "social" | "stats" | "injuries"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   allFinals: false, // Final shows every result this season, not just the last 10
@@ -57,6 +57,7 @@ const PAGES = [
   { key: "stadiums", label: "Stadiums" },
   { key: "uniforms", label: "Uniforms" },
   { key: "mascots", label: "Mascots" },
+  { key: "rivals", label: "Rivals" },
   { key: "funfacts", label: "Fun Facts" },
 ];
 
@@ -248,6 +249,7 @@ function render() {
   else if (state.page === "stadiums") page.innerHTML = stadiumsPageHtml();
   else if (state.page === "uniforms") page.innerHTML = uniformsPageHtml();
   else if (state.page === "mascots") page.innerHTML = mascotsPageHtml();
+  else if (state.page === "rivals") page.innerHTML = rivalsPageHtml();
   else if (state.page === "funfacts") page.innerHTML = funFactsPageHtml();
   else if (state.page === "social") page.innerHTML = socialsPageHtml();
   else if (state.page === "stats") page.innerHTML = careerStatsPageHtml();
