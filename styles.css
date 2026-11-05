@@ -1545,6 +1545,27 @@ button {
   color: inherit;
 }
 
+/* Mascots (cards reuse the stadium card styles) */
+
+/* Mascot photos are often tall, so show more of them, from the top. */
+.mascot-photo img {
+  aspect-ratio: 4 / 3;
+  object-position: top;
+}
+
+.mascot-no-photo {
+  padding: 28px 16px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  background: var(--line);
+}
+
+.mascot-about,
+.mascot-fact {
+  margin: 0 0 6px;
+}
+
 /* Stadiums */
 
 .stadium-list {
