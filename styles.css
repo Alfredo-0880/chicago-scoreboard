@@ -1465,6 +1465,86 @@ button {
 
 /* Championships */
 
+/* Uniforms */
+
+.uniform-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.uniform-card {
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--team-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.uniform-row {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+}
+
+.uniform {
+  text-align: center;
+}
+
+.uniform-drawing {
+  width: 110px;
+  height: auto;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.uniform-name {
+  font-family: "Oswald", sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.uniform-description {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.uniform-note {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.uniform-picture {
+  margin: 14px 0 0;
+}
+
+.uniform-picture img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.uniform-picture.missing {
+  display: none;
+}
+
+.uniform-picture figcaption {
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.uniform-picture figcaption a {
+  color: inherit;
+}
+
 /* Stadiums */
 
 .stadium-list {
