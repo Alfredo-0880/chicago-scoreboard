@@ -55,6 +55,7 @@ function gamesPageHtml() {
       <span class="count">${countText}</span>
     </div>
     ${calendarHtml()}
+    ${notifyPanelHtml(state.notifyTeams, notificationPermission(), state.notifyMessage)}
     ${failedNote}
     ${body}
     ${state.gamesShown === "final" && hasHiddenFinals(gamesByTeam) ? allFinalsButtonHtml() : ""}`;

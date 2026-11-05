@@ -585,6 +585,27 @@ button {
   color: var(--ink-soft);
 }
 
+/* Final score notifications */
+
+.notify-panel {
+  margin-top: 14px;
+}
+
+.notify-title {
+  font-weight: 700;
+}
+
+.notify-note {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin: 2px 0 8px;
+}
+
+.notify-teams .team-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Live games */
 
 .live-now {

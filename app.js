@@ -37,6 +37,8 @@ const state = {
   lastUpdated: null,
   refreshing: false,
   calendarMessage: null, // confirmation shown after downloading a calendar
+  notifyTeams: savedNotifyTeams(), // teams with final score notifications on (notify.js)
+  notifyMessage: null, // what the last notifications tap did
   themeChoice: savedThemeChoice(), // "auto" | "light" | "dark", from theme.js
 };
 
@@ -171,11 +173,20 @@ async function loadEverything() {
   loadCareerStatsIfNeeded();
   loadInjuryHistoryIfNeeded();
   loadNewsIfNeeded();
+  // Games as they were, so a game that ended since the last load still notifies.
+  const gamesBefore = new Map(FAVORITE_TEAMS.map((favorite) => [favorite.key, loadState("games", favorite.key).value]));
   await Promise.all([
     ...LEAGUES.map((leagueInfo) => load("standings", leagueInfo.key, () => fetchLeagueStandings(leagueInfo))),
     ...FAVORITE_TEAMS.map((favorite) => load("games", favorite.key, () => fetchTeamGames(favorite))),
     ...FAVORITE_TEAMS.map((favorite) => load("injuries", favorite.key, () => fetchTeamInjuries(favorite))),
   ]);
+  for (const favorite of FAVORITE_TEAMS) {
+    const before = gamesBefore.get(favorite.key);
+    const after = loadState("games", favorite.key);
+    if (before && after.status === "loaded") {
+      showFinalNotifications(favorite, before, after.value, state.notifyTeams, notificationPermission());
+    }
+  }
   state.refreshing = false;
   state.lastUpdated = new Date();
   render();
@@ -367,6 +378,14 @@ const ACTIONS = {
   },
   "box-score-retry": (button) => {
     loadBoxScore(button.dataset.game);
+  },
+  "notify-team": async (button) => {
+    const favorite = FAVORITE_TEAMS.find((team) => team.key === button.dataset.team);
+    const { notifyTeams, message } = await toggleNotifyTeam(state.notifyTeams, favorite);
+    state.notifyTeams = notifyTeams;
+    state.notifyMessage = message;
+    saveNotifyTeams(notifyTeams);
+    render();
   },
   "all-finals": () => {
     state.allFinals = !state.allFinals;

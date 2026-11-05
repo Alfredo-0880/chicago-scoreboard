@@ -78,7 +78,9 @@ async function updateLiveScores() {
   for (const favorite of teamsWithLiveGames) {
     const gamesState = state.games[favorite.key];
     const liveById = liveByLeague.get(favorite.league);
-    gamesState.value = gamesState.value.map((game) => applyLiveScore(game, favorite, liveById.get(game.id)));
+    const before = gamesState.value;
+    gamesState.value = before.map((game) => applyLiveScore(game, favorite, liveById.get(game.id)));
+    showFinalNotifications(favorite, before, gamesState.value, state.notifyTeams, notificationPermission());
   }
   render();
 }
