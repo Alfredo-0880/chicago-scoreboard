@@ -1,11 +1,11 @@
 // The page's state, data loading, team cards, and tabs. Each tab's content is
 // drawn by its own file: games-view.js, standings-view.js, playoffs-view.js,
 // rosters-view.js, news-view.js, highlights-view.js, history-view.js,
-// championships-view.js, stadiums-view.js, uniforms-view.js, mascots-view.js, rivals-view.js, retired-numbers-view.js, funfacts-view.js, socials-view.js, careerstats-view.js,
+// championships-view.js, stadiums-view.js, uniforms-view.js, mascots-view.js, rivals-view.js, retired-numbers-view.js, hall-of-fame-view.js, funfacts-view.js, socials-view.js, careerstats-view.js,
 // injuries-view.js.
 
 const state = {
-  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "uniforms" | "mascots" | "rivals" | "retired" | "funfacts" | "social" | "stats" | "injuries"
+  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "uniforms" | "mascots" | "rivals" | "retired" | "halloffame" | "funfacts" | "social" | "stats" | "injuries"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   allFinals: false, // Final shows every result this season, not just the last 10
@@ -59,6 +59,7 @@ const PAGES = [
   { key: "mascots", label: "Mascots" },
   { key: "rivals", label: "Rivals" },
   { key: "retired", label: "Retired Numbers" },
+  { key: "halloffame", label: "Hall of Fame" },
   { key: "funfacts", label: "Fun Facts" },
 ];
 
@@ -252,6 +253,7 @@ function render() {
   else if (state.page === "mascots") page.innerHTML = mascotsPageHtml();
   else if (state.page === "rivals") page.innerHTML = rivalsPageHtml();
   else if (state.page === "retired") page.innerHTML = retiredNumbersPageHtml();
+  else if (state.page === "halloffame") page.innerHTML = hallOfFamePageHtml();
   else if (state.page === "funfacts") page.innerHTML = funFactsPageHtml();
   else if (state.page === "social") page.innerHTML = socialsPageHtml();
   else if (state.page === "stats") page.innerHTML = careerStatsPageHtml();
