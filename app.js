@@ -2,7 +2,7 @@
 // drawn by its own file: games-view.js, standings-view.js, playoffs-view.js,
 // rosters-view.js, news-view.js, highlights-view.js, history-view.js,
 // championships-view.js, stadiums-view.js, uniforms-view.js, mascots-view.js, rivals-view.js, retired-numbers-view.js, hall-of-fame-view.js, leaders-view.js, coach-history-view.js, funfacts-view.js, socials-view.js, careerstats-view.js,
-// injuries-view.js.
+// injuries-view.js. The tab rows (and which pages are grouped) are in tabs.js.
 
 const state = {
   page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "uniforms" | "mascots" | "rivals" | "retired" | "halloffame" | "leaders" | "coaches" | "funfacts" | "social" | "stats" | "injuries"
@@ -40,30 +40,8 @@ const state = {
   notifyTeams: savedNotifyTeams(), // teams with final score notifications on (notify.js)
   notifyMessage: null, // what the last notifications tap did
   themeChoice: savedThemeChoice(), // "auto" | "light" | "dark", from theme.js
+  lastGroupPages: {}, // the page last opened in each tab group (tabs.js), e.g. { history: "halloffame" }
 };
-
-const PAGES = [
-  { key: "games", label: "Games" },
-  { key: "standings", label: "League Standings" },
-  { key: "playoffs", label: "Playoff Picture" },
-  { key: "rosters", label: "Rosters" },
-  { key: "stats", label: "Stats" },
-  { key: "injuries", label: "Injuries" },
-  { key: "news", label: "News" },
-  { key: "highlights", label: "Highlights" },
-  { key: "social", label: "Social" },
-  { key: "history", label: "Team History" },
-  { key: "championships", label: "Championships" },
-  { key: "stadiums", label: "Stadiums" },
-  { key: "uniforms", label: "Uniforms" },
-  { key: "mascots", label: "Mascots" },
-  { key: "rivals", label: "Rivals" },
-  { key: "retired", label: "Retired Numbers" },
-  { key: "halloffame", label: "Hall of Fame" },
-  { key: "leaders", label: "All-Time Leaders" },
-  { key: "coaches", label: "Coaches" },
-  { key: "funfacts", label: "Fun Facts" },
-];
 
 // Load one piece of data into state[bucket][key], redrawing as it arrives.
 async function load(bucket, key, fetchValue) {
@@ -306,11 +284,16 @@ function teamCardHtml(favorite) {
 }
 
 function renderPageTabs() {
-  document.getElementById("pageTabs").innerHTML = PAGES.map(
-    (page) => `
-      <button class="page-tab ${page.key === state.page ? "active" : ""}" role="tab"
-              aria-selected="${page.key === state.page}" data-action="page" data-page="${page.key}">${page.label}</button>`
-  ).join("");
+  document.getElementById("pageTabs").innerHTML = mainTabsHtml(state.page);
+  const subTabs = document.getElementById("subTabs");
+  subTabs.innerHTML = subTabsHtml(state.page);
+  subTabs.hidden = !groupForPage(state.page);
+  // Redrawing a row scrolls it back to its start, which on a phone can hide
+  // the selected tab, so center it again.
+  for (const row of [document.getElementById("pageTabs"), subTabs]) {
+    const active = row.querySelector(".active");
+    if (active) row.scrollLeft = active.offsetLeft - row.offsetLeft - (row.clientWidth - active.offsetWidth) / 2;
+  }
 }
 
 function renderThemeToggle() {
@@ -382,6 +365,11 @@ const ACTIONS = {
   },
   page: (button) => {
     state.page = button.dataset.page;
+    const group = groupForPage(state.page);
+    if (group) state.lastGroupPages[group.key] = state.page;
+  },
+  "page-group": (button) => {
+    state.page = pageForGroup(button.dataset.group, state.lastGroupPages);
   },
   "games-shown": (button) => {
     state.gamesShown = button.dataset.shown;

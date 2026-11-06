@@ -430,6 +430,43 @@ button {
   border-bottom-color: var(--flag-red);
 }
 
+/* The second row, shown when History or Team Info is open */
+.sub-tabs {
+  display: flex;
+  gap: 6px;
+  max-width: 720px;
+  margin: 12px auto 0;
+  padding: 0 20px;
+  overflow-x: auto;
+}
+
+.sub-tabs[hidden] {
+  display: none;
+}
+
+.sub-tab {
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  min-height: 34px;
+  padding: 6px 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.sub-tab:hover {
+  color: var(--ink);
+}
+
+.sub-tab.active {
+  color: #fff;
+  background: var(--flag-red);
+  border-color: var(--flag-red);
+}
+
 .theme-toggle button {
   min-height: 34px;
   padding: 6px 12px;
@@ -2100,7 +2137,8 @@ button {
   }
 
   .wrap,
-  .page-tabs {
+  .page-tabs,
+  .sub-tabs {
     padding: 0 16px;
   }
 
