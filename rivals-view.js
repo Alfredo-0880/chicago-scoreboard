@@ -7,7 +7,7 @@ function rivalsPageHtml() {
     .join("");
   return `
     ${teamFilterHtml()}
-    <div class="season-note">Each team's main rival. Histories written by hand from Wikipedia; this season's games are live from ESPN.</div>
+    <div class="season-note">Each team's main rival. Histories and all-time records copied from Wikipedia; this season's games are live from ESPN.</div>
     <div class="uniform-list">${cards}</div>`;
 }
 
@@ -32,8 +32,22 @@ function rivalCardHtml(favorite, logos, gamesState) {
       ${header}
       <div class="rival-name">vs ${escapeHtml(rival.name)}</div>
       <p class="rival-history">${escapeHtml(rival.history)}</p>
+      ${rivalAllTimeHtml(rival.allTime)}
       ${rivalSeasonHtml(favorite, rival, gamesState)}
     </section>`;
+}
+
+function rivalAllTimeHtml({ regularSeason, playoffs, note }) {
+  const regular = regularSeason
+    ? `Regular season: ${escapeHtml(allTimeRecordText(regularSeason))}`
+    : "Wikipedia doesn't list a regular-season record.";
+  const rows = [regular, playoffs && `Playoffs: ${escapeHtml(allTimeRecordText(playoffs))}`].filter(Boolean);
+  return `
+    <div class="rival-all-time">
+      <h3 class="hof-group">All-time record</h3>
+      <ul class="rival-all-time-list">${rows.map((row) => `<li>${row}</li>`).join("")}</ul>
+      ${note ? `<p class="uniform-note">${escapeHtml(note)}</p>` : ""}
+    </div>`;
 }
 
 function rivalSeasonHtml(favorite, rival, gamesState) {
