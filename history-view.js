@@ -59,12 +59,13 @@ function seasonHistoryHtml(favorite, season) {
       }</div>
       ${headCoachHtml(favorite, season)}
     </div>
+    ${pastUniformsHtml(favorite, season)}
     ${seasonLeadersHtml(favorite, label, loadState("seasonLeaders", historyKey(favorite, season)))}
     ${seasonPlayersHtml(favorite, label, state.seasonPlayers[historyKey(favorite, season)], [...regular, ...postseason].filter((game) => game.state === "post").length)}
     ${postseason.length ? `<h2 class="history-heading">Playoffs</h2>${gameListHtml(postseason)}` : ""}
     <h2 class="history-heading">Regular season</h2>
     ${gameListHtml(regular)}
-    <div class="season-note">Results, leaders, and players from ESPN. Head coaches are kept by this app, since ESPN doesn't keep past coaches.</div>`;
+    <div class="season-note">Results, leaders, and players from ESPN. Head coaches and uniforms are kept by this app, since ESPN doesn't keep them.</div>`;
 }
 
 // "Passing Yards · Kyle Orton · 1,869", one line per category.
