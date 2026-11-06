@@ -1593,6 +1593,30 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
+/* Coaches (cards reuse the uniform, Hall of Fame, and leader styles) */
+
+.coach-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.coach-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.coach-more summary {
+  margin: 8px 0;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: underline;
+}
+
 /* Uniforms */
 
 .uniform-list {

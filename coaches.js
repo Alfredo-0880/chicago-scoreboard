@@ -1,10 +1,11 @@
 // Each team's head coach in past seasons, for Team History. ESPN only lists
 // the current coach (it returns today's coach for any past season), so
-// these were written by hand in October 2026, from Claude's knowledge
-// rather than a checked source; correct any entry found wrong. When a
-// coach changed during a season, both are listed. Seasons are numbered like
-// Team History's: NBA and NHL seasons by the year they end (2011 is 2010-11).
-// Add each finished season here.
+// these were written by hand in October 2026, and checked on 2026-11-06
+// against Wikipedia's head coach lists (the ones in coach-history.js);
+// all 85 names and seasons matched. When a coach changed during a season,
+// both are listed. Seasons are numbered like Team History's: NBA and NHL
+// seasons by the year they end (2011 is 2010-11). Add each finished season
+// here.
 //
 // [first season, last season, coach]
 const PAST_HEAD_COACHES = {
