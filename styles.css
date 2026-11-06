@@ -1483,6 +1483,48 @@ button {
   margin-bottom: 4px;
 }
 
+/* Retired numbers (cards reuse the uniform card styles) */
+
+.retired-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px 16px;
+}
+
+.retired-number {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.retired-badge {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--team-color);
+  color: #fff;
+  font-family: "Oswald", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.retired-name {
+  display: block;
+  font-weight: 700;
+}
+
+.retired-details {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
 /* Uniforms */
 
 .uniform-list {
