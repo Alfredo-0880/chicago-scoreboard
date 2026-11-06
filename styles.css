@@ -1553,6 +1553,46 @@ button {
   font-weight: 700;
 }
 
+/* All-time leaders (cards reuse the uniform card styles) */
+
+.leader-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 4px 24px;
+}
+
+.leader-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.leader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.leader-rank {
+  flex: none;
+  width: 1.4em;
+  font-family: "Oswald", sans-serif;
+  font-weight: 700;
+  color: var(--team-color);
+}
+
+.leader-player {
+  flex: 1;
+}
+
+.leader-value {
+  font-family: "Oswald", sans-serif;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Uniforms */
 
 .uniform-list {
