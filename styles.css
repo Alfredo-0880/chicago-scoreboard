@@ -1046,6 +1046,18 @@ button {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+}
+
+/* Names and statuses wrap so the table fits on a phone; numbers don't.
+   A hockey or soccer record breaks only between the record and points. */
+.picture-table td:nth-child(2),
+.picture-table td:nth-child(4),
+.picture-table .picture-record,
+.roster-table td:nth-child(3) {
+  white-space: normal;
+}
+
+.picture-record span {
   white-space: nowrap;
 }
 
@@ -1121,11 +1133,9 @@ button {
   white-space: normal;
 }
 
-.detail {
-  white-space: nowrap;
-}
-
+/* A long value (a birthplace) may wrap, but its label stays on one line. */
 .detail-label {
+  white-space: nowrap;
   font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.02em;

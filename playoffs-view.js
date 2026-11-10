@@ -244,7 +244,7 @@ function seedsHtml(standings, pictureGroups, note) {
         <tr class="${chicagoTeams.includes(entry.team.abbreviation) ? "favorite" : ""} ${isIn ? "" : "outside"}">
           <td class="seed">${isIn ? index + 1 : ""}</td>
           <td><span class="team-name">${logoHtml(entry.team.logos, entry.team.abbreviation, "logo-small")}${escapeHtml(entry.team.name)}</span></td>
-          <td>${escapeHtml(entry.team.record)}${showPoints ? ` · ${entry.team.points} pts` : ""}</td>
+          <td class="picture-record"><span>${escapeHtml(entry.team.record)}</span>${showPoints ? ` · <span>${entry.team.points} pts</span>` : ""}</td>
           <td><span class="picture-status ${entry.status.replace(" ", "-")}">${escapeHtml(entry.label)}</span></td>
         </tr>`;
       const line =
