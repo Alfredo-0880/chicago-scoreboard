@@ -8,10 +8,12 @@ async function fetchLeagueStandings(leagueInfo, season) {
   return parseLeagueStandings(leagueInfo.key, await fetchJson(url));
 }
 
-// Past standings go back to 2005 (like Team History), except where a league
-// is younger or skipped a season.
+// Past standings go back to 2005 (like Team History), except where ESPN's
+// start later or a league skipped a season.
 const STANDINGS_FIRST_SEASON = 2005;
-const LEAGUE_FIRST_SEASON = { NWSL: 2013 }; // the NWSL's first season
+// ESPN's NWSL standings start in 2014: it has none for 2013, the league's
+// first season.
+const LEAGUE_FIRST_SEASON = { NWSL: 2014 };
 const SEASONS_NOT_PLAYED = { NHL: [2005] }; // the 2004-05 lockout
 
 // A league's past seasons for the League Standings picker, newest first,
@@ -29,22 +31,27 @@ function pastStandingsSeasons(leagueKey, today) {
 // ESPN nests league -> conferences -> divisions -> entries, and each team's
 // numbers are a list of {name, value, displayValue} stats. Leagues without
 // divisions (MLS) put the entries right on each conference, and then the
-// conference is drawn as one group.
+// conference is drawn as one group. A season ESPN keeps as one league-wide
+// table (the NHL's 2020-21, played in temporary divisions) has the entries
+// on the league itself.
 function parseLeagueStandings(leagueKey, espnData) {
   const leagueInfo = leagueInfoFor(leagueKey);
   const divisions = [];
   let season = null;
+  // ESPN sends an empty list where a level has no groups under it.
+  const groupsUnder = (node) => (node.children && node.children.length > 0 ? node.children : [node]);
 
-  for (const conference of espnData.children || []) {
-    const groups = conference.children || [conference];
-    for (const division of groups) {
+  for (const conference of groupsUnder(espnData)) {
+    for (const division of groupsUnder(conference)) {
       const standings = division.standings;
       if (!standings) continue;
       season = season || {
         name: standings.seasonDisplayName,
         type: leagueInfo.seasonTypeNames[standings.seasonType] || "",
       };
-      const teams = standings.entries.map((entry) => teamFromEntry(leagueKey, entry));
+      // ESPN sometimes lists a team twice (Tampa Bay in the NHL's 2020-21).
+      const entries = standings.entries.filter((entry, index, all) => all.findIndex((other) => other.team.abbreviation === entry.team.abbreviation) === index);
+      const teams = entries.map((entry) => teamFromEntry(leagueKey, entry));
       teams.sort((a, b) => compareTeams(leagueKey, a, b));
       divisions.push({
         title: division === conference ? conference.name : divisionTitle(conference, division),

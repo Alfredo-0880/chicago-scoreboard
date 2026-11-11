@@ -239,6 +239,14 @@ const CAREER_STATS = {
 
 const ESPN_SOCCER_CORE_API = "https://sports.core.api.espn.com/v2/sports/soccer/leagues";
 
+// ESPN answers 404 ("Statistics not found") for a player who has never
+// played, such as a rookie. That is a player with no stats, not a failed
+// load, so it becomes empty ESPN data; other errors still fail.
+function noStatsIfNotFound(error) {
+  if (error.status === 404) return {};
+  throw error;
+}
+
 // A player's stats, ready for the Stats tab's three views:
 // { sport, currentYear, career: careerSummary(...), seasons: [{ year, label, team, lookup }] }.
 async function fetchCareerStats(favorite, playerId) {
@@ -247,13 +255,13 @@ async function fetchCareerStats(favorite, playerId) {
   if (leagueInfo.sport === "soccer") {
     const base = `${ESPN_SOCCER_CORE_API}/${leagueInfo.league}`;
     const [career, seasons] = await Promise.all([
-      fetchJson(`${base}/athletes/${playerId}/statistics`),
+      fetchJson(`${base}/athletes/${playerId}/statistics`).catch(noStatsIfNotFound),
       fetchSoccerSeasons(base, playerId, currentYear),
     ]);
     return { sport: "soccer", currentYear, career: careerSummary("soccer", parseCareerStats(career)), seasons };
   }
   const url = `https://site.web.api.espn.com/apis/common/v3/sports/${leagueInfo.sport}/${leagueInfo.league}/athletes/${playerId}/stats`;
-  const espnData = await fetchJson(url);
+  const espnData = await fetchJson(url).catch(noStatsIfNotFound);
   return {
     sport: leagueInfo.sport,
     currentYear,
@@ -277,7 +285,7 @@ function currentSeasonYear(leagueKey, today) {
 // has, then each one's regular season stats load from its own address.
 // ESPN doesn't say which team a soccer player was on, so team is blank.
 async function fetchSoccerSeasons(base, playerId, currentYear) {
-  const seasonList = await fetchJson(`${base}/athletes/${playerId}/seasons`);
+  const seasonList = await fetchJson(`${base}/athletes/${playerId}/seasons`).catch(noStatsIfNotFound);
   const seasons = await Promise.all(
     soccerSeasonYears(seasonList, currentYear).map(async (year) => {
       try {

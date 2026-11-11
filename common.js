@@ -46,7 +46,9 @@ function leagueInfoFor(leagueKey) {
 async function fetchJson(url) {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`ESPN returned ${response.status} for ${url}`);
+    const error = new Error(`ESPN returned ${response.status} for ${url}`);
+    error.status = response.status;
+    throw error;
   }
   return response.json();
 }
