@@ -65,8 +65,7 @@ async function updateLiveScores() {
     leagueKeys.map(async (leagueKey) => {
       const leagueInfo = leagueInfoFor(leagueKey);
       try {
-        const url = `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/scoreboard`;
-        return [leagueKey, parseScoreboard(await fetchJson(url))];
+        return [leagueKey, parseScoreboard(await fetchJson(leagueScoreboardUrl(leagueInfo)))];
       } catch (error) {
         console.error(`Could not load live ${leagueKey} scores`, error);
         return [leagueKey, new Map()];

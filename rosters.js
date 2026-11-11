@@ -11,10 +11,13 @@ const NO_LONGER_WITH_TEAM = {
 };
 
 async function fetchRoster(favorite) {
-  const leagueInfo = leagueInfoFor(favorite.league);
-  const url = `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/teams/${favorite.scheduleTeamId}/roster`;
-  const espnData = await fetchJson(url);
+  const espnData = await fetchJson(teamRosterUrl(favorite));
   return { groups: withoutDepartedPlayers(favorite, parseRoster(espnData)), coach: parseCoach(espnData) };
+}
+
+function teamRosterUrl(favorite) {
+  const leagueInfo = leagueInfoFor(favorite.league);
+  return `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/teams/${favorite.scheduleTeamId}/roster`;
 }
 
 // The roster without players listed in NO_LONGER_WITH_TEAM. A group left

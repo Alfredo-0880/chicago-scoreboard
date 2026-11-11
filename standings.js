@@ -3,9 +3,12 @@
 
 // season: a past season's year (2005), or leave it out for the current one.
 async function fetchLeagueStandings(leagueInfo, season) {
+  return parseLeagueStandings(leagueInfo.key, await fetchJson(leagueStandingsUrl(leagueInfo, season)));
+}
+
+function leagueStandingsUrl(leagueInfo, season) {
   const seasonQuery = season ? `&season=${season}` : "";
-  const url = `${ESPN_SITE_API}/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/standings?level=3${seasonQuery}`;
-  return parseLeagueStandings(leagueInfo.key, await fetchJson(url));
+  return `${ESPN_SITE_API}/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/standings?level=3${seasonQuery}`;
 }
 
 // Past standings go back to 2005 (like Team History), except where ESPN's

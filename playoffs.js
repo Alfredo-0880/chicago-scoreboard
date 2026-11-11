@@ -4,7 +4,7 @@
 // Is the league in its postseason right now? If so, load its playoff games.
 // Returns { inPostseason: false } or { inPostseason: true, rounds }.
 async function fetchPlayoffs(leagueInfo, today) {
-  const baseUrl = `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/scoreboard`;
+  const baseUrl = leagueScoreboardUrl(leagueInfo);
   const scoreboard = await fetchJson(baseUrl);
   const phase = scoreboard.leagues && scoreboard.leagues[0] && scoreboard.leagues[0].season;
   if (!isPostseasonName(phase && phase.type && phase.type.name)) {
@@ -246,7 +246,7 @@ function hasPastBracket(leagueKey) {
 
 // A past season's playoffs, in the same shape fetchPlayoffs returns.
 async function fetchPastPlayoffs(leagueInfo, season) {
-  const baseUrl = `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/scoreboard`;
+  const baseUrl = leagueScoreboardUrl(leagueInfo);
   const pages = await Promise.all(postseasonMonths(leagueInfo.key, season).map((month) => fetchJson(`${baseUrl}?dates=${month}&limit=1000`)));
   const events = pages.flatMap((page) => page.events || []).filter((event) => isPostseasonEvent(event) && !isAllStarGame(event));
   return { inPostseason: true, rounds: buildRounds(events) };

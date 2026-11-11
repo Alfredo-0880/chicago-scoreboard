@@ -39,11 +39,21 @@ const FAVORITE_TEAMS = [
 
 const ESPN_SITE_API = "https://site.api.espn.com/apis";
 
+// A league's scoreboard of today's games (playoffs.js adds other dates).
+function leagueScoreboardUrl(leagueInfo) {
+  return `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/scoreboard`;
+}
+
 function leagueInfoFor(leagueKey) {
   return LEAGUES.find((leagueInfo) => leagueInfo.key === leagueKey);
 }
 
+// Test settings: with index.html?data=saved, tests/saved-data.js sets this
+// to answer each ESPN request from saved data instead of the network.
+let savedAnswerFor = null;
+
 async function fetchJson(url) {
+  if (savedAnswerFor) return savedAnswerFor(url);
   const response = await fetch(url);
   if (!response.ok) {
     const error = new Error(`ESPN returned ${response.status} for ${url}`);
@@ -126,4 +136,28 @@ function logoTickerHtml(entries) {
     .map(({ label, logos }) => logoHtml(logos ? { light: logos.dark, dark: logos.dark } : null, initials(label), "logo-ticker-item"))
     .join("");
   return oneSet.repeat(LOGO_TICKER_COPIES);
+}
+
+// Test settings are asked for with index.html?data=saved. They load the
+// saved data from the tests folder, which only the local copy has; returns
+// "saved", "unavailable" (asked for, but the files aren't here), or null.
+async function loadTestSettings() {
+  if (new URLSearchParams(location.search).get("data") !== "saved") return null;
+  const loadScript = (src) =>
+    new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error(`Couldn't load ${src}`));
+      document.head.append(script);
+    });
+  try {
+    await loadScript("tests/fixtures.js");
+    await loadScript("tests/saved-data.js");
+    useSavedData();
+    return "saved";
+  } catch (error) {
+    console.error("Test settings are only on the local copy", error);
+    return "unavailable";
+  }
 }

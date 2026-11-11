@@ -2172,3 +2172,14 @@ button {
     gap: 10px;
   }
 }
+
+/* Test settings (index.html?data=saved) */
+
+.test-banner {
+  padding: 10px 20px;
+  background: #fdeccc;
+  color: #5c3a04;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: center;
+}

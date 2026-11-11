@@ -14,9 +14,12 @@ const NEWS_NAMES = {
 
 // Every recent item about the team, stories and videos, newest first.
 async function fetchTeamArticles(favorite) {
+  return parseTeamArticles(favorite, await fetchJson(teamNewsUrl(favorite)));
+}
+
+function teamNewsUrl(favorite) {
   const leagueInfo = leagueInfoFor(favorite.league);
-  const url = `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/news?team=${favorite.scheduleTeamId}&limit=50`;
-  return parseTeamArticles(favorite, await fetchJson(url));
+  return `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/news?team=${favorite.scheduleTeamId}&limit=50`;
 }
 
 // [{ headline, summary, published, link, image, isVideo, byline, teamKey }], newest first.

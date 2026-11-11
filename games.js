@@ -3,8 +3,7 @@
 
 async function fetchTeamGames(favorite) {
   const leagueInfo = leagueInfoFor(favorite.league);
-  const baseUrl = `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/teams/${favorite.scheduleTeamId}/schedule`;
-  const schedules = await Promise.all(leagueInfo.scheduleQueries.map((query) => fetchJson(`${baseUrl}?${query}`)));
+  const schedules = await Promise.all(leagueInfo.scheduleQueries.map((query) => fetchJson(teamScheduleUrl(favorite, query))));
 
   const gamesById = new Map();
   for (const schedule of schedules) {
@@ -14,6 +13,12 @@ async function fetchTeamGames(favorite) {
     }
   }
   return [...gamesById.values()].sort((a, b) => a.date - b.date);
+}
+
+// One part of a team's schedule; query picks it (for example "seasontype=2").
+function teamScheduleUrl(favorite, query) {
+  const leagueInfo = leagueInfoFor(favorite.league);
+  return `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/teams/${favorite.scheduleTeamId}/schedule?${query}`;
 }
 
 function parseGame(favorite, event) {

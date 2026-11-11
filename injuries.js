@@ -5,8 +5,11 @@
 async function fetchTeamInjuries(favorite) {
   const leagueInfo = leagueInfoFor(favorite.league);
   if (!leagueInfo.hasInjuryReports) return null;
-  const report = await fetchJson(`${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/injuries`);
-  return teamInjuriesFromReport(favorite, report);
+  return teamInjuriesFromReport(favorite, await fetchJson(injuryReportUrl(leagueInfo)));
+}
+
+function injuryReportUrl(leagueInfo) {
+  return `${ESPN_SITE_API}/site/v2/sports/${leagueInfo.sport}/${leagueInfo.league}/injuries`;
 }
 
 function teamInjuriesFromReport(favorite, report) {

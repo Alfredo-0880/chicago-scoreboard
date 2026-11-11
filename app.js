@@ -473,8 +473,25 @@ document.addEventListener("change", (event) => {
   render();
 });
 
+// A banner at the top while test settings are on, so saved scores are
+// never mistaken for live ones.
+function showTestSettingsBanner(mode) {
+  if (!mode) return;
+  const banner = document.createElement("div");
+  banner.className = "test-banner";
+  banner.setAttribute("role", "status");
+  banner.textContent =
+    mode === "saved"
+      ? "Test settings: ESPN data saved on October 15, 2026, plus a Bulls game saved live on October 26. Not live scores. Anything without saved data shows Couldn't load."
+      : "Test settings only work on the local copy of the app, so this shows live data.";
+  document.body.prepend(banner);
+}
+
 renderColorsPicker();
-loadEverything();
+loadTestSettings().then((mode) => {
+  showTestSettingsBanner(mode);
+  loadEverything();
+});
 // Keep live scores current; this loads nothing while no game is on.
 setInterval(updateLiveScores, LIVE_CHECK_SECONDS * 1000);
 // In Auto, follow the device when it switches between light and dark.
