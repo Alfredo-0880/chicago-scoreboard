@@ -72,3 +72,11 @@ function subTabsHtml(page) {
     )
     .join("");
 }
+
+// A page's name as a person reads it: "History › Hall of Fame", "Games".
+function pageLabel(page) {
+  const group = groupForPage(page);
+  if (group) return `${group.label} › ${group.pages.find((each) => each.key === page).label}`;
+  const tab = MAIN_TABS.find((each) => each.key === page);
+  return tab ? tab.label : page.charAt(0).toUpperCase() + page.slice(1);
+}

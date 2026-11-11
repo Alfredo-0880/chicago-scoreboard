@@ -157,7 +157,7 @@ async function loadTestSettings() {
     useSavedData();
     return "saved";
   } catch (error) {
-    console.error("Test settings are only on the local copy", error);
+    recordProblem("Test settings", "Test settings are only on the local copy", error);
     return "unavailable";
   }
 }

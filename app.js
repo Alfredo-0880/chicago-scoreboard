@@ -41,6 +41,7 @@ const state = {
   notifyMessage: null, // what the last notifications tap did
   themeChoice: savedThemeChoice(), // "auto" | "light" | "dark", from theme.js
   lastGroupPages: {}, // the page last opened in each tab group (tabs.js), e.g. { history: "halloffame" }
+  diagnosticsMessage: null, // what the last tap on the Diagnostics page did
 };
 
 // Load one piece of data into state[bucket][key], redrawing as it arrives.
@@ -49,7 +50,7 @@ async function load(bucket, key, fetchValue) {
   try {
     state[bucket][key] = { status: "loaded", value: await fetchValue() };
   } catch (error) {
-    console.error(`Could not load ${bucket} for ${key}`, error);
+    recordProblem("ESPN", `Could not load ${bucket} for ${key}`, error);
     state[bucket][key] = { status: "error" };
   }
   render();
@@ -195,6 +196,12 @@ function chicagoTeamLogos(favorite) {
   return standing ? standing.team.logos : null;
 }
 
+// Where the app is, for the diagnostics log (diagnostics.js).
+function currentPlaceForDiagnostics() {
+  const team = FAVORITE_TEAMS.find((favorite) => favorite.key === state.selectedTeam);
+  return { tab: pageLabel(state.page), team: team ? team.label : "All teams" };
+}
+
 // Teams whose data a tab should show, following the team filter.
 function selectedFavorites() {
   return state.selectedTeam === "all"
@@ -239,6 +246,7 @@ function render() {
   else if (state.page === "funfacts") page.innerHTML = funFactsPageHtml();
   else if (state.page === "social") page.innerHTML = socialsPageHtml();
   else if (state.page === "stats") page.innerHTML = careerStatsPageHtml();
+  else if (state.page === "diagnostics") page.innerHTML = diagnosticsPageHtml(readDiagnostics(), state.diagnosticsMessage);
   else page.innerHTML = injuriesPageHtml();
 }
 
@@ -365,6 +373,7 @@ const ACTIONS = {
   },
   page: (button) => {
     state.page = button.dataset.page;
+    state.diagnosticsMessage = null;
     const group = groupForPage(state.page);
     if (group) state.lastGroupPages[group.key] = state.page;
   },
@@ -390,6 +399,10 @@ const ACTIONS = {
     state.notifyMessage = message;
     saveNotifyTeams(notifyTeams);
     render();
+  },
+  "clear-diagnostics": () => {
+    saveDiagnostics([]);
+    state.diagnosticsMessage = "Log cleared.";
   },
   "all-finals": () => {
     state.allFinals = !state.allFinals;

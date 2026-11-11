@@ -67,7 +67,7 @@ async function updateLiveScores() {
       try {
         return [leagueKey, parseScoreboard(await fetchJson(leagueScoreboardUrl(leagueInfo)))];
       } catch (error) {
-        console.error(`Could not load live ${leagueKey} scores`, error);
+        recordProblem("ESPN", `Could not load live ${leagueKey} scores`, error);
         return [leagueKey, new Map()];
       }
     })
