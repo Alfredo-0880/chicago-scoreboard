@@ -1,22 +1,12 @@
 // Draws the Draft Picks tab: each team's draft picks since 2005, newest
-// first. The Cubs, White Sox, Blackhawks, and Fire come from Wikipedia
-// (drafts.js), since ESPN has no draft data for their leagues.
+// first, copied from ESPN or Wikipedia into drafts.js.
 
 const DRAFT_PICKS_SHOWN = 12;
 
-// Not added yet: the Bears, Bulls, and Sky will come from ESPN, and the
-// Stars from Wikipedia's NWSL Draft pages.
-const DRAFT_PICKS_COMING = {
-  bears: "ESPN",
-  bulls: "ESPN",
-  sky: "ESPN",
-  stars: "Wikipedia (the NWSL held drafts from 2013 to 2024)",
-};
-
 // A team's picks newest first, with a row for each year that had none
-// (noPick), or null when the team's picks aren't added yet.
+// (noPick), or null for a team drafts.js doesn't have.
 function teamDraftPicks(favorite) {
-  const team = WIKIPEDIA_DRAFT_PICKS[favorite.key];
+  const team = DRAFT_PICKS[favorite.key];
   if (!team) return null;
   const noPickRows = Object.entries(team.noPick).map(([year, note]) => ({ year: Number(year), note }));
   const rows = [...team.picks, ...noPickRows].sort((a, b) => b.year - a.year || (a.pick ?? 0) - (b.pick ?? 0));
@@ -29,7 +19,7 @@ function draftPicksPageHtml() {
     .join("");
   return `
     ${teamFilterHtml()}
-    <div class="season-note">Each team's draft picks since 2005, newest first. Copied from Wikipedia where ESPN has no draft data.</div>
+    <div class="season-note">Each team's draft picks since 2005, newest first. From ESPN, or Wikipedia where ESPN has no draft data.</div>
     <div class="uniform-list">${cards}</div>`;
 }
 
@@ -46,7 +36,7 @@ function draftPicksCardHtml(favorite, logos) {
     return `
     <section class="uniform-card" style="--team-color:${favorite.color}">
       ${header}
-      <p class="uniform-note">Draft picks for the ${favorite.label} aren't added yet. They'll come from ${DRAFT_PICKS_COMING[favorite.key]}.</p>
+      <p class="uniform-note">No draft picks for the ${favorite.label} yet.</p>
     </section>`;
   }
   const newest = draft.rows.slice(0, DRAFT_PICKS_SHOWN).map(draftPickRowHtml).join("");
@@ -60,7 +50,7 @@ function draftPicksCardHtml(favorite, logos) {
   const title = draft.firstRoundOnly ? "First-round picks" : "Draft picks";
   const notes = [
     draft.firstRoundOnly && "First round only: Wikipedia lists only the first-round picks.",
-    `From Wikipedia's ${draft.source}.`,
+    `From ${draft.source}.`,
   ].filter(Boolean);
   return `
     <section class="uniform-card" style="--team-color:${favorite.color}">
