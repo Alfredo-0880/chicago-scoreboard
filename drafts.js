@@ -289,10 +289,15 @@ const DRAFT_PICKS = {
     ],
   },
   blackhawks: {
-    source: "Wikipedia's List of Chicago Blackhawks draft picks",
+    source: "Wikipedia's List of Chicago Blackhawks draft picks, and its 2026 NHL entry draft article (the list has no 2026 draft yet)",
     rounds: "all",
     noPick: {},
     picks: [
+      { year: 2026, round: 2, pick: 34, player: "Xavier Villeneuve", position: "D", from: "Canada" },
+      { year: 2026, round: 2, pick: 35, player: "Ryan Roobroeck", position: "C", from: "Canada" },
+      { year: 2026, round: 3, pick: 66, player: "Samu Alalauri", position: "D", from: "Finland" },
+      { year: 2026, round: 7, pick: 194, player: "Alexander Ivanov", position: "D", from: "Russia" },
+      { year: 2026, round: 7, pick: 200, player: "William Sorbrand", position: "C", from: "Sweden" },
       { year: 2025, round: 1, pick: 3, player: "Anton Frondell", position: "C", from: "Sweden" },
       { year: 2025, round: 1, pick: 25, player: "Vaclav Nestrasil", position: "RW", from: "Czech Republic" },
       { year: 2025, round: 1, pick: 29, player: "Mason West", position: "C", from: "United States" },
