@@ -486,15 +486,16 @@ document.addEventListener("change", (event) => {
   render();
 });
 
-// A banner at the top while test settings are on, so saved scores are
-// never mistaken for live ones.
+// A banner at the top while the app runs on saved data, so saved scores
+// are never mistaken for live ones. When saved data was asked for but isn't
+// here (the live site), the app shows live data with no banner; the miss is
+// on the Diagnostics page.
 function showTestSettingsBanner(mode) {
-  if (!mode) return;
+  if (mode !== "saved") return;
   const banner = document.createElement("div");
   banner.className = "test-banner";
   banner.setAttribute("role", "status");
-  banner.textContent =
-    mode === "saved" ? savedDataDescription(SAVED_ESPN_ANSWERS_DATE) : "Test settings need the local copy of the app with its saved ESPN data (see the README), so this shows live data.";
+  banner.textContent = savedDataDescription(SAVED_ESPN_ANSWERS_DATE);
   document.body.prepend(banner);
 }
 
