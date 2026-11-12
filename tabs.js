@@ -18,6 +18,7 @@ const MAIN_TABS = [
       { key: "history", label: "Seasons" },
       { key: "championships", label: "Championships" },
       { key: "coaches", label: "Coaches" },
+      { key: "drafts", label: "Draft Picks" },
       { key: "retired", label: "Retired Numbers" },
       { key: "halloffame", label: "Hall of Fame" },
       { key: "leaders", label: "All-Time Leaders" },
