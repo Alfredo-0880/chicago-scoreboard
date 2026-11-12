@@ -494,9 +494,7 @@ function showTestSettingsBanner(mode) {
   banner.className = "test-banner";
   banner.setAttribute("role", "status");
   banner.textContent =
-    mode === "saved"
-      ? "Test settings: ESPN data saved on October 15, 2026, plus a Bulls game saved live on October 26. Not live scores. Anything without saved data shows Couldn't load."
-      : "Test settings only work on the local copy of the app, so this shows live data.";
+    mode === "saved" ? savedDataDescription(SAVED_ESPN_ANSWERS_DATE) : "Test settings need the local copy of the app with its saved ESPN data (see the README), so this shows live data.";
   document.body.prepend(banner);
 }
 

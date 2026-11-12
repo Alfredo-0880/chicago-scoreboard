@@ -153,11 +153,12 @@ async function loadTestSettings() {
     });
   try {
     await loadScript("tests/fixtures.js");
+    await loadScript("tests/saved-answers.js");
     await loadScript("tests/saved-data.js");
     useSavedData();
     return "saved";
   } catch (error) {
-    recordProblem("Test settings", "Test settings are only on the local copy", error);
+    recordProblem("Test settings", "Test settings need the local copy and its saved ESPN data", error);
     return "unavailable";
   }
 }
