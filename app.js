@@ -5,7 +5,7 @@
 // injuries-view.js. The tab rows (and which pages are grouped) are in tabs.js.
 
 const state = {
-  page: "games", // "today" | "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "uniforms" | "mascots" | "rivals" | "retired" | "halloffame" | "leaders" | "coaches" | "drafts" | "funfacts" | "social" | "stats" | "injuries"
+  page: "today", // opens on Today; "today" | "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "uniforms" | "mascots" | "rivals" | "retired" | "halloffame" | "leaders" | "coaches" | "drafts" | "funfacts" | "social" | "stats" | "injuries"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   allFinals: false, // Final shows every result this season, not just the last 10
