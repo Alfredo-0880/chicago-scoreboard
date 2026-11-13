@@ -8,8 +8,13 @@
 // Each team's members are in groups, as Wikipedia lists them: by whether
 // the Hall counts this as their main team (Bears, Cubs, White Sox), or by
 // players, coaches, and others. role, years (with the team), inducted, and
-// note are left out where Wikipedia's list doesn't give them. Wikipedia
-// lists no Hall of Famers for the Fire, Sky, or Stars.
+// note are left out where Wikipedia's list doesn't give them.
+//
+// Wikipedia has no such list for the Fire, Sky, or Stars, so theirs were
+// found on 2026-11-12 by checking every member of the National Soccer Hall
+// of Fame, the Naismith Hall, and the Women's Basketball Hall of Fame whose
+// Wikipedia article names the team, keeping those who played or coached
+// for it. The Sky's span two halls, so inducted says which.
 
 const HALL_OF_FAME = {
   bears: {
@@ -302,9 +307,63 @@ const HALL_OF_FAME = {
       },
     ],
   },
-  fire: { hall: null, groups: [] },
-  sky: { hall: null, groups: [] },
-  stars: { hall: null, groups: [] },
+  fire: {
+    hall: "National Soccer Hall of Fame",
+    groups: [
+      {
+        title: "Players",
+        members: [
+          { name: "Eric Wynalda", role: "FW", years: "2001", inducted: "2004" },
+          { name: "Brian McBride", role: "FW", years: "2008–2010", inducted: "2014" },
+          { name: "Carlos Bocanegra", role: "DF", years: "2000–2003", inducted: "2020" },
+          { name: "DaMarcus Beasley", role: "MF", years: "2000–2004", inducted: "2023" },
+          { name: "Chris Armas", role: "MF", years: "1998–2007", inducted: "2025" },
+        ],
+      },
+      {
+        title: "Coaches",
+        members: [{ name: "Bob Bradley", role: "Head coach", years: "1997–2002", inducted: "2014" }],
+      },
+    ],
+  },
+  sky: {
+    hall: "Naismith Basketball Hall of Fame and Women's Basketball Hall of Fame",
+    groups: [
+      {
+        title: "Players",
+        members: [
+          { name: "Nikki McCray-Penson", role: "G", years: "2006", inducted: "2012 (Women's)", note: "In the Naismith Hall with the 1996 Olympic team (2026)" },
+          { name: "Ruth Riley", role: "F/C", years: "2012", inducted: "2019 (Women's)" },
+          { name: "Ticha Penicheiro", role: "G", years: "2012", inducted: "2019 (Women's)" },
+          { name: "Swin Cash", role: "F", years: "2012–2013", inducted: "2021 (Women's), 2022 (Naismith)" },
+          { name: "Sylvia Fowles", role: "C", years: "2008–2014", inducted: "2025 (Naismith and Women's)" },
+          { name: "Cappie Pondexter", role: "G", years: "2015–2017", inducted: "2025 (Women's)" },
+          { name: "Elena Delle Donne", role: "F/G", years: "2013–2016", inducted: "2026 (Naismith)" },
+          { name: "Candace Parker", role: "F", years: "2021–2022", inducted: "2026 (Naismith)" },
+        ],
+      },
+      {
+        title: "Coaches",
+        members: [
+          { name: "Dave Cowens", role: "Head coach", years: "2006", inducted: "1991 (Naismith)", note: "Inducted as a player" },
+          { name: "Teresa Weatherspoon", role: "Head coach", years: "2024", inducted: "2010 (Women's), 2019 (Naismith)" },
+        ],
+      },
+    ],
+  },
+  stars: {
+    hall: "National Soccer Hall of Fame",
+    groups: [
+      {
+        title: "Players",
+        members: [
+          { name: "Shannon Boxx", role: "MF", years: "2013–2015", inducted: "2022" },
+          { name: "Kate Markgraf", role: "DF", years: "2010", inducted: "2023", note: "Red Stars in Women's Professional Soccer, before the NWSL" },
+          { name: "Carli Lloyd", role: "MF/FW", years: "2009", inducted: "2025", note: "Red Stars in Women's Professional Soccer, before the NWSL" },
+        ],
+      },
+    ],
+  },
 };
 
 function teamHallOfFame(favorite) {
