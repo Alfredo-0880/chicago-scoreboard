@@ -1,11 +1,11 @@
 // The page's state, data loading, team cards, and tabs. Each tab's content is
-// drawn by its own file: games-view.js, standings-view.js, playoffs-view.js,
+// drawn by its own file: today-view.js, games-view.js, standings-view.js, playoffs-view.js,
 // rosters-view.js, news-view.js, highlights-view.js, history-view.js,
 // championships-view.js, stadiums-view.js, uniforms-view.js, mascots-view.js, rivals-view.js, retired-numbers-view.js, hall-of-fame-view.js, leaders-view.js, coach-history-view.js, draft-picks-view.js, funfacts-view.js, socials-view.js, careerstats-view.js,
 // injuries-view.js. The tab rows (and which pages are grouped) are in tabs.js.
 
 const state = {
-  page: "games", // "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "uniforms" | "mascots" | "rivals" | "retired" | "halloffame" | "leaders" | "coaches" | "drafts" | "funfacts" | "social" | "stats" | "injuries"
+  page: "games", // "today" | "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "uniforms" | "mascots" | "rivals" | "retired" | "halloffame" | "leaders" | "coaches" | "drafts" | "funfacts" | "social" | "stats" | "injuries"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   allFinals: false, // Final shows every result this season, not just the last 10
@@ -227,7 +227,8 @@ function render() {
   renderThemeToggle();
   renderUpdatedAt();
   const page = document.getElementById("page");
-  if (state.page === "games") page.innerHTML = gamesPageHtml();
+  if (state.page === "today") page.innerHTML = todayPageHtml();
+  else if (state.page === "games") page.innerHTML = gamesPageHtml();
   else if (state.page === "standings") page.innerHTML = standingsPageHtml();
   else if (state.page === "playoffs") page.innerHTML = playoffsPageHtml();
   else if (state.page === "rosters") page.innerHTML = rostersPageHtml();

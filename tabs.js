@@ -3,6 +3,7 @@
 // is always a page key ("halloffame"), never a group.
 
 const MAIN_TABS = [
+  { key: "today", label: "Today" },
   { key: "games", label: "Games" },
   { key: "standings", label: "League Standings" },
   { key: "playoffs", label: "Playoff Picture" },

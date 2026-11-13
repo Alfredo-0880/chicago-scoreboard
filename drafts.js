@@ -6,7 +6,8 @@
 // The NWSL held drafts only from 2013 to 2024. rounds is
 // "first" where Wikipedia lists only first-round picks (the MLB teams). from
 // is the player's school, or for the Blackhawks their country (all
-// Wikipedia's list gives). noPick explains a year with no pick.
+// Wikipedia's list gives). noPick explains a year with no pick. Add a new
+// year's picks with tools/add-draft-picks.py (see the README).
 
 const DRAFT_PICKS = {
   bears: {
