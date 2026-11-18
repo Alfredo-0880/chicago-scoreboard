@@ -209,7 +209,12 @@ function seriesHtml(series, chicagoTeams, roundName, openSeries) {
 // bold. A game not played yet shows its start time instead of scores.
 function seriesGameHtml(game) {
   const when = game.date
-    ? chicagoDate(game.date, game.completed ? { weekday: "short", month: "short", day: "numeric" } : { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
+    ? chicagoDate(
+        game.date,
+        game.completed || !game.timeKnown
+          ? { weekday: "short", month: "short", day: "numeric" }
+          : { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }
+      )
     : "";
   const side = (team) => {
     const text = `${escapeHtml(team.name)}${game.completed && team.score !== null ? ` ${escapeHtml(team.score)}` : ""}`;

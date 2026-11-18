@@ -38,11 +38,12 @@ function parseGame(favorite, event) {
   const note = competition.notes && competition.notes[0] && competition.notes[0].headline;
   const seasonType = event.seasonType && event.seasonType.name;
 
+  const timeKnown = competition.timeValid !== false;
   return {
     id: event.id,
     teamKey: favorite.key,
-    date: new Date(event.date),
-    timeKnown: competition.timeValid !== false,
+    date: timeKnown ? new Date(event.date) : dateWithoutTime(event.date),
+    timeKnown,
     // "pre" = scheduled, "in" = being played now, "post" = over
     state: status.state,
     completed: status.completed,
@@ -60,6 +61,15 @@ function parseGame(favorite, event) {
     // Preseason (spring training in baseball) is ESPN's season type 1.
     preseason: Boolean(event.seasonType && event.seasonType.type === 1),
   };
+}
+
+// A game with no start time yet: ESPN gives it a placeholder of midnight
+// Eastern ("2027-07-16T04:00Z"), which is 11 PM the night before in Chicago,
+// so the game would show a day early. Its date part is the game's day, so
+// keep that and put the game at midday, which is that day in every US time
+// zone.
+function dateWithoutTime(espnDate) {
+  return new Date(`${espnDate.slice(0, 10)}T17:00:00Z`);
 }
 
 // ESPN sends scores as {value, displayValue} in schedules but as plain

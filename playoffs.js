@@ -161,7 +161,10 @@ function seriesGame(competition, index) {
   const statusType = (competition.status && competition.status.type) || {};
   return {
     number: gameNumber ? Number(gameNumber[1]) : index + 1,
-    date: competition.date ? new Date(competition.date) : null,
+    // An untimed game gets ESPN's midnight-Eastern placeholder (see
+    // dateWithoutTime in games.js).
+    date: !competition.date ? null : competition.timeValid === false ? dateWithoutTime(competition.date) : new Date(competition.date),
+    timeKnown: competition.timeValid !== false,
     away: side("away"),
     home: side("home"),
     completed: statusType.completed === true,
