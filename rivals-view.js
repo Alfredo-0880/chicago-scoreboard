@@ -34,14 +34,29 @@ function rivalCardHtml(favorite, logos, gamesState) {
       <p class="rival-history">${escapeHtml(rival.history)}</p>
       ${rivalAllTimeHtml(rival.allTime)}
       ${rivalSeasonHtml(favorite, rival, gamesState)}
-      ${favorite.key === "cubs" || favorite.key === "whitesox" ? crosstownHtml(CROSSTOWN_SEASONS) : ""}
+      ${favorite.key === "cubs" ? cubsCrosstownHtml(favorite, gamesState) : ""}
+      ${favorite.key === "whitesox" ? crosstownHtml(CROSSTOWN_SEASONS) : ""}
     </section>`;
 }
 
-// The Crosstown Classic, season by season, on the Cubs and White Sox cards
-// (the only Chicago teams that play each other). The Cubs' main rival is
-// the Cardinals, so this is how their card shows the White Sox.
+// The Crosstown Classic, on the Cubs and White Sox cards (the only Chicago
+// teams that play each other). The White Sox's main rival is the Cubs, so
+// their card already has the history, record, and games above the seasons.
+// The Cubs' main rival is the Cardinals, so their card adds a second
+// section laid out the same way, from the White Sox's entry in rivals.js.
 const CROSSTOWN_SHOWN = 10;
+
+function cubsCrosstownHtml(favorite, gamesState) {
+  const whiteSox = { ...RIVALS.whitesox, name: "Chicago White Sox", abbreviation: "CHW" };
+  return `
+    <div class="second-rival">
+      <div class="rival-name">vs ${escapeHtml(whiteSox.name)}</div>
+      <p class="rival-history">${escapeHtml(whiteSox.history)}</p>
+      ${rivalAllTimeHtml(whiteSox.allTime)}
+      ${rivalSeasonHtml(favorite, whiteSox, gamesState)}
+      ${crosstownHtml(CROSSTOWN_SEASONS)}
+    </div>`;
+}
 
 // How many seasons each team won and how many were split, and the games.
 function crosstownSummary(seasons) {
