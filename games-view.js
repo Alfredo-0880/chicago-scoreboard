@@ -139,6 +139,7 @@ function teamFor(game) {
 function gameRowHtml(game, boxScore = null) {
   const favorite = teamFor(game);
   const details = [game.note, game.venue && `${game.venue.name} · ${game.venue.city}`].filter(Boolean);
+  const forecast = gameForecastText(game);
   const boxScoreButton = boxScore
     ? `<button class="series-games-toggle box-score-toggle" data-action="box-score" data-game="${escapeHtml(boxScoreKey(game))}" aria-expanded="${boxScore.open}">
          ${boxScore.open ? "Hide box score ▾" : "Box score ▸"}
@@ -158,6 +159,7 @@ function gameRowHtml(game, boxScore = null) {
           <span class="opponent">${logoHtml(game.opponentLogos, game.opponentAbbreviation || "", "logo-small")}${escapeHtml(game.opponent)}</span>
         </div>
         ${details.map((detail) => `<div class="game-detail">${escapeHtml(detail)}</div>`).join("")}
+        ${forecast ? `<div class="game-detail game-forecast">${escapeHtml(forecast)}</div>` : ""}
         ${boxScoreButton}
       </div>
       <div class="result">${resultHtml(game)}</div>

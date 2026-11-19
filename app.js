@@ -178,6 +178,26 @@ async function loadEverything() {
   state.lastUpdated = new Date();
   render();
   updateLiveScores();
+  loadForecastIfNeeded();
+}
+
+// Chicago's weather forecast (forecast.js) loads once the games are in, and
+// only when an outdoor home game is in the next 16 days. Test settings
+// skip it: their saved data is ESPN's only.
+async function loadForecastIfNeeded() {
+  if (savedAnswerFor) return;
+  const now = new Date();
+  const anyGameNeedsIt = FAVORITE_TEAMS.some((favorite) => {
+    const gamesState = loadState("games", favorite.key);
+    return gamesState.status === "loaded" && gamesState.value.some((game) => needsForecast(game, now));
+  });
+  if (!anyGameNeedsIt) return;
+  try {
+    chicagoForecast = await fetchChicagoForecast();
+  } catch (error) {
+    recordProblem("Open-Meteo", "Could not load Chicago's weather forecast", error);
+  }
+  render();
 }
 
 function loadState(bucket, key) {
