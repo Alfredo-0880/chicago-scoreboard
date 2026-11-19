@@ -33,7 +33,7 @@ function newsPageHtml() {
 
 function storyHtml(story) {
   const favorite = FAVORITE_TEAMS.find((team) => team.key === story.teamKey);
-  const date = chicagoDate(story.published, { month: "short", day: "numeric" });
+  const date = displayDate(story.published, { month: "short", day: "numeric" });
   return `
     <a class="story" href="${escapeHtml(story.link)}" target="_blank" rel="noopener noreferrer" style="--team-color:${favorite.color}">
       ${story.image ? `<img class="story-image" src="${escapeHtml(story.image)}" alt="" loading="lazy">` : ""}

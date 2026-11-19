@@ -120,9 +120,68 @@ function ordinal(n) {
   return `${n}${suffix}`;
 }
 
-// All dates are shown in Chicago time, wherever the viewer is.
-function chicagoDate(date, options) {
-  return date.toLocaleString("en-US", { timeZone: "America/Chicago", ...options });
+// Dates and times are shown in one time zone: Chicago's unless someone
+// away from Chicago picks another in the Time zone menu (saved in this
+// browser). "device" follows the device's own time zone.
+const TIME_ZONE_CHOICES = [
+  { value: "America/Chicago", label: "Chicago (Central)", name: "Chicago" },
+  { value: "America/New_York", label: "New York (Eastern)", name: "Eastern" },
+  { value: "America/Denver", label: "Denver (Mountain)", name: "Mountain" },
+  { value: "America/Phoenix", label: "Phoenix (Arizona)", name: "Arizona" },
+  { value: "America/Los_Angeles", label: "Los Angeles (Pacific)", name: "Pacific" },
+  { value: "America/Anchorage", label: "Anchorage (Alaska)", name: "Alaska" },
+  { value: "Pacific/Honolulu", label: "Honolulu (Hawaii)", name: "Hawaii" },
+  { value: "device", label: "My device's time zone", name: "your device's" },
+];
+const DEFAULT_TIME_ZONE = "America/Chicago";
+const TIME_ZONE_STORAGE_KEY = "chicago-scoreboard-time-zone";
+
+// The choice in use. The app sets it from the saved choice when it starts;
+// the tests leave it at Chicago.
+let timeZoneChoice = DEFAULT_TIME_ZONE;
+
+// Saved choice, or Chicago if there is none or the browser blocks storage.
+function savedTimeZoneChoice() {
+  try {
+    const choice = localStorage.getItem(TIME_ZONE_STORAGE_KEY);
+    return TIME_ZONE_CHOICES.some((each) => each.value === choice) ? choice : DEFAULT_TIME_ZONE;
+  } catch {
+    return DEFAULT_TIME_ZONE;
+  }
+}
+
+function saveTimeZoneChoice(choice) {
+  try {
+    localStorage.setItem(TIME_ZONE_STORAGE_KEY, choice);
+  } catch {
+    // The choice still holds until the page closes.
+  }
+}
+
+// An IANA time zone ("America/Chicago") for a choice.
+function resolvedTimeZone(choice) {
+  return choice === "device" ? Intl.DateTimeFormat().resolvedOptions().timeZone : choice;
+}
+
+// A choice's name in the Settings list. The device choice names the zone
+// it stands for: "My device's time zone (Pacific)", or the city in its zone
+// name ("London") when it isn't one of the listed zones.
+function timeZoneLabel(choice) {
+  if (choice !== "device") return TIME_ZONE_CHOICES.find((each) => each.value === choice).label;
+  const zone = resolvedTimeZone("device");
+  const listed = TIME_ZONE_CHOICES.find((each) => each.value === zone);
+  return `My device's time zone (${listed ? listed.name : zone.split("/").pop().replace(/_/g, " ")})`;
+}
+
+// "Chicago time", "Pacific time", or "your device's time", for notes.
+function timeZoneDescription(choice = timeZoneChoice) {
+  const found = TIME_ZONE_CHOICES.find((each) => each.value === choice);
+  return `${found ? found.name : "Chicago"} time`;
+}
+
+// A date in the chosen time zone, formatted with toLocaleString's options.
+function displayDate(date, options) {
+  return date.toLocaleString("en-US", { timeZone: resolvedTimeZone(timeZoneChoice), ...options });
 }
 
 // The header's row of team logos, repeated so it can slide in a seamless

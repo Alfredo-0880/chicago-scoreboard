@@ -2,26 +2,26 @@
 // start-time order: not started yet, live, and final. It uses the schedules
 // the Games tab loads, so live scores update here too.
 
-// A date's day in Chicago, "11/12/2026", so games compare by Chicago's
-// calendar day whatever the viewer's time zone.
-function chicagoDayKey(date) {
-  return chicagoDate(date, { year: "numeric", month: "numeric", day: "numeric" });
+// A date's day in the chosen time zone (Chicago's unless someone picks
+// another), "11/12/2026", so games compare by that calendar day.
+function dayKey(date) {
+  return displayDate(date, { year: "numeric", month: "numeric", day: "numeric" });
 }
 
-// Today's games, earliest first: those that start today in Chicago, plus any
+// Today's games, earliest first: those that start today, plus any
 // still being played from last night (a game that runs past midnight).
 function todaysGames(gamesByTeam, now) {
-  const today = chicagoDayKey(now);
+  const today = dayKey(now);
   return gamesByTeam
     .flat()
-    .filter((game) => chicagoDayKey(game.date) === today || game.state === "in")
+    .filter((game) => dayKey(game.date) === today || game.state === "in")
     .sort((a, b) => a.date - b.date);
 }
 
 // The first game after today, for a day with none, or null.
 function nextGameAfterToday(gamesByTeam, now) {
-  const today = chicagoDayKey(now);
-  const later = gamesByTeam.flat().filter((game) => game.state === "pre" && game.date > now && chicagoDayKey(game.date) !== today);
+  const today = dayKey(now);
+  const later = gamesByTeam.flat().filter((game) => game.state === "pre" && game.date > now && dayKey(game.date) !== today);
   return later.sort((a, b) => a.date - b.date)[0] || null;
 }
 
@@ -34,7 +34,7 @@ function todayPageHtml() {
   const gamesByTeam = loaded.map((teamState) => teamState.value);
   const games = todaysGames(gamesByTeam, now);
 
-  const day = chicagoDate(now, { weekday: "long", month: "long", day: "numeric" });
+  const day = displayDate(now, { weekday: "long", month: "long", day: "numeric" });
   const count = stillLoading && games.length === 0 ? "" : ` · ${games.length} Chicago ${games.length === 1 ? "game" : "games"}`;
 
   let body;
@@ -47,8 +47,8 @@ function todayPageHtml() {
   } else {
     const next = nextGameAfterToday(gamesByTeam, now);
     const nextText = next
-      ? `Next: ${teamFor(next).label} ${next.isHome ? "vs" : "@"} ${escapeHtml(next.opponent)}, ${chicagoDate(next.date, { weekday: "long", month: "short", day: "numeric" })}${
-          next.timeKnown ? ` at ${chicagoDate(next.date, { hour: "numeric", minute: "2-digit" })}` : ""
+      ? `Next: ${teamFor(next).label} ${next.isHome ? "vs" : "@"} ${escapeHtml(next.opponent)}, ${displayDate(next.date, { weekday: "long", month: "short", day: "numeric" })}${
+          next.timeKnown ? ` at ${displayDate(next.date, { hour: "numeric", minute: "2-digit" })}` : ""
         }.`
       : "No upcoming Chicago games are scheduled yet.";
     body = `
@@ -64,7 +64,7 @@ function todayPageHtml() {
       : "";
 
   return `
-    <div class="season-note">${day}${count}. Times are Chicago time; live scores update every ${LIVE_CHECK_SECONDS} seconds.</div>
+    <div class="season-note">${day}${count}. Times are ${timeZoneDescription()}; live scores update every ${LIVE_CHECK_SECONDS} seconds.</div>
     ${failedNote}
     ${body}`;
 }

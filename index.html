@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=b5b8da9">
-  <script src="theme.js?v=b5b8da9"></script>
+  <link rel="stylesheet" href="styles.css?v=c566adf">
+  <script src="theme.js?v=c566adf"></script>
 </head>
 <body>
   <header class="hero">
@@ -35,71 +35,73 @@
         <select id="colorsPicker" data-action="colors"></select>
       </label>
       <span class="updated-at" id="updatedAt"></span>
+      <button class="pill-button" data-action="page" data-page="settings">Settings</button>
       <button class="pill-button" id="refreshButton" data-action="refresh">Refresh</button>
     </div>
     <div id="page"></div>
   </main>
 
   <footer class="wrap footer">
-    Data from ESPN. Times are Chicago time.
+    Data from ESPN. Times are <span id="footerTimeZone">Chicago time</span>.
     <button class="footer-link" data-action="page" data-page="diagnostics">Diagnostics</button>
   </footer>
 
-  <script src="diagnostics.js?v=b5b8da9"></script>
-  <script src="common.js?v=b5b8da9"></script>
-  <script src="standings.js?v=b5b8da9"></script>
-  <script src="games.js?v=b5b8da9"></script>
-  <script src="injuries.js?v=b5b8da9"></script>
-  <script src="calendar.js?v=b5b8da9"></script>
-  <script src="playoffs.js?v=b5b8da9"></script>
-  <script src="live.js?v=b5b8da9"></script>
-  <script src="rosters.js?v=b5b8da9"></script>
-  <script src="news.js?v=b5b8da9"></script>
-  <script src="history.js?v=b5b8da9"></script>
-  <script src="coaches.js?v=b5b8da9"></script>
-  <script src="seasonplayers.js?v=b5b8da9"></script>
-  <script src="boxscore.js?v=b5b8da9"></script>
-  <script src="notify.js?v=b5b8da9"></script>
-  <script src="championships.js?v=b5b8da9"></script>
-  <script src="stadiums.js?v=b5b8da9"></script>
-  <script src="uniforms.js?v=b5b8da9"></script>
-  <script src="past-uniforms.js?v=b5b8da9"></script>
-  <script src="mascots.js?v=b5b8da9"></script>
-  <script src="rivals.js?v=b5b8da9"></script>
-  <script src="crosstown.js?v=b5b8da9"></script>
-  <script src="retired-numbers.js?v=b5b8da9"></script>
-  <script src="hall-of-fame.js?v=b5b8da9"></script>
-  <script src="leaders.js?v=b5b8da9"></script>
-  <script src="coach-history.js?v=b5b8da9"></script>
-  <script src="drafts.js?v=b5b8da9"></script>
-  <script src="funfacts.js?v=b5b8da9"></script>
-  <script src="socials.js?v=b5b8da9"></script>
-  <script src="careerstats.js?v=b5b8da9"></script>
-  <script src="games-view.js?v=b5b8da9"></script>
-  <script src="today-view.js?v=b5b8da9"></script>
-  <script src="standings-view.js?v=b5b8da9"></script>
-  <script src="playoffs-view.js?v=b5b8da9"></script>
-  <script src="rosters-view.js?v=b5b8da9"></script>
-  <script src="news-view.js?v=b5b8da9"></script>
-  <script src="highlights-view.js?v=b5b8da9"></script>
-  <script src="history-view.js?v=b5b8da9"></script>
-  <script src="championships-view.js?v=b5b8da9"></script>
-  <script src="stadiums-view.js?v=b5b8da9"></script>
-  <script src="uniforms-view.js?v=b5b8da9"></script>
-  <script src="past-uniforms-view.js?v=b5b8da9"></script>
-  <script src="mascots-view.js?v=b5b8da9"></script>
-  <script src="rivals-view.js?v=b5b8da9"></script>
-  <script src="retired-numbers-view.js?v=b5b8da9"></script>
-  <script src="hall-of-fame-view.js?v=b5b8da9"></script>
-  <script src="leaders-view.js?v=b5b8da9"></script>
-  <script src="coach-history-view.js?v=b5b8da9"></script>
-  <script src="draft-picks-view.js?v=b5b8da9"></script>
-  <script src="tabs.js?v=b5b8da9"></script>
-  <script src="funfacts-view.js?v=b5b8da9"></script>
-  <script src="socials-view.js?v=b5b8da9"></script>
-  <script src="careerstats-view.js?v=b5b8da9"></script>
-  <script src="injuries-view.js?v=b5b8da9"></script>
-  <script src="diagnostics-view.js?v=b5b8da9"></script>
-  <script src="app.js?v=b5b8da9"></script>
+  <script src="diagnostics.js?v=c566adf"></script>
+  <script src="common.js?v=c566adf"></script>
+  <script src="standings.js?v=c566adf"></script>
+  <script src="games.js?v=c566adf"></script>
+  <script src="injuries.js?v=c566adf"></script>
+  <script src="calendar.js?v=c566adf"></script>
+  <script src="playoffs.js?v=c566adf"></script>
+  <script src="live.js?v=c566adf"></script>
+  <script src="rosters.js?v=c566adf"></script>
+  <script src="news.js?v=c566adf"></script>
+  <script src="history.js?v=c566adf"></script>
+  <script src="coaches.js?v=c566adf"></script>
+  <script src="seasonplayers.js?v=c566adf"></script>
+  <script src="boxscore.js?v=c566adf"></script>
+  <script src="notify.js?v=c566adf"></script>
+  <script src="championships.js?v=c566adf"></script>
+  <script src="stadiums.js?v=c566adf"></script>
+  <script src="uniforms.js?v=c566adf"></script>
+  <script src="past-uniforms.js?v=c566adf"></script>
+  <script src="mascots.js?v=c566adf"></script>
+  <script src="rivals.js?v=c566adf"></script>
+  <script src="crosstown.js?v=c566adf"></script>
+  <script src="retired-numbers.js?v=c566adf"></script>
+  <script src="hall-of-fame.js?v=c566adf"></script>
+  <script src="leaders.js?v=c566adf"></script>
+  <script src="coach-history.js?v=c566adf"></script>
+  <script src="drafts.js?v=c566adf"></script>
+  <script src="funfacts.js?v=c566adf"></script>
+  <script src="socials.js?v=c566adf"></script>
+  <script src="careerstats.js?v=c566adf"></script>
+  <script src="games-view.js?v=c566adf"></script>
+  <script src="today-view.js?v=c566adf"></script>
+  <script src="settings-view.js?v=c566adf"></script>
+  <script src="standings-view.js?v=c566adf"></script>
+  <script src="playoffs-view.js?v=c566adf"></script>
+  <script src="rosters-view.js?v=c566adf"></script>
+  <script src="news-view.js?v=c566adf"></script>
+  <script src="highlights-view.js?v=c566adf"></script>
+  <script src="history-view.js?v=c566adf"></script>
+  <script src="championships-view.js?v=c566adf"></script>
+  <script src="stadiums-view.js?v=c566adf"></script>
+  <script src="uniforms-view.js?v=c566adf"></script>
+  <script src="past-uniforms-view.js?v=c566adf"></script>
+  <script src="mascots-view.js?v=c566adf"></script>
+  <script src="rivals-view.js?v=c566adf"></script>
+  <script src="retired-numbers-view.js?v=c566adf"></script>
+  <script src="hall-of-fame-view.js?v=c566adf"></script>
+  <script src="leaders-view.js?v=c566adf"></script>
+  <script src="coach-history-view.js?v=c566adf"></script>
+  <script src="draft-picks-view.js?v=c566adf"></script>
+  <script src="tabs.js?v=c566adf"></script>
+  <script src="funfacts-view.js?v=c566adf"></script>
+  <script src="socials-view.js?v=c566adf"></script>
+  <script src="careerstats-view.js?v=c566adf"></script>
+  <script src="injuries-view.js?v=c566adf"></script>
+  <script src="diagnostics-view.js?v=c566adf"></script>
+  <script src="app.js?v=c566adf"></script>
 </body>
 </html>

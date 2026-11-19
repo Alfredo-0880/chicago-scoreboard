@@ -72,9 +72,9 @@ function calendarTime(date) {
   return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 }
 
-// The game's date in Chicago, as 20261021.
+// The game's date in the chosen time zone (Chicago's unless changed), as 20261021.
 function calendarDay(date) {
-  const [month, day, year] = chicagoDate(date, { year: "numeric", month: "2-digit", day: "2-digit" }).split("/");
+  const [month, day, year] = displayDate(date, { year: "numeric", month: "2-digit", day: "2-digit" }).split("/");
   return `${year}${month}${day}`;
 }
 

@@ -34,7 +34,7 @@ function highlightsPageHtml() {
 
 function videoHtml(video) {
   const favorite = FAVORITE_TEAMS.find((team) => team.key === video.teamKey);
-  const date = chicagoDate(video.published, { month: "short", day: "numeric" });
+  const date = displayDate(video.published, { month: "short", day: "numeric" });
   return `
     <a class="story video" href="${escapeHtml(video.link)}" target="_blank" rel="noopener noreferrer"
        style="--team-color:${favorite.color}" aria-label="Watch on ESPN: ${escapeHtml(video.headline)}">

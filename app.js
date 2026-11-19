@@ -5,7 +5,7 @@
 // injuries-view.js. The tab rows (and which pages are grouped) are in tabs.js.
 
 const state = {
-  page: "today", // opens on Today; "today" | "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "uniforms" | "mascots" | "rivals" | "retired" | "halloffame" | "leaders" | "coaches" | "drafts" | "funfacts" | "social" | "stats" | "injuries"
+  page: "today", // opens on Today; "today" | "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "uniforms" | "mascots" | "rivals" | "retired" | "halloffame" | "leaders" | "coaches" | "drafts" | "funfacts" | "social" | "stats" | "injuries" | "settings" | "diagnostics"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   allFinals: false, // Final shows every result this season, not just the last 10
@@ -226,6 +226,7 @@ function render() {
   renderPageTabs();
   renderThemeToggle();
   renderUpdatedAt();
+  document.getElementById("footerTimeZone").textContent = timeZoneDescription();
   const page = document.getElementById("page");
   if (state.page === "today") page.innerHTML = todayPageHtml();
   else if (state.page === "games") page.innerHTML = gamesPageHtml();
@@ -248,6 +249,7 @@ function render() {
   else if (state.page === "funfacts") page.innerHTML = funFactsPageHtml();
   else if (state.page === "social") page.innerHTML = socialsPageHtml();
   else if (state.page === "stats") page.innerHTML = careerStatsPageHtml();
+  else if (state.page === "settings") page.innerHTML = settingsPageHtml();
   else if (state.page === "diagnostics") page.innerHTML = diagnosticsPageHtml(readDiagnostics(), state.diagnosticsMessage);
   else page.innerHTML = injuriesPageHtml();
 }
@@ -325,7 +327,7 @@ function renderColorsPicker() {
 
 function renderUpdatedAt() {
   document.getElementById("updatedAt").textContent = state.lastUpdated
-    ? `Updated ${chicagoDate(state.lastUpdated, { hour: "numeric", minute: "2-digit" })}`
+    ? `Updated ${displayDate(state.lastUpdated, { hour: "numeric", minute: "2-digit" })}`
     : "Loading live data…";
   const refreshButton = document.getElementById("refreshButton");
   refreshButton.disabled = state.refreshing;
@@ -401,6 +403,10 @@ const ACTIONS = {
     state.notifyMessage = message;
     saveNotifyTeams(notifyTeams);
     render();
+  },
+  "time-zone": (button) => {
+    timeZoneChoice = button.dataset.zone;
+    saveTimeZoneChoice(timeZoneChoice);
   },
   "clear-diagnostics": () => {
     saveDiagnostics([]);
@@ -501,6 +507,7 @@ function showTestSettingsBanner(mode) {
   document.body.prepend(banner);
 }
 
+timeZoneChoice = savedTimeZoneChoice();
 renderColorsPicker();
 loadTestSettings().then((mode) => {
   showTestSettingsBanner(mode);

@@ -28,7 +28,7 @@ function injuryHistoryHtml(favorite, historyState) {
   } else {
     const oldest = historyState.value.at(-1).date;
     body = `
-      <p class="injury-history-note">${historyState.value.length} ${historyState.value.length === 1 ? "update" : "updates"} from ESPN, back to ${escapeHtml(chicagoDate(oldest, { month: "long", year: "numeric" }))}. ESPN doesn't keep older injury reports.</p>
+      <p class="injury-history-note">${historyState.value.length} ${historyState.value.length === 1 ? "update" : "updates"} from ESPN, back to ${escapeHtml(displayDate(oldest, { month: "long", year: "numeric" }))}. ESPN doesn't keep older injury reports.</p>
       <ol class="injury-history">${historyState.value.map(injuryUpdateHtml).join("")}</ol>`;
   }
   return `
@@ -39,10 +39,10 @@ function injuryHistoryHtml(favorite, historyState) {
 }
 
 function injuryUpdateHtml(update) {
-  const facts = [update.injury, update.returnDate && `Est. return ${chicagoDate(update.returnDate, { month: "short", day: "numeric" })}`].filter(Boolean);
+  const facts = [update.injury, update.returnDate && `Est. return ${displayDate(update.returnDate, { month: "short", day: "numeric" })}`].filter(Boolean);
   return `
     <li class="injury-update">
-      <span class="injury-update-date">${escapeHtml(chicagoDate(update.date, { month: "short", day: "numeric", year: "numeric" }))}</span>
+      <span class="injury-update-date">${escapeHtml(displayDate(update.date, { month: "short", day: "numeric", year: "numeric" }))}</span>
       <span class="player">${escapeHtml(update.player)}</span>
       <span class="status-badge ${update.severity}">${escapeHtml(update.status)}</span>
       ${facts.length ? `<span class="injury-facts">${escapeHtml(facts.join(" · "))}</span>` : ""}
@@ -74,7 +74,7 @@ function injuryBlockHtml(favorite) {
 function injuryRowHtml(injury) {
   const facts = [
     injury.injury,
-    injury.returnDate && `Est. return ${chicagoDate(injury.returnDate, { month: "short", day: "numeric" })}`,
+    injury.returnDate && `Est. return ${displayDate(injury.returnDate, { month: "short", day: "numeric" })}`,
   ].filter(Boolean);
 
   return `

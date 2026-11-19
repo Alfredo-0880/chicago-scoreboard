@@ -109,7 +109,7 @@ function gameListHtml(games, boxScoreFor = () => null) {
   let html = "";
   let currentMonth = "";
   for (const game of games) {
-    const month = chicagoDate(game.date, { month: "long", year: "numeric" });
+    const month = displayDate(game.date, { month: "long", year: "numeric" });
     if (month !== currentMonth) {
       html += `<h3 class="month">${month}</h3>`;
       currentMonth = month;
@@ -148,8 +148,8 @@ function gameRowHtml(game, boxScore = null) {
   return `
     <article class="game" style="--team-color:${favorite.color}">
       <div class="game-date">
-        <span class="day-of-week">${chicagoDate(game.date, { weekday: "short" })}</span>
-        <span class="day">${chicagoDate(game.date, { day: "numeric" })}</span>
+        <span class="day-of-week">${displayDate(game.date, { weekday: "short" })}</span>
+        <span class="day">${displayDate(game.date, { day: "numeric" })}</span>
       </div>
       <div class="matchup">
         <div class="teams">
@@ -219,7 +219,7 @@ function resultHtml(game) {
       ${score ? `<div class="score">${score}</div>` : `<div class="start-time">Score loading…</div>`}
       <span class="live">Live · ${escapeHtml(game.statusDetail)}</span>`;
   }
-  const time = game.timeKnown ? chicagoDate(game.date, { hour: "numeric", minute: "2-digit" }) : "Time TBD";
+  const time = game.timeKnown ? displayDate(game.date, { hour: "numeric", minute: "2-digit" }) : "Time TBD";
   return `<div class="start-time">${time}</div>`;
 }
 

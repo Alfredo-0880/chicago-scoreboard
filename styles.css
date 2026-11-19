@@ -2275,3 +2275,36 @@ button {
   font-weight: 600;
   text-align: center;
 }
+
+/* Settings: the time zone choices, listed so all can be seen at once. */
+.settings-group {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.time-zone-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.time-zone-option {
+  text-align: left;
+  font: inherit;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.time-zone-option.active {
+  border-color: var(--flag-red);
+  background: var(--flag-red);
+  color: #fff;
+  font-weight: 700;
+}
