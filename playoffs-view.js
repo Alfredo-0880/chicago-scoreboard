@@ -5,7 +5,8 @@
 //   or how it ended once the postseason starts.
 // - Wild Card (Play-In in the NBA, Playoff Race in the WNBA): who's chasing
 //   the last spots, and the cutoff line.
-// MLS and the NWSL get no Wild Card button (Alfredo's choice). No league
+// MLS and the NWSL get no Wild Card button (Alfredo's choice), but do get
+// Playoff Race in their postseason too (Alfredo, 2026-11-24). No league
 // gets two buttons with the same name, so in its postseason the WNBA shows
 // Bracket and its race (Alfredo's choice), not its seeds.
 // A Season picker shows past seasons the same way (see "Past seasons" in
@@ -20,8 +21,8 @@ function playoffViewButtons(leagueKey, inPostseason) {
   const buttons = inPostseason ? [["bracket", "Bracket"]] : [];
   const raceLabel = RACE_BUTTON_LABELS[leagueKey] || "Wild Card";
   const hasRace = !LEAGUES_WITHOUT_RACE_BUTTON.includes(leagueKey);
-  // MLS and NWSL keep one button: Bracket in their postseason, seeds otherwise.
-  if (!(inPostseason && (!hasRace || raceLabel === "Playoff Race"))) buttons.push(["seeds", "Playoff Race"]);
+  // The WNBA's race is called Playoff Race too, so in its postseason the seeds give way.
+  if (!(inPostseason && hasRace && raceLabel === "Playoff Race")) buttons.push(["seeds", "Playoff Race"]);
   if (hasRace && !buttons.some(([, label]) => label === raceLabel)) buttons.push(["race", raceLabel]);
   return buttons;
 }
@@ -265,7 +266,21 @@ function currentSeedsHtml(standings, seasonOver) {
   const note = seasonOver
     ? `How the ${escapeHtml(standings.season.name)} regular season ended, from ESPN's final standings.`
     : `If the ${escapeHtml(standings.season.name)} season ended today. ${escapeHtml(standings.season.type)} standings, live from ESPN.`;
-  return seedsHtml(standings, playoffPicture(standings), note);
+  const groups = playoffPicture(standings);
+  return seedsHtml(standings, seasonOver ? groups.map(finalPictureGroup) : groups, note);
+}
+
+// Once the season is over, the race's labels read like a past season's:
+// "Made playoffs" and "Missed playoffs" instead of "In" and "2 pts back"
+// (Alfredo's choice), and "Division winner" instead of "Division leader".
+function finalPictureGroup(group) {
+  const finalLabel = (entry) => {
+    if (entry.status === "out") return "Missed playoffs";
+    if (entry.status === "division") return "Division winner";
+    if (entry.status === "play-in") return entry.label; // some lost the play-in, so it can't say they made it
+    return entry.label === "Wild card" ? "Wild card" : "Made playoffs";
+  };
+  return { ...group, entries: group.entries.map((entry) => ({ ...entry, label: finalLabel(entry) })) };
 }
 
 // groups: from playoffPicture or pastPlayoffPicture. note is already escaped.

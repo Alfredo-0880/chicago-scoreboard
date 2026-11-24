@@ -24,7 +24,57 @@ async function fetchPlayoffs(leagueInfo, today) {
   const months = [-2, -1, 0, 1].map((offset) => monthKey(today, offset));
   const pages = await Promise.all(months.map((month) => fetchJson(`${baseUrl}?dates=${month}&limit=1000`)));
   const events = pages.flatMap((page) => page.events || []).filter(isPostseasonEvent);
-  return { inPostseason: true, rounds: buildRounds(events) };
+  return { inPostseason: true, rounds: withSoccerScores(namedRounds(buildRounds(events), leagueInfo.key), leagueInfo) };
+}
+
+// A bracket shows each team's wins, which suits a series but turns every
+// single soccer match into 1-0. For soccer, a one-game round shows the
+// goals instead, and the summary gives the score ("Kansas City win 2–1",
+// "... (AET)" after extra time, or "on penalties" after a draw).
+function withSoccerScores(rounds, leagueInfo) {
+  if (leagueInfo.sport !== "soccer") return rounds;
+  for (const round of rounds) {
+    for (const series of round.series) {
+      if (series.games.length !== 1) continue;
+      const game = series.games[0];
+      const sideFor = (team) => [game.away, game.home].find((side) => side.name === team.name);
+      if (series.teams.some((team) => !sideFor(team) || sideFor(team).score === null)) continue;
+      for (const team of series.teams) team.wins = Number(sideFor(team).score);
+      if (!series.completed || !series.winner) continue;
+      const loser = series.teams.find((team) => team !== series.winner);
+      const score = `${series.winner.wins}–${loser.wins}`;
+      const extra = /AET/i.test(game.detail) ? " (AET)" : "";
+      series.summary =
+        series.winner.wins === loser.wins ? `${series.winner.name} win on penalties after ${score}` : `${series.winner.name} win ${score}${extra}`;
+    }
+  }
+  return rounds;
+}
+
+// ESPN names no rounds for some leagues' playoff games (the NWSL's), so they
+// all land in one "Playoffs" round. In a knockout, a team's next game is a
+// round after its last one, which splits them into rounds (a team with a
+// first-round bye starts a round later, against a team that played it).
+// The rounds are named from the last: the final, semifinals, quarterfinals,
+// and "First round" before those.
+const FINAL_ROUND_NAMES = { NWSL: "Championship" };
+
+function namedRounds(rounds, leagueKey) {
+  if (rounds.length !== 1 || rounds[0].name !== GENERIC_ROUND_NAME) return rounds;
+  const latestRound = new Map(); // team abbreviation -> its latest round number
+  const numbered = [...rounds[0].series]
+    .sort((a, b) => a.start - b.start)
+    .map((series) => {
+      const number = 1 + Math.max(...series.teams.map((team) => latestRound.get(team.abbreviation) || 0));
+      series.teams.forEach((team) => latestRound.set(team.abbreviation, number));
+      return { series, number };
+    });
+  const count = Math.max(...numbered.map(({ number }) => number));
+  const nameFromEnd = [FINAL_ROUND_NAMES[leagueKey] || "Final", "Semifinals", "Quarterfinals"];
+  return Array.from({ length: count }, (_, index) => ({
+    name: nameFromEnd[count - 1 - index] || "First round",
+    series: numbered.filter(({ number }) => number === index + 1).map(({ series }) => series),
+  }));
 }
 
 // After a season ends, ESPN keeps calling it the regular season until the
@@ -267,7 +317,7 @@ async function fetchPastPlayoffs(leagueInfo, season) {
   const baseUrl = leagueScoreboardUrl(leagueInfo);
   const pages = await Promise.all(postseasonMonths(leagueInfo.key, season).map((month) => fetchJson(`${baseUrl}?dates=${month}&limit=1000`)));
   const events = pages.flatMap((page) => page.events || []).filter((event) => isPostseasonEvent(event) && !isAllStarGame(event));
-  return { inPostseason: true, rounds: buildRounds(events) };
+  return { inPostseason: true, rounds: namedRounds(buildRounds(events), leagueInfo.key) };
 }
 
 // ("MLB", 2016) -> ["201609", "201610", "201611"]
