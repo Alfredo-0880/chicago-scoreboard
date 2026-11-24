@@ -426,7 +426,7 @@ const SOCCER_BRACKETS = {
        ],
        "teams": [
         "Chivas USA",
-        "Kansas City Wizards 1"
+        "Kansas City Wizards"
        ],
        "winner": 1
       },

@@ -69,3 +69,74 @@ function soccerSeriesSummary(series, teams, winner) {
   }
   return `${winner.name} win ${winner.wins}–${loser.wins}`;
 }
+
+// Who made a past season's playoffs, for Playoff Race: ESPN's final MLS and
+// NWSL standings don't mark it, but every team in the copied bracket did.
+// ESPN lists past teams under their current names ("Red Bull New York" in
+// 2005), and Wikipedia under that season's, so names are matched loosely,
+// with these old names spelled out.
+const SOCCER_OLD_NAMES = {
+  "new york": "Red Bull New York",
+  "new york red bulls": "Red Bull New York",
+  "metrostars": "Red Bull New York",
+  "kansas city": "Sporting Kansas City",
+  "kansas city wizards": "Sporting Kansas City",
+  "los angeles": "LA Galaxy",
+  "los angeles galaxy": "LA Galaxy",
+  "los angeles fc": "LAFC",
+  "chicago red stars": "Chicago Stars FC",
+  "western new york flash": "North Carolina Courage", // moved to North Carolina in 2017
+  "ol reign": "Seattle Reign FC",
+  "reign fc": "Seattle Reign FC",
+  "sky blue fc": "Gotham FC",
+  "nj/ny gotham fc": "Gotham FC",
+};
+
+// "CF Montréal" -> "cf montreal": lowercase, no accents or periods, and
+// without the FC/SC that names add or drop over the years.
+function soccerNameKey(name) {
+  return name
+    .normalize("NFD")
+    .replace(/[̀-ͯ.']/g, "")
+    .toLowerCase()
+    .replace(/\b(fc|sc|cf)\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isBracketTeam(standingsName, bracketName) {
+  const espn = soccerNameKey(standingsName);
+  const wikipedia = soccerNameKey(SOCCER_OLD_NAMES[bracketName.toLowerCase()] || bracketName);
+  return espn === wikipedia || espn.includes(wikipedia) || wikipedia.includes(espn);
+}
+
+// The bracket's teams the standings don't list (FC Kansas City, the 2015
+// NWSL champion, is missing from ESPN's 2015 table), to say so.
+function soccerBracketTeamsNotInStandings(standings, season) {
+  const bracket = SOCCER_BRACKETS[standings.league] && SOCCER_BRACKETS[standings.league][String(season)];
+  if (!bracket) return [];
+  const teams = standings.divisions.flatMap((division) => division.teams);
+  const names = [...new Set(bracket.rounds.flatMap((round) => round.series.flatMap((series) => series.teams)))];
+  return names.filter((name) => !teams.some((team) => isBracketTeam(team.name, name)));
+}
+
+// Playoff Race groups like pastPlayoffPicture's (playoffs.js), or [] when
+// there's no copied bracket. Teams keep ESPN's order within each group.
+function soccerPlayoffPicture(standings, season) {
+  const bracket = SOCCER_BRACKETS[standings.league] && SOCCER_BRACKETS[standings.league][String(season)];
+  if (!bracket) return [];
+  const playoffTeams = bracket.rounds.flatMap((round) => round.series.flatMap((series) => series.teams));
+  const madeIt = (team) => playoffTeams.some((name) => isBracketTeam(team.name, name));
+  return playoffGroups(standings, season).map(({ title, teams }) => {
+    const inTeams = teams.filter(madeIt);
+    return {
+      title,
+      spotsIn: inTeams.length,
+      lineLabel: "playoff line",
+      entries: [
+        ...inTeams.map((team) => ({ team, status: "in", label: "Made playoffs" })),
+        ...teams.filter((team) => !madeIt(team)).map((team) => ({ team, status: "out", label: "Missed playoffs" })),
+      ],
+    };
+  });
+}

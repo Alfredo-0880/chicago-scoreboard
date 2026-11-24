@@ -104,10 +104,19 @@ function pastPlayoffViewHtml(leagueKey, season, view) {
       .join("")}`;
   }
   const groups = pastPlayoffPicture(standings, season);
-  if (groups.length === 0) {
-    return `<div class="message">ESPN doesn't mark which teams made the ${label} ${leagueKey} playoffs. League Standings has that season's final table.</div>`;
+  if (groups.length > 0) return seedsHtml(standings, groups, `Who made the ${label} playoffs, from ESPN's final standings.`);
+  // ESPN doesn't mark who made the MLS and NWSL playoffs; the bracket copied
+  // from Wikipedia does (soccer-brackets-view.js).
+  const fromBracket = soccerPlayoffPicture(standings, season);
+  if (fromBracket.length > 0) {
+    const missing = soccerBracketTeamsNotInStandings(standings, season);
+    const missingNote = missing.length ? ` Not in ESPN's standings: ${missing.map(escapeHtml).join(", ")}.` : "";
+    return seedsHtml(standings, fromBracket, `Who made the ${label} playoffs: ESPN's final standings, with the playoff teams from Wikipedia's bracket.${missingNote}`);
   }
-  return seedsHtml(standings, groups, `Who made the ${label} playoffs, from ESPN's final standings.`);
+  if (leagueKey === "NWSL" && season === 2020) {
+    return `<div class="message">The NWSL held no playoffs in 2020. League Standings has that season's table.</div>`;
+  }
+  return `<div class="message">ESPN doesn't mark which teams made the ${label} ${leagueKey} playoffs. League Standings has that season's final table.</div>`;
 }
 
 function playoffViewHtml(leagueKey, view, inPostseason) {
