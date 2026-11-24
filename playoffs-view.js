@@ -28,8 +28,9 @@ function playoffViewButtons(leagueKey, inPostseason) {
 
 // A past season's buttons: Bracket where ESPN has past playoff games,
 // Playoff Race, and Wild Card where that season had one (pastRaceSource).
+// MLS brackets come from Wikipedia instead (soccer-brackets-view.js).
 function pastPlayoffViewButtons(leagueKey, season) {
-  const buttons = hasPastBracket(leagueKey) ? [["bracket", "Bracket"]] : [];
+  const buttons = hasPastBracket(leagueKey) || soccerBracketRounds(leagueKey, season) ? [["bracket", "Bracket"]] : [];
   buttons.push(["seeds", "Playoff Race"]);
   const raceLabel = RACE_BUTTON_LABELS[leagueKey] || "Wild Card";
   if (pastRaceSource(leagueKey, season) && !buttons.some(([, label]) => label === raceLabel)) buttons.push(["race", raceLabel]);
@@ -74,6 +75,12 @@ function playoffsSeasonFor(leagueKey) {
 function pastPlayoffViewHtml(leagueKey, season, view) {
   const key = pastStandingsKey(leagueKey, season);
   const label = seasonLabel({ league: leagueKey }, season);
+  const copiedRounds = view === "bracket" && soccerBracketRounds(leagueKey, season, chicagoTeamLogos);
+  if (copiedRounds) {
+    return bracketHtml(leagueKey, copiedRounds, {
+      note: `${label} ${leagueKey} playoffs, from Wikipedia (ESPN doesn't mark past ${leagueKey} playoff games). Each number is goals, or games won in a best-of-three round.`,
+    });
+  }
   if (view === "bracket") {
     const playoffState = loadState("pastPlayoffs", key);
     if (playoffState.status === "loading") return `<div class="message">Loading the ${label} ${leagueKey} playoffs…</div>`;
