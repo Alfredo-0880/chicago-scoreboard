@@ -146,7 +146,7 @@ function gameRowHtml(game, boxScore = null) {
     : "";
 
   return `
-    <article class="game" style="--team-color:${favorite.color}">
+    <article class="game" data-team="${favorite.key}" style="--team-color:${favorite.color}">
       <div class="game-date">
         <span class="day-of-week">${displayDate(game.date, { weekday: "short" })}</span>
         <span class="day">${displayDate(game.date, { day: "numeric" })}</span>

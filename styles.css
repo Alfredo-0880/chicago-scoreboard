@@ -285,14 +285,23 @@ button {
 }
 
 /* The Bears' navy and the White Sox' near-black vanish against the dark
-   background, so in dark mode their selected cards are outlined in their
-   other team color: Bears orange, White Sox silver. */
+   background, so in dark mode their selected cards and their game rows'
+   side stripes use their other team color: Bears orange, White Sox silver. */
 [data-theme="dark"] .team-card.selected[data-team="bears"] {
   border-color: #c83803;
 }
 
 [data-theme="dark"] .team-card.selected[data-team="whitesox"] {
   border-color: #c4ced4;
+}
+
+/* Only the left side: a game row's other sides are a thin gray line. */
+[data-theme="dark"] .game[data-team="bears"] {
+  border-left-color: #c83803;
+}
+
+[data-theme="dark"] .game[data-team="whitesox"] {
+  border-left-color: #c4ced4;
 }
 
 .card-team {
