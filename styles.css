@@ -284,6 +284,17 @@ button {
   padding: 13px 13px 14px;
 }
 
+/* The Bears' navy and the White Sox' near-black vanish against the dark
+   background, so in dark mode their selected cards are outlined in their
+   other team color: Bears orange, White Sox silver. */
+[data-theme="dark"] .team-card.selected[data-team="bears"] {
+  border-color: #c83803;
+}
+
+[data-theme="dark"] .team-card.selected[data-team="whitesox"] {
+  border-color: #c4ced4;
+}
+
 .card-team {
   display: flex;
   align-items: center;
