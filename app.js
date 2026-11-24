@@ -356,7 +356,7 @@ function renderUpdatedAt() {
 
 // "All teams" plus one button per team; used by the Games and Injuries tabs.
 function teamFilterHtml() {
-  const options = [{ key: "all", label: "All teams", color: "#57534A" }, ...FAVORITE_TEAMS];
+  const options = [{ key: "all", label: "All teams", color: ALL_TEAMS_COLOR }, ...FAVORITE_TEAMS];
   return `
     <nav class="team-filter" aria-label="Team">
       ${options

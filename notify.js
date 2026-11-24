@@ -109,8 +109,13 @@ function notifyPanelHtml(notifyTeams, permission, message) {
   }[permission];
   const disabled = permission === "unsupported" ? " disabled" : "";
   const allOn = allTeamsOn(notifyTeams);
+  // The same gray as the team filter's All teams button: a selected button
+  // shows white text on its --team-color, so it needs one.
   const allButton = `
-      <button class="team-button ${allOn ? "active" : ""}" data-action="notify-all" aria-pressed="${allOn}"${disabled}>All teams</button>`;
+      <button class="team-button ${allOn ? "active" : ""}" style="--team-color:${ALL_TEAMS_COLOR}"
+              data-action="notify-all" aria-pressed="${allOn}"${disabled}>
+        <span class="dot"></span>All teams
+      </button>`;
   const buttons = allButton + FAVORITE_TEAMS.map((favorite) => {
     const on = notifyTeams.includes(favorite.key);
     return `

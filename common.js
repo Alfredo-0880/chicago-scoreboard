@@ -109,6 +109,9 @@ function logoHtml(logos, fallbackText, sizeClass) {
 
 // A league can have more than one Chicago team (MLB has the Cubs and the
 // White Sox).
+// The All teams buttons' color (the team filter's and notifications').
+const ALL_TEAMS_COLOR = "#57534A";
+
 function favoriteAbbreviations(leagueKey) {
   return FAVORITE_TEAMS.filter((team) => team.league === leagueKey).map((team) => team.abbreviation);
 }
