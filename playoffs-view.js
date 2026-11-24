@@ -1,5 +1,6 @@
 // Draws the Playoff Picture tab. Buttons pick the view:
-// - Bracket: round by round, during a league's postseason.
+// - Bracket: round by round, during a league's postseason, and after it
+//   until the next season starts.
 // - Playoff Race: the seeds, "if the season ended today" during the season,
 //   or how it ended once the postseason starts.
 // - Wild Card (Play-In in the NBA, Playoff Race in the WNBA): who's chasing
@@ -14,6 +15,7 @@ const RACE_BUTTON_LABELS = { NBA: "Play-In", WNBA: "Playoff Race" };
 const LEAGUES_WITHOUT_RACE_BUTTON = ["MLS", "NWSL"];
 
 // The league's view buttons as [view, label] pairs.
+// inPostseason is true during the postseason and after it ends (finished).
 function playoffViewButtons(leagueKey, inPostseason) {
   const buttons = inPostseason ? [["bracket", "Bracket"]] : [];
   const raceLabel = RACE_BUTTON_LABELS[leagueKey] || "Wild Card";
@@ -38,7 +40,9 @@ function playoffsPageHtml() {
   const leagueKey = state.selectedLeague;
   const season = playoffsSeasonFor(leagueKey);
   const playoffState = loadState("playoffs", leagueKey);
-  const inPostseason = playoffState.status === "loaded" && playoffState.value.inPostseason;
+  // A finished postseason shows like one in progress: Bracket first, and
+  // the seeds say how the season ended.
+  const inPostseason = playoffState.status === "loaded" && (playoffState.value.inPostseason || playoffState.value.finished === true);
   const buttons = season ? pastPlayoffViewButtons(leagueKey, season) : playoffViewButtons(leagueKey, inPostseason);
   // A view this league doesn't have (Wild Card picked in the NFL, then MLS
   // chosen) falls back to the league's first button.
@@ -137,6 +141,12 @@ function playoffsBodyHtml(leagueKey) {
   }
   if (playoffState.value.inPostseason) {
     return bracketHtml(leagueKey, playoffState.value.rounds, { openSeries: state.openSeries });
+  }
+  if (playoffState.value.finished) {
+    return bracketHtml(leagueKey, playoffState.value.rounds, {
+      note: `The ${leagueKey} postseason is over: how it went, from ESPN. Rounds go from first to last.`,
+      openSeries: state.openSeries,
+    });
   }
   return standingsOrMessage(leagueKey, (standings) => currentSeedsHtml(standings, false));
 }

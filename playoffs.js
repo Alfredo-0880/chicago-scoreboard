@@ -2,12 +2,18 @@
 // postseason, or "if the season ended today" seeds during its season.
 
 // Is the league in its postseason right now? If so, load its playoff games.
-// Returns { inPostseason: false } or { inPostseason: true, rounds }.
+// Returns { inPostseason: true, rounds }; { inPostseason: false, finished:
+// true, rounds } when the season is over and its playoffs are done (the
+// offseason); or { inPostseason: false } during the regular season.
 async function fetchPlayoffs(leagueInfo, today) {
   const baseUrl = leagueScoreboardUrl(leagueInfo);
   const scoreboard = await fetchJson(baseUrl);
   const phase = scoreboard.leagues && scoreboard.leagues[0] && scoreboard.leagues[0].season;
   if (!isPostseasonName(phase && phase.type && phase.type.name)) {
+    if (seasonIsOver(leagueInfo.key, phase, today)) {
+      const { rounds } = await fetchPastPlayoffs(leagueInfo, phase.year);
+      if (rounds.length > 0) return { inPostseason: false, finished: true, rounds };
+    }
     return { inPostseason: false };
   }
 
@@ -19,6 +25,14 @@ async function fetchPlayoffs(leagueInfo, today) {
   const pages = await Promise.all(months.map((month) => fetchJson(`${baseUrl}?dates=${month}&limit=1000`)));
   const events = pages.flatMap((page) => page.events || []).filter(isPostseasonEvent);
   return { inPostseason: true, rounds: buildRounds(events) };
+}
+
+// After a season ends, ESPN keeps calling it the regular season until the
+// next one starts, but its end date has passed. Then its finished playoffs
+// can be shown like a past season's (for leagues ESPN has past brackets
+// for). Test settings skip this: their saved data has none of those games.
+function seasonIsOver(leagueKey, phase, today) {
+  return Boolean(!savedAnswerFor && phase && phase.endDate && phase.year && new Date(phase.endDate) < today && hasPastBracket(leagueKey));
 }
 
 function isPostseasonName(name) {

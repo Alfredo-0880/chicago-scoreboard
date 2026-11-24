@@ -12,7 +12,7 @@ const state = {
   openBoxScores: [], // Games tab games whose box score is shown (boxScoreKey in games-view.js)
   boxScores: {}, // boxScoreKey -> load state
   selectedLeague: "NFL",
-  playoffsView: "seeds", // Playoff Picture: "bracket" | "seeds" (Playoff Race) | "race" (Wild Card)
+  playoffsView: null, // Playoff Picture: "bracket" | "seeds" (Playoff Race) | "race" (Wild Card); null until one is tapped, so the league's first button shows (Bracket when there is one)
   // Each entry: { status: "loading" | "loaded" | "error", value }
   standings: {},
   games: {},
