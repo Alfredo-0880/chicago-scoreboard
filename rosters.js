@@ -30,8 +30,8 @@ function withoutDepartedPlayers(favorite, groups) {
 }
 
 // The head coach ESPN lists with the roster: { name, experience }, or null
-// when there isn't one (ESPN lists none for the Fire or Stars, and no
-// assistant coaches for any team).
+// when there isn't one (ESPN lists none for the Fire or Stars, whose come
+// from Wikipedia instead, and no assistant coaches for any team).
 function parseCoach(espnData) {
   const coach = (espnData.coach || [])[0];
   if (!coach || !coach.firstName || !coach.lastName) return null;

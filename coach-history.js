@@ -323,6 +323,13 @@ const COACH_HISTORY = {
   },
 };
 
+// The team's coach now, from the list above: the newest entry, if it runs
+// to "present", or null.
+function currentCoachFromWikipedia(favorite) {
+  const newest = (COACH_HISTORY[favorite.key] || { coaches: [] }).coaches[0];
+  return newest && /present$/.test(newest.years) ? newest : null;
+}
+
 function teamCoachHistory(favorite) {
   return COACH_HISTORY[favorite.key];
 }

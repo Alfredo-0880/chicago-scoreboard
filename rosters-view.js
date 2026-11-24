@@ -144,10 +144,21 @@ function playerDetailsHtml(player, detailList) {
     </div>`;
 }
 
-// "Head coach: Ben Johnson · Experience 1 yr", above the players.
+// "Head coach: Ben Johnson · Experience 1 yr", above the players. When ESPN
+// lists no coach (the Fire and Stars), the current one comes from the
+// Coaches tab's Wikipedia list (coach-history.js), which says so.
 function coachHtml(favorite, coach) {
   if (!coach) {
-    return `<div class="coach" style="--team-color:${favorite.color}"><span class="coach-label">Head coach</span> ESPN doesn't list a coach for the ${favorite.label}.</div>`;
+    const current = currentCoachFromWikipedia(favorite);
+    if (!current) {
+      return `<div class="coach" style="--team-color:${favorite.color}"><span class="coach-label">Head coach</span> No head coach is listed for the ${favorite.label}.</div>`;
+    }
+    const since = current.years.replace(/–present$/, "");
+    return `
+      <div class="coach" style="--team-color:${favorite.color}">
+        <span class="coach-label">Head coach</span>
+        <span class="coach-name">${escapeHtml(current.name)}</span>${current.interim ? " (interim)" : ""} · <span class="detail-label">Since</span> ${escapeHtml(since)} · from Wikipedia
+      </div>`;
   }
   const experience = coach.experience
     ? ` · <span class="detail-label">Experience</span> ${escapeHtml(coach.experience)}`
