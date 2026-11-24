@@ -1,5 +1,5 @@
-// Final score notifications. Someone turns them on per team on the Games
-// tab; while the app is open in a tab, a notification pops up when one of
+// Final score notifications. Someone turns them on per team on the
+// Settings page; while the app is open in a tab, a notification pops up when one of
 // those teams' games ends. The app has no server, so nothing can be sent
 // while the browser is closed.
 
@@ -67,35 +67,55 @@ function showNotification({ title, body, icon, tag }) {
   };
 }
 
+// Whether notifications may be shown, asking the browser the first time.
+async function notificationsAllowed() {
+  if (notificationPermission() === "unsupported") return false;
+  const permission = notificationPermission() === "default" ? await Notification.requestPermission() : notificationPermission();
+  return permission === "granted";
+}
+
+const NOTIFICATIONS_ON_BODY = "You'll get the final score when a game ends, while Chicago Scoreboard is open in a tab.";
+
 // Turns a team on or off, asking the browser for permission the first time.
 // Returns the teams now on and a message saying what happened.
 async function toggleNotifyTeam(notifyTeams, favorite) {
   if (notifyTeams.includes(favorite.key)) {
     return { notifyTeams: notifyTeams.filter((key) => key !== favorite.key), message: `${favorite.label} notifications off` };
   }
-  if (notificationPermission() === "unsupported") return { notifyTeams, message: null };
-  const permission = notificationPermission() === "default" ? await Notification.requestPermission() : notificationPermission();
-  if (permission !== "granted") return { notifyTeams, message: null };
-  showNotification({
-    title: `${favorite.label} notifications on`,
-    body: "You'll get the final score when a game ends, while Chicago Scoreboard is open in a tab.",
-    tag: `on-${favorite.key}`,
-  });
+  if (!(await notificationsAllowed())) return { notifyTeams, message: null };
+  showNotification({ title: `${favorite.label} notifications on`, body: NOTIFICATIONS_ON_BODY, tag: `on-${favorite.key}` });
   return { notifyTeams: [...notifyTeams, favorite.key], message: `${favorite.label} notifications on` };
 }
 
-// The Games tab's panel: one button per team, and why it can't work if the
+function allTeamsOn(notifyTeams) {
+  return FAVORITE_TEAMS.every((favorite) => notifyTeams.includes(favorite.key));
+}
+
+// The All teams button: turns every team on, or every team off when all
+// are already on.
+async function toggleNotifyAllTeams(notifyTeams) {
+  if (allTeamsOn(notifyTeams)) return { notifyTeams: [], message: "All team notifications off" };
+  if (!(await notificationsAllowed())) return { notifyTeams, message: null };
+  showNotification({ title: "All Chicago team notifications on", body: NOTIFICATIONS_ON_BODY, tag: "on-all" });
+  return { notifyTeams: FAVORITE_TEAMS.map((favorite) => favorite.key), message: "All team notifications on" };
+}
+
+// The Settings page's panel: an All teams button, one button per team, and why it can't work if the
 // browser blocks or lacks notifications.
 function notifyPanelHtml(notifyTeams, permission, message) {
   const problem = {
     denied: "Notifications are blocked for this site. Allow them in your browser's site settings, then tap a team again.",
     unsupported: "This browser can't show notifications.",
   }[permission];
-  const buttons = FAVORITE_TEAMS.map((favorite) => {
+  const disabled = permission === "unsupported" ? " disabled" : "";
+  const allOn = allTeamsOn(notifyTeams);
+  const allButton = `
+      <button class="team-button ${allOn ? "active" : ""}" data-action="notify-all" aria-pressed="${allOn}"${disabled}>All teams</button>`;
+  const buttons = allButton + FAVORITE_TEAMS.map((favorite) => {
     const on = notifyTeams.includes(favorite.key);
     return `
       <button class="team-button ${on ? "active" : ""}" style="--team-color:${favorite.color}"
-              data-action="notify-team" data-team="${favorite.key}" aria-pressed="${on}"${permission === "unsupported" ? " disabled" : ""}>
+              data-action="notify-team" data-team="${favorite.key}" aria-pressed="${on}"${disabled}>
         <span class="dot"></span>${favorite.label}
       </button>`;
   }).join("");
@@ -103,7 +123,7 @@ function notifyPanelHtml(notifyTeams, permission, message) {
     <section class="notify-panel" aria-label="Final score notifications">
       <div class="notify-title">🔔 Notify me of final scores</div>
       <div class="notify-note" role="status">${escapeHtml(
-        problem || message || "Tap a team to get a notification when its games end, while this page is open in a tab."
+        problem || message || "Tap a team, or All teams, to get a notification when its games end, while this page is open in a tab."
       )}</div>
       <div class="team-filter notify-teams">${buttons}</div>
     </section>`;

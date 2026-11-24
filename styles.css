@@ -628,6 +628,14 @@ button {
   margin-top: 14px;
 }
 
+/* On the Settings page, notifications sit in a card like the time zone's. */
+.settings-group + .notify-panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
 .notify-title {
   font-weight: 700;
 }

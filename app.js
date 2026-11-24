@@ -269,7 +269,7 @@ function render() {
   else if (state.page === "funfacts") page.innerHTML = funFactsPageHtml();
   else if (state.page === "social") page.innerHTML = socialsPageHtml();
   else if (state.page === "stats") page.innerHTML = careerStatsPageHtml();
-  else if (state.page === "settings") page.innerHTML = settingsPageHtml();
+  else if (state.page === "settings") page.innerHTML = settingsPageHtml(notifyPanelHtml(state.notifyTeams, notificationPermission(), state.notifyMessage));
   else if (state.page === "diagnostics") page.innerHTML = diagnosticsPageHtml(readDiagnostics(), state.diagnosticsMessage);
   else page.innerHTML = injuriesPageHtml();
 }
@@ -419,6 +419,13 @@ const ACTIONS = {
   "notify-team": async (button) => {
     const favorite = FAVORITE_TEAMS.find((team) => team.key === button.dataset.team);
     const { notifyTeams, message } = await toggleNotifyTeam(state.notifyTeams, favorite);
+    state.notifyTeams = notifyTeams;
+    state.notifyMessage = message;
+    saveNotifyTeams(notifyTeams);
+    render();
+  },
+  "notify-all": async () => {
+    const { notifyTeams, message } = await toggleNotifyAllTeams(state.notifyTeams);
     state.notifyTeams = notifyTeams;
     state.notifyMessage = message;
     saveNotifyTeams(notifyTeams);
