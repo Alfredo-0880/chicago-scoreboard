@@ -28,7 +28,7 @@ function playoffViewButtons(leagueKey, inPostseason) {
 
 // A past season's buttons: Bracket where ESPN has past playoff games,
 // Playoff Race, and Wild Card where that season had one (pastRaceSource).
-// MLS brackets come from Wikipedia instead (soccer-brackets-view.js).
+// MLS and NWSL brackets come from Wikipedia instead (soccer-brackets-view.js).
 function pastPlayoffViewButtons(leagueKey, season) {
   const buttons = hasPastBracket(leagueKey) || soccerBracketRounds(leagueKey, season) ? [["bracket", "Bracket"]] : [];
   buttons.push(["seeds", "Playoff Race"]);
@@ -78,7 +78,11 @@ function pastPlayoffViewHtml(leagueKey, season, view) {
   const copiedRounds = view === "bracket" && soccerBracketRounds(leagueKey, season, chicagoTeamLogos);
   if (copiedRounds) {
     return bracketHtml(leagueKey, copiedRounds, {
-      note: `${label} ${leagueKey} playoffs, from Wikipedia (ESPN doesn't mark past ${leagueKey} playoff games). Each number is goals, or games won in a best-of-three round.`,
+      note: `${label} ${leagueKey} playoffs, from Wikipedia (ESPN doesn't mark past ${leagueKey} playoff games). Each number is goals${
+        SOCCER_BRACKETS[leagueKey][String(season)].rounds.some((round) => round.series.some((series) => series.kind === "games"))
+          ? ", or games won in a best-of-three round"
+          : ""
+      }.`,
     });
   }
   if (view === "bracket") {

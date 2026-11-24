@@ -1,4 +1,4 @@
-// Past MLS playoff brackets copied from Wikipedia (soccer-brackets.js),
+// Past MLS and NWSL playoff brackets copied from Wikipedia (soccer-brackets.js),
 // turned into the same rounds the Playoff Picture draws from ESPN's games
 // (bracketHtml in playoffs-view.js). Each team's number is its goals: in
 // the match, or over both legs; in a best-of-three round, games won.

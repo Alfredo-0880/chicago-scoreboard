@@ -248,7 +248,8 @@ function distanceBehind(leagueKey, team, lastIn) {
 // When each league's playoffs are played, as [first month, last month]
 // (1 is January). The NFL's are in the January and February after its
 // season. MLS and the NWSL are missing: ESPN doesn't mark their past
-// playoff games, so they have no past brackets.
+// playoff games, so their past brackets come from Wikipedia instead
+// (soccer-brackets.js).
 const POSTSEASON_MONTHS = {
   NFL: { months: [1, 2], yearAfter: true },
   MLB: { months: [9, 11] },

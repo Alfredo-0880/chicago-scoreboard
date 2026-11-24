@@ -1,6 +1,7 @@
-// Past MLS playoff brackets, for the Playoff Picture's past seasons. ESPN
-// doesn't mark which of its past MLS games were playoffs, so these are
-// copied from Wikipedia's "<year> MLS Cup playoffs" articles by
+// Past MLS and NWSL playoff brackets, for the Playoff Picture's past
+// seasons. ESPN doesn't mark which of its past MLS and NWSL games were
+// playoffs, so these are copied from Wikipedia ("<year> MLS Cup playoffs",
+// "<year> National Women's Soccer League season") by
 // tools/add-soccer-brackets.py (see the README); add a season with it.
 //
 // Each series: teams [first, second]; kind "single" (one match), "legs"
@@ -5256,6 +5257,1053 @@ const SOCCER_BRACKETS = {
     }
    ],
    "source": "Wikipedia's 2025 MLS Cup playoffs"
+  }
+ },
+ "NWSL": {
+  "2014": {
+   "rounds": [
+    {
+     "name": "Semi-finals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         2,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Seattle Reign FC",
+        "Washington Spirit"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         2,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "FC Kansas City",
+        "Portland Thorns FC"
+       ],
+       "winner": 0
+      }
+     ]
+    },
+    {
+     "name": "Championship",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         2
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Seattle Reign FC",
+        "FC Kansas City"
+       ],
+       "winner": 1
+      }
+     ]
+    }
+   ],
+   "source": "Wikipedia's 2014 National Women's Soccer League season"
+  },
+  "2015": {
+   "rounds": [
+    {
+     "name": "Semi-finals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         3,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Seattle Reign FC",
+        "Washington Spirit"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         0,
+         3
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Chicago Red Stars",
+        "FC Kansas City"
+       ],
+       "winner": 1
+      }
+     ]
+    },
+    {
+     "name": "Championship",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         0,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Seattle Reign FC",
+        "FC Kansas City"
+       ],
+       "winner": 1
+      }
+     ]
+    }
+   ],
+   "source": "Wikipedia's 2015 National Women's Soccer League season"
+  },
+  "2016": {
+   "rounds": [
+    {
+     "name": "Semi-finals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         3,
+         4
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Portland Thorns FC",
+        "Western New York Flash"
+       ],
+       "winner": 1
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         2,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Washington Spirit",
+        "Chicago Red Stars"
+       ],
+       "winner": 0
+      }
+     ]
+    },
+    {
+     "name": "Championship",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         2,
+         2
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        [
+         3,
+         2
+        ]
+       ],
+       "teams": [
+        "Western New York Flash",
+        "Washington Spirit"
+       ],
+       "winner": 0
+      }
+     ]
+    }
+   ],
+   "source": "Wikipedia's 2016 National Women's Soccer League season"
+  },
+  "2017": {
+   "rounds": [
+    {
+     "name": "Semi-finals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         4,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Portland Thorns FC",
+        "Orlando Pride"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "North Carolina Courage",
+        "Chicago Red Stars"
+       ],
+       "winner": 0
+      }
+     ]
+    },
+    {
+     "name": "Championship",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Portland Thorns FC",
+        "North Carolina Courage"
+       ],
+       "winner": 0
+      }
+     ]
+    }
+   ],
+   "source": "Wikipedia's 2017 National Women's Soccer League season"
+  },
+  "2018": {
+   "rounds": [
+    {
+     "name": "Semi-finals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         2,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "North Carolina Courage",
+        "Chicago Red Stars"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         2,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Portland Thorns FC",
+        "Seattle Reign FC"
+       ],
+       "winner": 0
+      }
+     ]
+    },
+    {
+     "name": "Championship",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         3,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "North Carolina Courage",
+        "Portland Thorns FC"
+       ],
+       "winner": 0
+      }
+     ]
+    }
+   ],
+   "source": "Wikipedia's 2018 National Women's Soccer League season"
+  },
+  "2019": {
+   "rounds": [
+    {
+     "name": "Semi-finals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         4,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "North Carolina Courage",
+        "Reign FC"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Chicago Red Stars",
+        "Portland Thorns FC"
+       ],
+       "winner": 0
+      }
+     ]
+    },
+    {
+     "name": "Championship",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         4,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "North Carolina Courage",
+        "Chicago Red Stars"
+       ],
+       "winner": 0
+      }
+     ]
+    }
+   ],
+   "source": "Wikipedia's 2019 National Women's Soccer League season"
+  },
+  "2021": {
+   "rounds": [
+    {
+     "name": "First round",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Chicago Red Stars",
+        "NJ/NY Gotham FC"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Washington Spirit",
+        "North Carolina Courage"
+       ],
+       "winner": 0
+      }
+     ]
+    },
+    {
+     "name": "Semi-finals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         0,
+         2
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Portland Thorns FC",
+        "Chicago Red Stars"
+       ],
+       "winner": 1
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         2
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "OL Reign",
+        "Washington Spirit"
+       ],
+       "winner": 1
+      }
+     ]
+    },
+    {
+     "name": "Championship",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         2
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Chicago Red Stars",
+        "Washington Spirit"
+       ],
+       "winner": 1
+      }
+     ]
+    }
+   ],
+   "source": "Wikipedia's 2021 National Women's Soccer League season"
+  },
+  "2022": {
+   "rounds": [
+    {
+     "name": "First round",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         2
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Houston Dash",
+        "Kansas City Current"
+       ],
+       "winner": 1
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         2,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "San Diego Wave FC",
+        "Chicago Red Stars"
+       ],
+       "winner": 0
+      }
+     ]
+    },
+    {
+     "name": "Semi-finals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         0,
+         2
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "OL Reign",
+        "Kansas City Current"
+       ],
+       "winner": 1
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         2,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Portland Thorns FC",
+        "San Diego Wave FC"
+       ],
+       "winner": 0
+      }
+     ]
+    },
+    {
+     "name": "Championship",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         0,
+         2
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Kansas City Current",
+        "Portland Thorns FC"
+       ],
+       "winner": 1
+      }
+     ]
+    }
+   ],
+   "source": "Wikipedia's 2022 National Women's Soccer League season"
+  },
+  "2023": {
+   "rounds": [
+    {
+     "name": "Quarterfinals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "OL Reign",
+        "Angel City FC"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         0,
+         2
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "North Carolina Courage",
+        "NJ/NY Gotham FC"
+       ],
+       "winner": 1
+      }
+     ]
+    },
+    {
+     "name": "Semifinals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         0,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "San Diego Wave FC",
+        "OL Reign"
+       ],
+       "winner": 1
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         0,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Portland Thorns FC",
+        "NJ/NY Gotham FC"
+       ],
+       "winner": 1
+      }
+     ]
+    },
+    {
+     "name": "Championship",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         2
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "OL Reign",
+        "NJ/NY Gotham FC"
+       ],
+       "winner": 1
+      }
+     ]
+    }
+   ],
+   "source": "Wikipedia's 2023 National Women's Soccer League season"
+  },
+  "2024": {
+   "rounds": [
+    {
+     "name": "Quarterfinals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         4,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Orlando Pride",
+        "Chicago Red Stars"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Kansas City Current",
+        "North Carolina Courage"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         2,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Washington Spirit",
+        "Bay FC"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         2,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "NJ/NY Gotham FC",
+        "Portland Thorns FC"
+       ],
+       "winner": 0
+      }
+     ]
+    },
+    {
+     "name": "Semifinals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         3,
+         2
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Orlando Pride",
+        "Kansas City Current"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        [
+         3,
+         0
+        ]
+       ],
+       "teams": [
+        "Washington Spirit",
+        "NJ/NY Gotham FC"
+       ],
+       "winner": 0
+      }
+     ]
+    },
+    {
+     "name": "Championship",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Orlando Pride",
+        "Washington Spirit"
+       ],
+       "winner": 0
+      }
+     ]
+    }
+   ],
+   "source": "Wikipedia's 2024 National Women's Soccer League season"
+  },
+  "2025": {
+   "rounds": [
+    {
+     "name": "Quarterfinals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         2
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Kansas City Current",
+        "Gotham FC"
+       ],
+       "winner": 1
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         2,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Orlando Pride",
+        "Seattle Reign FC"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         1
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        [
+         3,
+         1
+        ]
+       ],
+       "teams": [
+        "Washington Spirit",
+        "Racing Louisville FC"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Portland Thorns FC",
+        "San Diego Wave FC"
+       ],
+       "winner": 0
+      }
+     ]
+    },
+    {
+     "name": "Semifinals",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Gotham FC",
+        "Orlando Pride"
+       ],
+       "winner": 0
+      },
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         2,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Washington Spirit",
+        "Portland Thorns FC"
+       ],
+       "winner": 0
+      }
+     ]
+    },
+    {
+     "name": "Championship",
+     "series": [
+      {
+       "awayGoals": false,
+       "games": [
+        [
+         1,
+         0
+        ]
+       ],
+       "kind": "single",
+       "shootouts": [
+        null
+       ],
+       "teams": [
+        "Gotham FC",
+        "Washington Spirit"
+       ],
+       "winner": 0
+      }
+     ]
+    }
+   ],
+   "source": "Wikipedia's 2025 National Women's Soccer League season"
   }
  }
 };
