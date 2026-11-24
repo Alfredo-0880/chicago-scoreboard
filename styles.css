@@ -304,6 +304,22 @@ button {
   border-left-color: #c4ced4;
 }
 
+/* In dark mode, team colors as text are too dark to read on the dark rows
+   (the Cubs' blue measured 1.5:1), so names are lightened with 40% white,
+   which gets every team to at least 4.5:1, the usual standard for text.
+   The Bears and White Sox start from their orange and silver. */
+[data-theme="dark"] .our-team {
+  color: color-mix(in srgb, var(--team-color), white 40%);
+}
+
+[data-theme="dark"] .game[data-team="bears"] .our-team {
+  color: color-mix(in srgb, #c83803, white 40%);
+}
+
+[data-theme="dark"] .game[data-team="whitesox"] .our-team {
+  color: #c4ced4;
+}
+
 .card-team {
   display: flex;
   align-items: center;
@@ -796,8 +812,9 @@ button {
   align-items: center;
 }
 
+/* The Chicago team's name in its own color (Alfredo, 2026-11-24). */
 .our-team {
-  color: var(--flag-red);
+  color: var(--team-color);
 }
 
 .at {
