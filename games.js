@@ -4,6 +4,7 @@
 async function fetchTeamGames(favorite) {
   const leagueInfo = leagueInfoFor(favorite.league);
   const schedules = await Promise.all(leagueInfo.scheduleQueries.map((query) => fetchJson(teamScheduleUrl(favorite, query))));
+  schedules.push(...(await finishedSeasonSchedules(favorite, schedules)));
 
   const gamesById = new Map();
   for (const schedule of schedules) {
@@ -13,6 +14,33 @@ async function fetchTeamGames(favorite) {
     }
   }
   return [...gamesById.values()].sort((a, b) => a.date - b.date);
+}
+
+// After a season ends, ESPN's schedule jumps ahead to the next one (in
+// November the White Sox schedule is 2027's), so Final would have no games.
+// ESPN says so: the season it sent ("requestedSeason") is later than the
+// current one ("season"). Then the current season's schedule is loaded too,
+// so Final shows its results while Upcoming shows the next season's games.
+// If that load fails, the next season's games still show. Test settings
+// skip it: the saved ESPN answers don't include it.
+async function finishedSeasonSchedules(favorite, schedules) {
+  const current = finishedSeasonToAdd(schedules[0]);
+  if (!current || savedAnswerFor) return [];
+  const leagueInfo = leagueInfoFor(favorite.league);
+  try {
+    return await Promise.all(leagueInfo.scheduleQueries.map((query) => fetchJson(teamScheduleUrl(favorite, `${query}&season=${current}`))));
+  } catch (error) {
+    recordProblem("ESPN", `Could not load the ${current} ${favorite.label} schedule`, error);
+    return [];
+  }
+}
+
+// The current season's year when ESPN sent a later season's schedule
+// instead, or null.
+function finishedSeasonToAdd(schedule) {
+  const sent = schedule && schedule.requestedSeason && schedule.requestedSeason.year;
+  const current = schedule && schedule.season && schedule.season.year;
+  return sent && current && sent > current ? current : null;
 }
 
 // One part of a team's schedule; query picks it (for example "seasontype=2").
