@@ -2353,3 +2353,18 @@ button {
   color: #fff;
   font-weight: 700;
 }
+
+/* Highlights: a team's YouTube game highlights, when ESPN has none. */
+.youtube-highlights {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--team-color);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.youtube-button {
+  display: inline-block;
+  margin-top: 10px;
+  text-decoration: none;
+}
