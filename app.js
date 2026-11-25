@@ -179,7 +179,28 @@ async function loadEverything() {
   render();
   updateLiveScores();
   loadForecastIfNeeded();
+  loadTitleChances();
   loadWinChancesIfNeeded("all"); // on Refresh, recheck every win chance
+}
+
+// Each NFL and NBA team's division, conference, and title chances
+// (title-chances.js), for the team cards, once the standings say which
+// season it is. Reloaded on Refresh. Test settings skip them: the saved
+// data doesn't include them.
+async function loadTitleChances() {
+  if (savedAnswerFor) return;
+  await Promise.all(
+    Object.keys(TITLE_CHANCE_LEAGUES).map(async (leagueKey) => {
+      const standingsState = loadState("standings", leagueKey);
+      if (standingsState.status !== "loaded") return;
+      try {
+        titleChances[leagueKey] = await fetchTitleChances(leagueKey, standingsState.value.season.name);
+      } catch (error) {
+        recordProblem("ESPN", `Could not load the ${leagueKey} title chances`, error);
+      }
+    })
+  );
+  render();
 }
 
 // ESPN's win chances (predictor.js) load for games in the next week when
@@ -330,12 +351,14 @@ function teamCardHtml(favorite) {
       body = `<div class="card-record">—</div><div class="card-detail">Not in ESPN's standings</div>`;
     } else {
       const place = placeSummary(favorite.league, standing).map(escapeHtml).join("<br>");
+      const chances = titleChancesText(favorite);
       body = `
         <div class="card-record">${escapeHtml(standing.team.record)}</div>
         <div class="card-detail">
           ${place}
           <br><span class="card-season">${escapeHtml(standings.season.name)} ${escapeHtml(standings.season.type)}</span>
-        </div>`;
+        </div>
+        ${chances ? `<div class="card-chances" title="ESPN's projections">${escapeHtml(chances)}</div>` : ""}`;
     }
   }
 

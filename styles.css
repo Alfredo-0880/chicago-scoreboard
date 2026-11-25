@@ -415,6 +415,15 @@ button {
   line-height: 1.45;
 }
 
+/* Division, conference, and title chances, under the standings line. */
+.card-chances {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
 .card-season {
   font-size: 0.7rem;
   text-transform: uppercase;
