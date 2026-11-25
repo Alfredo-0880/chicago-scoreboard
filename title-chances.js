@@ -90,8 +90,13 @@ function parsePowerIndex(data) {
 
 // The card's two lines: ["Playoffs 0.6% · Play-in 9.5%", "Division 0% ·
 // Conference 0% · NBA title 0%"], or null. The first is left out when ESPN
-// gives no playoff chance.
+// gives no playoff chance. The NHL's are the app's own estimate
+// (nhl-estimate.js: a Map by team abbreviation), and say so.
 function titleChancesLines(favorite, chancesByLeague = titleChances) {
+  if (favorite.league === "NHL") {
+    const estimate = chancesByLeague.NHL && chancesByLeague.NHL.get(favorite.abbreviation);
+    return estimate ? [`Our estimate: Playoffs ${percentText(estimate.playoffs)} · Division ${percentText(estimate.division)}`] : null;
+  }
   const league = TITLE_CHANCE_LEAGUES[favorite.league];
   const chances = league && chancesByLeague[favorite.league] && chancesByLeague[favorite.league].get(favorite.espnTeamId);
   if (!chances) return null;

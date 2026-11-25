@@ -189,6 +189,9 @@ async function loadEverything() {
 // data doesn't include them.
 async function loadTitleChances() {
   if (savedAnswerFor) return;
+  // The NHL's are the app's own estimate, from its standings (nhl-estimate.js).
+  const nhlStandings = loadState("standings", "NHL");
+  if (nhlStandings.status === "loaded") titleChances.NHL = estimateNhlChances(nhlStandings.value);
   await Promise.all(
     Object.keys(TITLE_CHANCE_LEAGUES).map(async (leagueKey) => {
       const standingsState = loadState("standings", leagueKey);
