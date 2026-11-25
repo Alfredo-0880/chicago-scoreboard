@@ -183,9 +183,9 @@ async function loadEverything() {
   loadWinChancesIfNeeded("all"); // on Refresh, recheck every win chance
 }
 
-// Each NFL and NBA team's division, conference, and title chances
-// (title-chances.js), for the team cards, once the standings say which
-// season it is. Reloaded on Refresh. Test settings skip them: the saved
+// Each team's division, conference, and title chances where there are any
+// (title-chances.js: NFL, NBA, and title odds for MLB and the WNBA), for
+// the team cards, once the standings say which season it is. Reloaded on Refresh. Test settings skip them: the saved
 // data doesn't include them.
 async function loadTitleChances() {
   if (savedAnswerFor) return;
