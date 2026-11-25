@@ -284,40 +284,36 @@ button {
   padding: 13px 13px 14px;
 }
 
-/* The Bears' navy and the White Sox' near-black vanish against the dark
-   background, so in dark mode their selected cards and their game rows'
-   side stripes use their other team color: Bears orange, White Sox silver. */
-[data-theme="dark"] .team-card.selected[data-team="bears"] {
-  border-color: #c83803;
+/* Dark mode: the Bears' navy and the White Sox' near-black vanish against
+   the dark background, so everything drawn in them (card outlines, game
+   stripes, banners, team buttons, badges) uses their other team color
+   instead: Bears orange, White Sox silver (Alfredo, 2026-11-25). Every
+   element gets its team color as an inline --team-color, so one rule each
+   covers them all; !important lets it win over the inline value. */
+[data-theme="dark"] [style*="--team-color:#0B162A"] {
+  --team-color: #c83803 !important;
 }
 
-[data-theme="dark"] .team-card.selected[data-team="whitesox"] {
-  border-color: #c4ced4;
+[data-theme="dark"] [style*="--team-color:#27251F"] {
+  --team-color: #c4ced4 !important;
 }
 
-/* Only the left side: a game row's other sides are a thin gray line. */
-[data-theme="dark"] .game[data-team="bears"] {
-  border-left-color: #c83803;
+/* White text can't be read on silver, so White Sox fills get dark text. */
+[data-theme="dark"] .team-button.active[style*="--team-color:#27251F"],
+[data-theme="dark"] [style*="--team-color:#27251F"] .retired-badge,
+[data-theme="dark"] .retired-badge[style*="--team-color:#27251F"] {
+  color: #17140f;
 }
 
-[data-theme="dark"] .game[data-team="whitesox"] {
-  border-left-color: #c4ced4;
+[data-theme="dark"] .team-button.active[style*="--team-color:#27251F"] .dot {
+  background: rgba(23, 20, 15, 0.7);
 }
 
 /* In dark mode, team colors as text are too dark to read on the dark rows
    (the Cubs' blue measured 1.5:1), so names are lightened with 40% white,
-   which gets every team to at least 4.5:1, the usual standard for text.
-   The Bears and White Sox start from their orange and silver. */
+   which gets every team to at least 4.5:1, the usual standard for text. */
 [data-theme="dark"] .our-team {
   color: color-mix(in srgb, var(--team-color), white 40%);
-}
-
-[data-theme="dark"] .game[data-team="bears"] .our-team {
-  color: color-mix(in srgb, #c83803, white 40%);
-}
-
-[data-theme="dark"] .game[data-team="whitesox"] .our-team {
-  color: #c4ced4;
 }
 
 .card-team {
