@@ -87,8 +87,18 @@ function logosFrom(espnTeam) {
   const tagged = (tag) => logos.find((logo) => (logo.rel || []).includes(tag));
   const light = tagged("default") || logos[0];
   if (!light) return null;
-  const dark = tagged("dark") || light;
-  return { light: light.href, dark: dark.href };
+  const dark = tagged("dark");
+  return { light: light.href, dark: dark ? dark.href : darkLogoAddress(light.href) };
+}
+
+// Schedules give opponents only their light-background logo, so black and
+// navy logos (the Raiders', Nets', Jets') nearly vanished in dark mode.
+// ESPN keeps each logo's dark-background version beside it, under
+// "500-dark" instead of "500" (checked in all seven leagues, 2026-11-25).
+// Other addresses stay as they are; logoHtml falls back to the light logo
+// if a dark one is missing.
+function darkLogoAddress(lightAddress) {
+  return lightAddress.replace(/(\/teamlogos\/[^/]+(?:\/[^/]+)?)\/500\//, "$1/500-dark/");
 }
 
 // A team logo that shows letters (like "BE") instead when there is no logo
@@ -100,10 +110,16 @@ function logoHtml(logos, fallbackText, sizeClass) {
     return `<span class="logo ${sizeClass} logo-failed" ${fallback}></span>`;
   }
   const darkTheme = document.documentElement.dataset.theme === "dark";
+  // A missing dark logo falls back to the light one, and only a missing
+  // light logo shows the letters.
+  const useDark = darkTheme && logos.dark !== logos.light;
+  const onError = useDark
+    ? `if (this.dataset.light) { this.src = this.dataset.light; delete this.dataset.light; } else { this.closest('.logo').classList.add('logo-failed'); }`
+    : `this.closest('.logo').classList.add('logo-failed')`;
   return `
     <span class="logo ${sizeClass}" ${fallback}>
-      <img src="${escapeHtml(darkTheme ? logos.dark : logos.light)}" alt="" loading="lazy"
-           onerror="this.closest('.logo').classList.add('logo-failed')">
+      <img src="${escapeHtml(useDark ? logos.dark : logos.light)}" alt="" loading="lazy"${useDark ? ` data-light="${escapeHtml(logos.light)}"` : ""}
+           onerror="${onError}">
     </span>`;
 }
 
