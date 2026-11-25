@@ -88,6 +88,8 @@ function parseGame(favorite, event) {
     note: note || (seasonType && seasonType !== "Regular Season" ? seasonType : ""),
     // Preseason (spring training in baseball) is ESPN's season type 1.
     preseason: Boolean(event.seasonType && event.seasonType.type === 1),
+    // "2026" or "2026-27", to match the game with that season's standings.
+    seasonName: (event.season && event.season.displayName) || null,
   };
 }
 

@@ -133,6 +133,38 @@ function teamFor(game) {
   return FAVORITE_TEAMS.find((team) => team.key === game.teamKey);
 }
 
+// Each team's season so far on upcoming games, from the standings the app
+// already loads. The app sets standingsForLeague (league key -> loaded
+// standings, or null); the tests leave it returning null.
+let standingsForLeague = () => null;
+
+// ".727" (wins over games played, ".000" to "1.000"), or null before any games.
+// ESPN gives no win percentage for the NHL or soccer, so it's counted from the record.
+function winPercentText(team) {
+  const games = team.record.split("-").map(Number).reduce((sum, count) => sum + count, 0);
+  const percent = team.winPercent > 0 ? team.winPercent : games > 0 ? Number(team.record.split("-")[0]) / games : null;
+  if (percent === null) return null;
+  return percent >= 1 ? "1.000" : percent.toFixed(3).replace(/^0/, "");
+}
+
+// "Season: Bears .727 · Lions .636", or for soccer (ranked by points, not
+// wins) the records: "Season: Fire 16-7-11 · Crew 14-9-11". Only for
+// upcoming games in the standings' season (not 2027 spring training against
+// 2026 standings), and not preseason games.
+function seasonRecordText(game, standings = standingsForLeague(teamFor(game).league)) {
+  if (game.state !== "pre" || game.preseason || !standings || !game.seasonName) return null;
+  if (!standings.season.name.startsWith(game.seasonName)) return null;
+  const favorite = teamFor(game);
+  const teams = standings.divisions.flatMap((division) => division.teams);
+  const ours = teams.find((team) => team.abbreviation === favorite.abbreviation);
+  const theirs = teams.find((team) => team.abbreviation === game.opponentAbbreviation);
+  if (!ours || !theirs) return null;
+  const isSoccer = leagueInfoFor(favorite.league).sport === "soccer";
+  const show = (team) => (isSoccer ? team.record : winPercentText(team));
+  if (!show(ours) || !show(theirs)) return null;
+  return `Season: ${favorite.label} ${show(ours)} · ${game.opponent} ${show(theirs)}`;
+}
+
 // boxScore: null for no box score button, or { open, state } where state is
 // the box score's load state (only read while open).
 function gameRowHtml(game, boxScore = null) {
@@ -140,6 +172,7 @@ function gameRowHtml(game, boxScore = null) {
   const details = [game.note, game.venue && `${game.venue.name} · ${game.venue.city}`].filter(Boolean);
   const forecast = gameForecastText(game);
   const winChance = winChanceText(game);
+  const seasonRecord = seasonRecordText(game);
   const boxScoreButton = boxScore
     ? `<button class="series-games-toggle box-score-toggle" data-action="box-score" data-game="${escapeHtml(boxScoreKey(game))}" aria-expanded="${boxScore.open}">
          ${boxScore.open ? "Hide box score ▾" : "Box score ▸"}
@@ -160,6 +193,7 @@ function gameRowHtml(game, boxScore = null) {
         </div>
         ${details.map((detail) => `<div class="game-detail">${escapeHtml(detail)}</div>`).join("")}
         ${forecast ? `<div class="game-detail game-forecast">${escapeHtml(forecast)}</div>` : ""}
+        ${seasonRecord ? `<div class="game-detail game-season-record">${escapeHtml(seasonRecord)}</div>` : ""}
         ${winChance ? `<div class="game-detail game-win-chance">${escapeHtml(winChance)}</div>` : ""}
         ${boxScoreButton}
       </div>

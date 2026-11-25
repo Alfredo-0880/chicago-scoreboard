@@ -573,6 +573,11 @@ function showTestSettingsBanner(mode) {
 }
 
 timeZoneChoice = savedTimeZoneChoice();
+// Upcoming games show each team's season so far from the loaded standings (games-view.js).
+standingsForLeague = (leagueKey) => {
+  const standingsState = loadState("standings", leagueKey);
+  return standingsState.status === "loaded" ? standingsState.value : null;
+};
 renderColorsPicker();
 loadTestSettings().then((mode) => {
   showTestSettingsBanner(mode);
