@@ -23,6 +23,22 @@ function needsWinChance(game, now) {
   return game.state === "pre" && game.date - now < WIN_CHANCE_DAYS * 24 * 60 * 60 * 1000;
 }
 
+// The games to ask ESPN about: those needing a win chance that don't have
+// one yet, and with recheck, more: "all" (Refresh: odds move as a game
+// nears) or "blank" (the hourly check, for chances not posted before).
+const WIN_CHANCE_RECHECK_MINUTES = 60;
+
+function winChanceGamesToLoad(games, chances, now, recheck = "none") {
+  return games.filter((game) => {
+    if (!needsWinChance(game, now)) return false;
+    const entry = chances.get(winChanceKey(game));
+    if (!entry) return true;
+    if (entry.status === "loading") return false;
+    if (recheck === "all") return true;
+    return recheck === "blank" && (entry.status === "error" || !entry.value);
+  });
+}
+
 async function fetchWinChance(game) {
   const favorite = FAVORITE_TEAMS.find((team) => team.key === game.teamKey);
   const leagueInfo = leagueInfoFor(favorite.league);

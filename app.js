@@ -179,29 +179,39 @@ async function loadEverything() {
   render();
   updateLiveScores();
   loadForecastIfNeeded();
-  loadWinChancesIfNeeded();
+  loadWinChancesIfNeeded("all"); // on Refresh, recheck every win chance
 }
 
-// ESPN's win chances (predictor.js) load for games in the next week, once,
-// when Upcoming or Today is open. Test settings skip them: the saved data
-// doesn't include them.
-async function loadWinChancesIfNeeded() {
+// ESPN's win chances (predictor.js) load for games in the next week when
+// Upcoming or Today is open. recheck (winChanceGamesToLoad) asks again for
+// ones already loaded: "all" on Refresh, "blank" every hour. A chance being
+// rechecked keeps showing until the new one arrives, and stays if that
+// fails. Test settings skip them: the saved data doesn't include them.
+async function loadWinChancesIfNeeded(recheck = "none") {
   if (savedAnswerFor) return;
-  if (!(state.page === "today" || (state.page === "games" && state.gamesShown === "upcoming"))) return;
-  const now = new Date();
-  const games = FAVORITE_TEAMS.flatMap((favorite) => {
+  if (!(state.page === "today" || (state.page === "games" && state.gamesShown === "upcoming"))) {
+    // Refresh elsewhere: forget them, so they load fresh when Upcoming or Today opens.
+    if (recheck === "all") winChances.clear();
+    return;
+  }
+  const allGames = FAVORITE_TEAMS.flatMap((favorite) => {
     const gamesState = loadState("games", favorite.key);
     return gamesState.status === "loaded" ? gamesState.value : [];
-  }).filter((game) => needsWinChance(game, now) && !winChances.has(winChanceKey(game)));
+  });
+  const games = winChanceGamesToLoad(allGames, winChances, new Date(), recheck);
   if (games.length === 0) return;
-  for (const game of games) winChances.set(winChanceKey(game), { status: "loading" });
+  for (const game of games) {
+    if (!winChances.has(winChanceKey(game))) winChances.set(winChanceKey(game), { status: "loading" });
+  }
   await Promise.all(
     games.map(async (game) => {
+      const key = winChanceKey(game);
       try {
-        winChances.set(winChanceKey(game), { status: "loaded", value: await fetchWinChance(game) });
+        winChances.set(key, { status: "loaded", value: await fetchWinChance(game) });
       } catch (error) {
         recordProblem("ESPN", `Could not load the win chances for game ${game.id}`, error);
-        winChances.set(winChanceKey(game), { status: "error" });
+        const before = winChances.get(key);
+        if (!before || before.status !== "loaded") winChances.set(key, { status: "error" });
       }
     })
   );
@@ -570,6 +580,8 @@ loadTestSettings().then((mode) => {
 });
 // Keep live scores current; this loads nothing while no game is on.
 setInterval(updateLiveScores, LIVE_CHECK_SECONDS * 1000);
+// Fill in win chances posted since the last check (sportsbooks post odds a day or two ahead).
+setInterval(() => loadWinChancesIfNeeded("blank"), WIN_CHANCE_RECHECK_MINUTES * 60 * 1000);
 // In Auto, follow the device when it switches between light and dark.
 systemDarkQuery.addEventListener("change", () => {
   applyTheme(state.themeChoice);
