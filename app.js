@@ -351,14 +351,14 @@ function teamCardHtml(favorite) {
       body = `<div class="card-record">—</div><div class="card-detail">Not in ESPN's standings</div>`;
     } else {
       const place = placeSummary(favorite.league, standing).map(escapeHtml).join("<br>");
-      const chances = titleChancesText(favorite);
+      const chances = titleChancesLines(favorite);
       body = `
         <div class="card-record">${escapeHtml(standing.team.record)}</div>
         <div class="card-detail">
           ${place}
           <br><span class="card-season">${escapeHtml(standings.season.name)} ${escapeHtml(standings.season.type)}</span>
         </div>
-        ${chances ? `<div class="card-chances" title="ESPN's projections">${escapeHtml(chances)}</div>` : ""}`;
+        ${chances ? `<div class="card-chances" title="ESPN's projections">${chances.map(escapeHtml).join("<br>")}</div>` : ""}`;
     }
   }
 

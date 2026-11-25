@@ -9,8 +9,9 @@ const TITLE_CHANCE_LEAGUES = {
   NBA: { title: "NBA title" },
 };
 
-// league key -> Map of ESPN team id -> { division, conference, title }
-// (ESPN's text: "22.7%", ">99.9%"). The app fills it; the tests leave it empty.
+// league key -> Map of ESPN team id -> { playoffs, playIn, division,
+// conference, title } (ESPN's text: "22.7%", ">99.9%"; playIn is the NBA's
+// only, else null). The app fills it; the tests leave it empty.
 const titleChances = {};
 
 // "2026" -> 2026, "2026-27" -> 2027: ESPN files a season under the year it ends.
@@ -27,7 +28,8 @@ async function fetchTitleChances(leagueKey, seasonName) {
 
 // ESPN's power index -> Map of team id -> chances. The NFL's numbers are in
 // "predictives", the NBA's in "stats". Reaching the final ("make title
-// game") means winning the conference.
+// game") means winning the conference. The playoff (and NBA play-in)
+// chances say more for a team far from a title (Alfredo, 2026-11-25).
 function parsePowerIndex(data) {
   const chances = new Map();
   for (const item of (data && data.items) || []) {
@@ -37,15 +39,21 @@ function parsePowerIndex(data) {
     const division = values.probwindiv;
     const conference = values.probmaketitlegame;
     const title = values.probwintitle;
-    if (division && conference && title) chances.set(teamId[1], { division, conference, title });
+    const playoffs = values.probmakeplayoffs || null;
+    const playIn = values.playinchance || null;
+    if (division && conference && title) chances.set(teamId[1], { playoffs, playIn, division, conference, title });
   }
   return chances;
 }
 
-// "Division 22.7% · Conference 10.3% · Super Bowl 4.6%", or null.
-function titleChancesText(favorite, chancesByLeague = titleChances) {
+// The card's two lines: ["Playoffs 0.6% · Play-in 9.5%", "Division 0% ·
+// Conference 0% · NBA title 0%"], or null. The first is left out when ESPN
+// gives no playoff chance.
+function titleChancesLines(favorite, chancesByLeague = titleChances) {
   const league = TITLE_CHANCE_LEAGUES[favorite.league];
   const chances = league && chancesByLeague[favorite.league] && chancesByLeague[favorite.league].get(favorite.espnTeamId);
   if (!chances) return null;
-  return `Division ${chances.division} · Conference ${chances.conference} · ${league.title} ${chances.title}`;
+  const playoffs = [chances.playoffs && `Playoffs ${chances.playoffs}`, chances.playIn && `Play-in ${chances.playIn}`].filter(Boolean).join(" · ");
+  const titles = `Division ${chances.division} · Conference ${chances.conference} · ${league.title} ${chances.title}`;
+  return playoffs ? [playoffs, titles] : [titles];
 }
