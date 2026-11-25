@@ -179,6 +179,33 @@ async function loadEverything() {
   render();
   updateLiveScores();
   loadForecastIfNeeded();
+  loadWinChancesIfNeeded();
+}
+
+// ESPN's win chances (predictor.js) load for games in the next week, once,
+// when Upcoming or Today is open. Test settings skip them: the saved data
+// doesn't include them.
+async function loadWinChancesIfNeeded() {
+  if (savedAnswerFor) return;
+  if (!(state.page === "today" || (state.page === "games" && state.gamesShown === "upcoming"))) return;
+  const now = new Date();
+  const games = FAVORITE_TEAMS.flatMap((favorite) => {
+    const gamesState = loadState("games", favorite.key);
+    return gamesState.status === "loaded" ? gamesState.value : [];
+  }).filter((game) => needsWinChance(game, now) && !winChances.has(winChanceKey(game)));
+  if (games.length === 0) return;
+  for (const game of games) winChances.set(winChanceKey(game), { status: "loading" });
+  await Promise.all(
+    games.map(async (game) => {
+      try {
+        winChances.set(winChanceKey(game), { status: "loaded", value: await fetchWinChance(game) });
+      } catch (error) {
+        recordProblem("ESPN", `Could not load the win chances for game ${game.id}`, error);
+        winChances.set(winChanceKey(game), { status: "error" });
+      }
+    })
+  );
+  render();
 }
 
 // Chicago's weather forecast (forecast.js) loads once the games are in, and
@@ -486,6 +513,7 @@ document.addEventListener("click", (event) => {
   loadRosterIfNeeded();
   loadCareerStatsIfNeeded();
   loadNewsIfNeeded();
+  loadWinChancesIfNeeded();
   loadHistoryIfNeeded();
   loadPastStandingsIfNeeded();
   loadPastPlayoffsIfNeeded();
