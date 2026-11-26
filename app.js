@@ -5,7 +5,7 @@
 // injuries-view.js. The tab rows (and which pages are grouped) are in tabs.js.
 
 const state = {
-  page: "today", // opens on Today; "today" | "games" | "standings" | "playoffs" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "uniforms" | "mascots" | "rivals" | "retired" | "halloffame" | "leaders" | "coaches" | "drafts" | "funfacts" | "social" | "stats" | "injuries" | "settings" | "diagnostics"
+  page: "today", // opens on Today; "today" | "games" | "standings" | "playoffs" | "cups" | "rosters" | "news" | "highlights" | "history" | "championships" | "stadiums" | "uniforms" | "mascots" | "rivals" | "retired" | "halloffame" | "leaders" | "coaches" | "drafts" | "funfacts" | "social" | "stats" | "injuries" | "settings" | "diagnostics"
   selectedTeam: "all", // "all" or a FAVORITE_TEAMS key
   gamesShown: "final", // "final" | "upcoming"
   allFinals: false, // Final shows every result this season, not just the last 10
@@ -33,6 +33,7 @@ const state = {
   standingsSeason: null, // season picked on League Standings (null: current season)
   playoffsSeason: null, // season picked on Playoff Picture (null: current season)
   pastPlayoffs: {}, // past seasons' playoff games, keyed "MLB-2016", loaded when picked
+  cups: {}, // cup tournaments (cups.js), keyed "nba", loaded the first time Cups opens
   openSeries: [], // bracket series whose games are shown (seriesKey in playoffs-view.js)
   lastUpdated: null,
   refreshing: false,
@@ -178,6 +179,7 @@ async function loadEverything() {
   state.lastUpdated = new Date();
   render();
   updateLiveScores();
+  loadCupsIfNeeded();
   loadForecastIfNeeded();
   loadTitleChances();
   loadWinChancesIfNeeded("all"); // on Refresh, recheck every win chance
@@ -205,6 +207,22 @@ async function loadTitleChances() {
     })
   );
   render();
+}
+
+// The Bulls' NBA Cup group (cups.js) loads the first time Cups opens, once
+// the Bulls' schedule (which names the group) is in.
+function loadCupsIfNeeded() {
+  if (state.page !== "cups" || state.cups.nba) return;
+  // Test settings' saved data doesn't include the other teams' schedules.
+  if (savedAnswerFor) {
+    state.cups.nba = { status: "loaded", value: { teams: [], games: [], notInTestSettings: true } };
+    render();
+    return;
+  }
+  const bulls = FAVORITE_TEAMS.find((team) => team.key === "bulls");
+  const gamesState = loadState("games", bulls.key);
+  if (gamesState.status !== "loaded") return;
+  load("cups", "nba", () => fetchNbaCupGroup(bulls, gamesState.value));
 }
 
 // The Fire's and Stars' cards (mls-estimate.js): their league's playoff games
@@ -349,6 +367,7 @@ function render() {
   else if (state.page === "funfacts") page.innerHTML = funFactsPageHtml();
   else if (state.page === "social") page.innerHTML = socialsPageHtml();
   else if (state.page === "stats") page.innerHTML = careerStatsPageHtml();
+  else if (state.page === "cups") page.innerHTML = cupsPageHtml(loadState("cups", "nba"));
   else if (state.page === "settings") page.innerHTML = settingsPageHtml(notifyPanelHtml(state.notifyTeams, notificationPermission(), state.notifyMessage));
   else if (state.page === "diagnostics") page.innerHTML = diagnosticsPageHtml(readDiagnostics(), state.diagnosticsMessage);
   else page.innerHTML = injuriesPageHtml();
@@ -569,6 +588,7 @@ document.addEventListener("click", (event) => {
   loadCareerStatsIfNeeded();
   loadNewsIfNeeded();
   loadWinChancesIfNeeded();
+  loadCupsIfNeeded();
   loadHistoryIfNeeded();
   loadPastStandingsIfNeeded();
   loadPastPlayoffsIfNeeded();

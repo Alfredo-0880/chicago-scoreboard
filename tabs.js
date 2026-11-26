@@ -7,6 +7,7 @@ const MAIN_TABS = [
   { key: "games", label: "Games" },
   { key: "standings", label: "League Standings" },
   { key: "playoffs", label: "Playoff Picture" },
+  { key: "cups", label: "Cups" },
   { key: "rosters", label: "Rosters" },
   { key: "stats", label: "Stats" },
   { key: "injuries", label: "Injuries" },
