@@ -86,7 +86,7 @@ function nbaCupGameHtml(game) {
 // The Leagues Cup's two tables, the Fire highlighted, quarterfinalists
 // marked, then the knockout bracket below them (Alfredo, 2026-11-26).
 function leaguesCupSectionHtml(leaguesCupState, cupStates = {}) {
-  return leaguesCupTablesHtml(leaguesCupState) + cupBracketHtml("Leagues Cup", "Leagues Cup knockout rounds", cupStates.leaguesCupBracket);
+  return leaguesCupTablesHtml(leaguesCupState) + leaguesCupFireGamesHtml(cupStates.leaguesCupFire) + cupBracketHtml("Leagues Cup", "Leagues Cup knockout rounds", cupStates.leaguesCupBracket);
 }
 
 // A cup's knockout bracket (cups.js), drawn like the Playoff Picture's
@@ -148,18 +148,8 @@ function openCupRunHtml(openCupState) {
   if (openCupState.status === "error") return `<section class="division">${heading("U.S. Open Cup")}${errorMessageHtml("Couldn't load the U.S. Open Cup")}</section>`;
   const { season, games, notInTestSettings } = openCupState.value;
   if (notInTestSettings) return `<section class="division">${heading("U.S. Open Cup")}<div class="message">The U.S. Open Cup uses live data; test settings don't include it.</div></section>`;
-  if (games.length === 0) return `<section class="division">${heading(season)}<div class="message">The Fire have no U.S. Open Cup games this season.</div></section>`;
-  const sideHtml = (team, completed) => {
-    const text = completed ? `${escapeHtml(team.name)} ${escapeHtml(team.score)}${team.shootout === null ? "" : ` (${team.shootout})`}` : escapeHtml(team.name);
-    return `<span class="team-name">${logoHtml(team.logos, team.abbreviation, "logo-small")}${team.won ? `<strong>${text}</strong>` : text}</span>`;
-  };
-  const rows = games
-    .map((game) => {
-      const when = displayDate(game.date, { weekday: "short", month: "short", day: "numeric" });
-      const teams = `${sideHtml(game.away, game.completed)} @ ${sideHtml(game.home, game.completed)}`;
-      return `<li class="series-game"><span class="picture-status in">${escapeHtml(game.round)}</span> ${escapeHtml(when)} · ${teams}</li>`;
-    })
-    .join("");
+  if (games.length === 0) return `<section class="division">${heading(season || "U.S. Open Cup")}<div class="message">The Fire have no U.S. Open Cup games this season.</div></section>`;
+  const rows = games.map((game) => fireCupGameHtml(game, true)).join("");
   const last = games[games.length - 1];
   const fireLost = last.completed && ![last.home, last.away].some((team) => team.abbreviation === FAVORITE_TEAMS.find((t) => t.key === "fire").abbreviation && team.won);
   return `
@@ -169,6 +159,35 @@ function openCupRunHtml(openCupState) {
       <ol class="series-games">${rows}</ol>
       <p class="uniform-note">${fireLost ? `The Fire went out in the ${escapeHtml(last.round)}. ` : ""}A knockout tournament for American clubs of every level; penalties in parentheses. From ESPN.</p>
     </section>`;
+}
+
+// The Fire's Leagues Cup group games (Alfredo, 2026-11-26), between the
+// tables and the bracket; their knockout games are in the bracket.
+function leaguesCupFireGamesHtml(fireState = { status: "loading" }) {
+  const heading = `<h3 class="hof-group">The Fire's group games</h3>`;
+  if (fireState.status === "loading") return `<section class="division">${heading}<div class="message">Loading the Fire's Leagues Cup games…</div></section>`;
+  if (fireState.status === "error") return `<section class="division">${heading}${errorMessageHtml("Couldn't load the Fire's Leagues Cup games")}</section>`;
+  if (fireState.value.notInTestSettings) return "";
+  const groupGames = fireState.value.games.filter((game) => /league phase|group/i.test(game.round));
+  if (groupGames.length === 0) return `<section class="division">${heading}<div class="message">The Fire have no Leagues Cup group games this season.</div></section>`;
+  return `
+    <section class="division">
+      ${heading}
+      <ol class="series-games">${groupGames.map((game) => fireCupGameHtml(game, false)).join("")}</ol>
+    </section>`;
+}
+
+// One of the Fire's cup games: "Tue, Apr 14 · Fire 2 @ Detroit 1", each
+// team with its logo, the winner in bold, penalties in parentheses, and
+// its round first when showRound (a knockout cup's games each differ).
+function fireCupGameHtml(game, showRound) {
+  const sideHtml = (team) => {
+    const text = game.completed ? `${escapeHtml(team.name)} ${escapeHtml(team.score)}${team.shootout === null ? "" : ` (${team.shootout})`}` : escapeHtml(team.name);
+    return `<span class="team-name">${logoHtml(team.logos, team.abbreviation, "logo-small")}${team.won ? `<strong>${text}</strong>` : text}</span>`;
+  };
+  const when = displayDate(game.date, { weekday: "short", month: "short", day: "numeric" });
+  const round = showRound ? `<span class="picture-status in">${escapeHtml(game.round)}</span> ` : "";
+  return `<li class="series-game">${round}${escapeHtml(when)} · ${sideHtml(game.away)} @ ${sideHtml(game.home)}</li>`;
 }
 
 const CUP_SECTIONS = { nba: nbaCupSectionHtml, leaguesCup: leaguesCupSectionHtml, openCup: openCupSectionHtml };

@@ -147,17 +147,19 @@ function parseLeaguesCupStandings(data) {
   return { season: (data.season && data.season.displayName) || "Leagues Cup", tables };
 }
 
-// The U.S. Open Cup is knockout only, so there's no table: the Fire's games
-// in it this season, from their U.S. Open Cup schedule on ESPN, which names
-// each game's round ("Round of 32").
-async function fetchOpenCupRun(fire) {
-  return parseOpenCupRun(await fetchJson(`${ESPN_SITE_API}/site/v2/sports/soccer/usa.open/teams/${fire.espnTeamId}/schedule`), fire);
+// The Fire's games in a cup this season, from their schedule for it on
+// ESPN, which names each game's round ("Round of 32", "League Phase"): all
+// of them for the U.S. Open Cup, which is knockout only, and the group
+// games for the Leagues Cup (Alfredo, 2026-11-26). slug: ESPN's name for
+// the cup ("usa.open").
+async function fetchFireCupGames(slug, fire) {
+  return parseFireCupGames(await fetchJson(`${ESPN_SITE_API}/site/v2/sports/soccer/${slug}/teams/${fire.espnTeamId}/schedule`), fire);
 }
 
 // ESPN's answer -> { season: "2026 U.S. Open Cup", games: [{ round, date,
 // completed, home, away }] }, earliest first. Each side: { abbreviation,
 // name, logos, score, shootout (penalties, or null), won }.
-function parseOpenCupRun(data, fire) {
+function parseFireCupGames(data, fire) {
   const side = (competitor) => {
     const score = competitor.score && typeof competitor.score === "object" ? competitor.score : { displayValue: competitor.score };
     const shootout = competitor.shootoutScore ?? score.shootoutScore ?? null;
@@ -184,7 +186,7 @@ function parseOpenCupRun(data, fire) {
       };
     })
     .sort((a, b) => a.date - b.date);
-  return { season: (data.season && data.season.displayName) || "U.S. Open Cup", games };
+  return { season: (data.season && data.season.displayName) || "", games };
 }
 
 // The cups' knockout brackets (Alfredo, 2026-11-26), from ESPN's
