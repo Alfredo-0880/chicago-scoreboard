@@ -210,15 +210,13 @@ async function loadTitleChances() {
   render();
 }
 
-// The picked cup (cups.js) loads the first time it's shown: the Leagues Cup
-// right away, the Bulls' NBA Cup group once the Bulls' schedule (which
-// names the group) is in.
+// The picked cup (cups.js) loads the first time it's shown.
 function loadCupsIfNeeded() {
   if (state.page !== "cups") return;
   // Test settings' saved data doesn't include the cups.
   if (savedAnswerFor) {
     if (state.cups.nba) return;
-    state.cups.nba = { status: "loaded", value: { teams: [], games: [], notInTestSettings: true } };
+    state.cups.nba = { status: "loaded", value: { season: "", groups: [], notInTestSettings: true } };
     state.cups.leaguesCup = { status: "loaded", value: { season: "", tables: [], notInTestSettings: true } };
     state.cups.openCup = { status: "loaded", value: { season: "", games: [], notInTestSettings: true } };
     state.cups.leaguesCupBracket = { status: "loaded", value: Object.assign([], { notInTestSettings: true }) };
@@ -237,11 +235,7 @@ function loadCupsIfNeeded() {
     if (!state.cups.openCupBracket) load("cups", "openCupBracket", () => fetchCupBracket(CUP_BRACKETS.openCup));
     return;
   }
-  if (state.cups.nba) return;
-  const bulls = FAVORITE_TEAMS.find((team) => team.key === "bulls");
-  const gamesState = loadState("games", bulls.key);
-  if (gamesState.status !== "loaded") return;
-  load("cups", "nba", () => fetchNbaCupGroup(bulls, gamesState.value));
+  if (!state.cups.nba) load("cups", "nba", () => fetchNbaCupGroups(nbaCupYear(new Date())));
 }
 
 // The Fire's and Stars' cards (mls-estimate.js): their league's playoff games

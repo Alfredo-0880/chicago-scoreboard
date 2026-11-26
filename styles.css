@@ -1111,6 +1111,12 @@ button {
   white-space: nowrap;
 }
 
+/* The Cups tab's tables: team names line up on the left, under "Team". */
+.cup-table th:nth-child(2),
+.cup-table td:nth-child(2) {
+  text-align: left;
+}
+
 .picture-status.division {
   color: #1e7a34;
 }

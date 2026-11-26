@@ -26,55 +26,61 @@ function cupsPageHtml(shown, cupStates) {
     ${CUP_SECTIONS[shown](state, cupStates)}`;
 }
 
+// All six NBA Cup groups' tables (Alfredo, 2026-11-26), the Bulls' group
+// first with its games, then the rest in Wikipedia's order (East A to C,
+// then West A to C).
 function nbaCupSectionHtml(nbaCupState) {
   const bulls = FAVORITE_TEAMS.find((team) => team.key === "bulls");
-  const heading = `<h2 class="division-title">NBA Cup · Bulls' group</h2>`;
-  if (nbaCupState.status === "loading") return `<section class="division">${heading}<div class="message">Loading the Bulls' NBA Cup group…</div></section>`;
-  if (nbaCupState.status === "error") return `<section class="division">${heading}${errorMessageHtml("Couldn't load the NBA Cup group")}</section>`;
-  const group = nbaCupState.value;
-  if (group.notInTestSettings) {
-    return `<section class="division">${heading}<div class="message">The NBA Cup group uses live data; test settings don't include it.</div></section>`;
+  const heading = `<h2 class="division-title">NBA Cup</h2>`;
+  if (nbaCupState.status === "loading") return `<section class="division">${heading}<div class="message">Loading the NBA Cup groups…</div></section>`;
+  if (nbaCupState.status === "error") return `<section class="division">${heading}${errorMessageHtml("Couldn't load the NBA Cup groups")}</section>`;
+  const { season, groups, notInTestSettings } = nbaCupState.value;
+  if (notInTestSettings) {
+    return `<section class="division">${heading}<div class="message">The NBA Cup groups use live data; test settings don't include them.</div></section>`;
   }
-  if (group.teams.length === 0) {
-    return `<section class="division">${heading}<div class="message">The Bulls have no NBA Cup group games on their schedule this season.</div></section>`;
+  if (groups.length === 0) {
+    return `<section class="division">${heading}<div class="message">Wikipedia doesn't list the ${escapeHtml(season)} groups yet.</div></section>`;
   }
-  const rows = nbaCupGroupTable(group)
-    .map(
-      (row, index) => `
-      <tr class="${row.abbreviation === bulls.abbreviation ? "favorite" : ""}">
-        <td class="seed">${index + 1}</td>
-        <td><span class="team-name">${logoHtml(row.logos, row.abbreviation, "logo-small")}${escapeHtml(row.name)}</span></td>
-        <td>${row.wins}-${row.losses}</td>
-        <td>${row.differential > 0 ? "+" : ""}${row.differential}</td>
-      </tr>`
-    )
-    .join("");
-  const games = group.games.map(nbaCupGameHtml).join("");
+  const isBullsGroup = (group) => group.teams.includes(bulls.abbreviation);
+  const ordered = [...groups.filter(isBullsGroup), ...groups.filter((group) => !isBullsGroup(group))];
+  const groupHtml = (group) => {
+    const rows = nbaCupGroupTable(group)
+      .map(
+        (row, index) => `
+        <tr class="${row.abbreviation === bulls.abbreviation ? "favorite" : ""}">
+          <td class="seed">${index + 1}</td>
+          <td><span class="team-name">${logoHtml(row.logos, row.abbreviation, "logo-small")}${escapeHtml(row.name)}</span></td>
+          <td>${row.wins}-${row.losses}</td>
+          <td>${row.differential > 0 ? "+" : ""}${row.differential}</td>
+        </tr>`
+      )
+      .join("");
+    const games = isBullsGroup(group) ? `<h3 class="hof-group">Group games</h3><ol class="series-games">${group.games.map(nbaCupGameHtml).join("")}</ol>` : "";
+    return `
+      <section class="division">
+        <h2 class="division-title">${escapeHtml(group.name)}${isBullsGroup(group) ? " · Bulls' group" : ""}</h2>
+        <table class="standings-table picture-table cup-table">
+          <thead><tr><th></th><th>Team</th><th>W-L</th><th>Pt diff</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        ${games}
+      </section>`;
+  };
   return `
-    <section class="division">
-      ${heading}
-      <table class="standings-table picture-table">
-        <thead><tr><th></th><th>Team</th><th>W-L</th><th>Pt diff</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <p class="uniform-note">Each group winner, plus the best runner-up in each conference, reaches the knockout rounds in December. Ties here go to point differential.</p>
-      <h3 class="hof-group">Group games</h3>
-      <ol class="series-games">${games}</ol>
-    </section>`;
+    <div class="season-note">${escapeHtml(season)} group stage. Each group winner, plus the best runner-up in each conference, reaches the knockout rounds in December. Ties here go to point differential. Groups from Wikipedia, scores from ESPN.</div>
+    ${ordered.map(groupHtml).join("")}`;
 }
 
-// "Fri, Nov 14 · Hawks 117 @ Bulls 125", the winner in bold, or the date for a game not played yet.
+// "Fri, Nov 14 · Hawks 117 @ Bulls 125", each team with its logo (Alfredo,
+// 2026-11-26), the winner in bold, or the date for a game not played yet.
 function nbaCupGameHtml(game) {
   const when = displayDate(game.date, { weekday: "short", month: "short", day: "numeric" });
-  if (!game.completed) {
-    return `<li class="series-game">${escapeHtml(when)} · ${escapeHtml(game.away.name)} @ ${escapeHtml(game.home.name)}</li>`;
-  }
-  const homeWon = Number(game.home.score) > Number(game.away.score);
+  const homeWon = game.completed && Number(game.home.score) > Number(game.away.score);
   const side = (team, won) => {
-    const text = `${escapeHtml(team.name)} ${escapeHtml(team.score)}`;
-    return won ? `<strong>${text}</strong>` : text;
+    const text = game.completed ? `${escapeHtml(team.name)} ${escapeHtml(team.score)}` : escapeHtml(team.name);
+    return `<span class="team-name">${logoHtml(team.logos, team.abbreviation, "logo-small")}${won ? `<strong>${text}</strong>` : text}</span>`;
   };
-  return `<li class="series-game">${escapeHtml(when)} · ${side(game.away, !homeWon)} @ ${side(game.home, homeWon)}</li>`;
+  return `<li class="series-game">${escapeHtml(when)} · ${side(game.away, game.completed && !homeWon)} @ ${side(game.home, homeWon)}</li>`;
 }
 
 // The Leagues Cup's two tables, the Fire highlighted, quarterfinalists
@@ -105,7 +111,7 @@ function leaguesCupTablesHtml(leaguesCupState) {
   if (tables.length === 0) return `<section class="division"><h2 class="division-title">Leagues Cup</h2><div class="message">ESPN has no Leagues Cup tables right now.</div></section>`;
   const tableHtml = ({ name, rows }) => `
       <h3 class="hof-group">${escapeHtml(name)} teams</h3>
-      <table class="standings-table picture-table">
+      <table class="standings-table picture-table cup-table">
         <thead><tr><th></th><th>Team</th><th>W-D-L</th><th>GD</th><th>Pts</th><th></th></tr></thead>
         <tbody>${rows
           .map(

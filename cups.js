@@ -1,22 +1,19 @@
 // Cup tournaments beside the leagues, for the Cups tab (Alfredo,
-// 2026-11-25): the NBA Cup's group stage, for the Bulls' group, and the
-// Leagues Cup's tables (MLS and Liga MX teams), and the Fire's U.S. Open
-// Cup games, round by round.
+// 2026-11-25): the NBA Cup's group stage, all six groups with the Bulls'
+// first, the Leagues Cup's tables (MLS and Liga MX teams), and the Fire's
+// U.S. Open Cup games, round by round, each soccer cup with its bracket.
 //
-// ESPN has no NBA Cup group table, but it labels each group game "NBA Cup -
-// Group Play". The Bulls' four Cup opponents are their group, so the table
-// is built from all five teams' Cup games: the other four teams' schedules
-// are loaded (a season's schedule each, about 1 MB) the first time Cups opens.
+// ESPN has no NBA Cup groups or group tables, but it labels each group game
+// "NBA Cup - Group Play". So the groups (their names and teams) and the
+// nights they play come from Wikipedia's "<year> NBA Cup" article (Alfredo:
+// use Wikipedia when ESPN doesn't have it), and the scores from ESPN's
+// scoreboards for those nights (about a dozen, 120 KB each).
 
 const NBA_CUP_GROUP_NOTE = /NBA Cup - Group/i;
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-// The Bulls' group: their Cup opponents' abbreviations, from their own games.
-function nbaCupGroupOpponents(teamGames) {
-  return [...new Set(teamGames.filter((game) => NBA_CUP_GROUP_NOTE.test(game.note)).map((game) => game.opponentAbbreviation))];
-}
-
-// A Cup game from a team schedule's event, or null if it isn't one:
-// { id, date, completed, home: { abbreviation, name, score }, away: {...} }.
+// A Cup game from an ESPN event, or null if it isn't one:
+// { id, date, completed, home: { abbreviation, name, logos, score }, away: {...} }.
 function nbaCupGame(event) {
   const competition = event.competitions && event.competitions[0];
   if (!competition || !(competition.notes || []).some((note) => NBA_CUP_GROUP_NOTE.test(note.headline || ""))) return null;
@@ -32,23 +29,64 @@ function nbaCupGame(event) {
   return { id: event.id, date: new Date(event.date), completed: competition.status.type.completed === true, home: side("home"), away: side("away") };
 }
 
-// The group's games, from the favorite's opponents' schedules: games where
-// both teams are in the group, each once.
-async function fetchNbaCupGroup(favorite, teamGames) {
-  const opponents = nbaCupGroupOpponents(teamGames);
-  if (opponents.length === 0) return { teams: [], games: [] };
-  const groupTeams = new Set([favorite.abbreviation, ...opponents]);
-  const schedules = await Promise.all(
-    opponents.map((abbreviation) => fetchJson(`${ESPN_SITE_API}/site/v2/sports/basketball/nba/teams/${abbreviation.toLowerCase()}/schedule`))
-  );
-  const games = new Map();
-  for (const schedule of schedules) {
-    for (const event of schedule.events || []) {
-      const game = nbaCupGame(event);
-      if (game && groupTeams.has(game.home.abbreviation) && groupTeams.has(game.away.abbreviation)) games.set(game.id, game);
-    }
-  }
-  return { teams: [...groupTeams], games: [...games.values()].sort((a, b) => a.date - b.date) };
+// The NBA Cup is played in October to December, so from July on it's this
+// year's, and before then last year's.
+function nbaCupYear(now) {
+  return now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1;
+}
+
+async function fetchNbaCupGroups(year) {
+  const article = `${year} NBA Cup`;
+  const response = await fetch(`https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(article)}&prop=wikitext&format=json&formatversion=2&origin=*`);
+  if (!response.ok) throw new Error(`Wikipedia returned ${response.status} for ${article}`);
+  const answer = await response.json();
+  const { groups, dates } = parseNbaCupGroups(answer.parse ? answer.parse.wikitext : "", year);
+  const scoreboards = await Promise.all(dates.map((date) => fetchJson(`${ESPN_SITE_API}/site/v2/sports/basketball/nba/scoreboard?dates=${date}`)));
+  const games = [...new Map(scoreboards.flatMap((board) => board.events || []).map(nbaCupGame).filter(Boolean).map((game) => [game.id, game])).values()];
+  return { season: article, groups: nbaCupGroupsWithGames(groups, games) };
+}
+
+// Wikipedia's group stage -> { groups: [{ name: "East Group A", teamNames:
+// ["Orlando Magic", ...] }], dates: ["20261030", ...] }: each group's table
+// (a "Sports table" with section=, team_order=, and name_XXX=), and the
+// date of each group game ("|date=October 30"), as ESPN writes dates.
+function parseNbaCupGroups(wikitext, year) {
+  const groupStage = (wikitext.split(/\n==\s*Group stage\s*==/i)[1] || "").split(/\n==[^=]/)[0];
+  const groups = groupStage
+    .split("{{#invoke:Sports table")
+    .slice(1)
+    .map((table) => {
+      const value = (name) => ((table.match(new RegExp(`\\|\\s*${name}\\s*=([^|\\n]*)`)) || [])[1] || "").trim();
+      // "[[2026–27 Detroit Pistons season|Detroit Pistons]]" -> "Detroit Pistons".
+      const fullName = (code) => {
+        const link = table.match(new RegExp(`\\|\\s*name_${code}\\s*=\\s*\\[\\[([^\\]]*)\\]\\]`));
+        return link ? link[1].split("|").pop().trim() : value(`name_${code}`);
+      };
+      const codes = value("team_order").split(",").map((code) => code.trim()).filter(Boolean);
+      return { name: value("section"), teamNames: codes.map(fullName).filter(Boolean) };
+    })
+    .filter((group) => group.name && group.teamNames.length > 0);
+  const dates = [...new Set([...groupStage.matchAll(/\|\s*date\s*=\s*([A-Z][a-z]+) (\d{1,2})\b/g)]
+    .filter(([, month]) => MONTHS.includes(month))
+    .map(([, month, day]) => `${year}${String(MONTHS.indexOf(month) + 1).padStart(2, "0")}${day.padStart(2, "0")}`))].sort();
+  return { groups, dates };
+}
+
+// Each group with its teams' ESPN abbreviations and its games. Wikipedia
+// names teams in full ("Chicago Bulls") and ESPN by nickname ("Bulls"), so
+// a team is the ESPN team whose nickname ends its name. A team with no
+// games yet keeps its Wikipedia name.
+function nbaCupGroupsWithGames(groups, games) {
+  const espnTeams = new Map(games.flatMap((game) => [game.home, game.away]).map((team) => [team.abbreviation, team]));
+  const abbreviationFor = (fullName) => {
+    const team = [...espnTeams.values()].find((each) => fullName.toLowerCase().endsWith(` ${each.name.toLowerCase()}`));
+    return team ? team.abbreviation : fullName;
+  };
+  return groups.map((group) => {
+    const teams = group.teamNames.map(abbreviationFor);
+    const groupGames = games.filter((game) => teams.includes(game.home.abbreviation) && teams.includes(game.away.abbreviation)).sort((a, b) => a.date - b.date);
+    return { name: group.name, teams, games: groupGames };
+  });
 }
 
 // The group table: each team's wins, losses, and point differential, best
