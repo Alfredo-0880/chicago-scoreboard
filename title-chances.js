@@ -93,6 +93,16 @@ function parsePowerIndex(data) {
 // gives no playoff chance. The NHL's are the app's own estimate
 // (nhl-estimate.js: a Map by team abbreviation), and say so.
 function titleChancesLines(favorite, chancesByLeague = titleChances) {
+  // MLS and the NWSL (mls-estimate.js): the season's outcome once it's over,
+  // else the Fire's own playoff estimate.
+  if (favorite.league === "MLS" || favorite.league === "NWSL") {
+    const entry = chancesByLeague[favorite.league];
+    if (!entry) return null;
+    if (entry.seasonOver) return [entry.seasonOver];
+    const estimate = entry.estimate;
+    if (!estimate) return null;
+    return [`Our estimate: Round One ${percentText(estimate.roundOne)} · ${estimate.conferenceName} ${percentText(estimate.conference)} · MLS Cup ${percentText(estimate.cup)}`];
+  }
   if (favorite.league === "NHL") {
     const estimate = chancesByLeague.NHL && chancesByLeague.NHL.get(favorite.abbreviation);
     return estimate ? [`Our estimate: Playoffs ${percentText(estimate.playoffs)} · Division ${percentText(estimate.division)}`] : null;

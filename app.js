@@ -192,6 +192,7 @@ async function loadTitleChances() {
   // The NHL's are the app's own estimate, from its standings (nhl-estimate.js).
   const nhlStandings = loadState("standings", "NHL");
   if (nhlStandings.status === "loaded") titleChances.NHL = estimateNhlChances(nhlStandings.value);
+  await loadSoccerOutlook();
   await Promise.all(
     Object.keys(TITLE_CHANCE_LEAGUES).map(async (leagueKey) => {
       const standingsState = loadState("standings", leagueKey);
@@ -204,6 +205,24 @@ async function loadTitleChances() {
     })
   );
   render();
+}
+
+// The Fire's and Stars' cards (mls-estimate.js): their league's playoff games
+// (the same ones Playoff Picture shows) say whether a team's season is over,
+// and for a team still in the MLS playoffs, the app's own estimate.
+async function loadSoccerOutlook() {
+  for (const favorite of FAVORITE_TEAMS.filter((team) => team.league === "MLS" || team.league === "NWSL")) {
+    if (!state.playoffs[favorite.league]) await load("playoffs", favorite.league, () => fetchPlayoffs(leagueInfoFor(favorite.league), new Date()));
+    const playoffState = loadState("playoffs", favorite.league);
+    const standingsState = loadState("standings", favorite.league);
+    if (playoffState.status !== "loaded" || standingsState.status !== "loaded") continue;
+    const rounds = playoffState.value.rounds || [];
+    const finalRound = rounds[rounds.length - 1];
+    const finished = Boolean(playoffState.value.finished) || Boolean(finalRound && finalRound.series.length === 1 && finalRound.series[0].completed && /championship|final|cup/i.test(finalRound.name));
+    const seasonOver = seasonOverText(favorite.abbreviation, rounds, finished);
+    const estimate = !seasonOver && favorite.league === "MLS" ? estimateMlsChances(standingsState.value, rounds).get(favorite.abbreviation) : null;
+    titleChances[favorite.league] = { seasonOver, estimate };
+  }
 }
 
 // ESPN's win chances (predictor.js) load for games in the next week when
