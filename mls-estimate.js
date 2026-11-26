@@ -123,7 +123,9 @@ function seasonOverText(abbreviation, rounds, seasonFinished) {
   const last = ours[ours.length - 1];
   if (!last.series.completed) return null;
   if (last.series.winner && last.series.winner.abbreviation !== abbreviation) {
-    return /\d/.test(last.round) ? "Season over: lost in the playoffs" : `Season over: lost in the ${last.round}`;
+    if (/\d/.test(last.round)) return "Season over: lost in the playoffs";
+    // "lost in Round One", but "lost in the Semifinals".
+    return `Season over: lost in ${/^Round\b/.test(last.round) ? "" : "the "}${last.round}`;
   }
   return seasonFinished ? "Season over: won the title" : null;
 }

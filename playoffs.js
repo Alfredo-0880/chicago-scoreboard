@@ -116,7 +116,7 @@ function buildRounds(events) {
     if (!competition || competition.competitors.length !== 2) continue;
     const teams = competition.competitors.map((competitor) => competitor.id).sort().join("-");
     const pairSeries = seriesByTeams.get(teams) || [];
-    const round = roundName(competition);
+    const round = roundName(competition, event);
     const unnamed = round === GENERIC_ROUND_NAME;
     let series = unnamed
       ? pairSeries.at(-1)
@@ -153,6 +153,18 @@ const ROUND_NAMES = {
   NLCS: "NL Championship Series",
 };
 
+// "eastern-conference-playoffs---round-one" -> "Round One", "mls-cup" style
+// words capitalized with MLS in capitals; null for a slug without a round.
+function roundFromSeasonSlug(slug) {
+  const round = /playoffs?-{2,}(.+)$/.exec(slug || "");
+  if (!round) return null;
+  return round[1]
+    .split("-")
+    .filter(Boolean)
+    .map((word) => (word === "mls" ? "MLS" : word.charAt(0).toUpperCase() + word.slice(1)))
+    .join(" ");
+}
+
 // The name for a game ESPN gives no round name.
 const GENERIC_ROUND_NAME = "Playoffs";
 
@@ -160,7 +172,12 @@ const GENERIC_ROUND_NAME = "Playoffs";
 // ESPN sometimes numbers a round's series ("WNBA SEMIFINALS 2" in 2019); the
 // number is dropped so they share one round. A game named just "PLAYOFFS"
 // counts as unnamed.
-function roundName(competition) {
+// MLS games carry their round in the season label instead
+// ("eastern-conference-playoffs---round-one"); their notes are series news
+// ("NE leads series 1-0"), not rounds. East and West share the round name.
+function roundName(competition, event = {}) {
+  const fromSeason = roundFromSeasonSlug(event.season && event.season.slug);
+  if (fromSeason) return fromSeason;
   const headline = (competition.notes && competition.notes[0] && competition.notes[0].headline) || GENERIC_ROUND_NAME;
   const shortName = headline.split(" - ")[0].trim().replace(/\s+\d$/, "");
   if (/^playoffs?$/i.test(shortName)) return GENERIC_ROUND_NAME;
@@ -193,10 +210,19 @@ function summarizeSeries(series) {
     teams,
     completed,
     winner: completed ? leader : null,
-    summary: (espnSeries && espnSeries.summary) || (completed && leader ? `${leader.name} win` : "Scheduled"),
+    // MLS series have no ESPN summary, but their latest game's note is one
+    // ("CLT leads series 1-0").
+    summary: (espnSeries && espnSeries.summary) || seriesNote(series.games) || (completed && leader ? `${leader.name} win` : "Scheduled"),
     start: series.start,
     games: withoutMadeUpRainouts(series.games.map(seriesGame)),
   };
+}
+
+// The newest game note that reads like a series update ("NE leads series
+// 1-0", "CLT wins series 2-0"), or null.
+function seriesNote(competitions) {
+  const notes = competitions.map((competition) => (competition.notes && competition.notes[0] && competition.notes[0].headline) || "");
+  return [...notes].reverse().find((note) => /\bseries\b/i.test(note) && /\d-\d/.test(note)) || null;
 }
 
 // ESPN keeps a postponed game next to the one that made it up (2016 ALDS
