@@ -1,10 +1,27 @@
-// Draws the Cups tab: tournaments beside the leagues (cups.js). First the
-// Bulls' NBA Cup group: the table, then the group's games.
+// Draws the Cups tab: tournaments beside the leagues (cups.js), one at a
+// time, picked with buttons like the league buttons on other tabs (Alfredo,
+// 2026-11-25): the Bulls' NBA Cup group (table, then games) or the Leagues
+// Cup's tables.
 
-function cupsPageHtml(nbaCupState) {
+const CUPS = [
+  { key: "nba", label: "NBA Cup" },
+  { key: "leaguesCup", label: "Leagues Cup" },
+];
+
+// shown: the picked cup's key. cupStates: each cup's load state by key.
+function cupsPageHtml(shown, cupStates) {
+  const buttons = CUPS.map(
+    (cup) => `
+      <button class="league-tab ${cup.key === shown ? "active" : ""}" role="tab" aria-selected="${cup.key === shown}"
+              data-action="cup" data-cup="${cup.key}">${cup.label}</button>`
+  ).join("");
+  const state = cupStates[shown] || { status: "loading" };
   return `
-    <div class="season-note">Cup tournaments played alongside the league seasons. More are coming: the Leagues Cup and U.S. Open Cup.</div>
-    ${nbaCupSectionHtml(nbaCupState)}`;
+    <div class="controls">
+      <div class="league-tabs" role="tablist" aria-label="Cup">${buttons}</div>
+    </div>
+    <div class="season-note">Cup tournaments played alongside the league seasons. The U.S. Open Cup is coming next.</div>
+    ${shown === "leaguesCup" ? leaguesCupSectionHtml(state) : nbaCupSectionHtml(state)}`;
 }
 
 function nbaCupSectionHtml(nbaCupState) {
@@ -56,4 +73,38 @@ function nbaCupGameHtml(game) {
     return won ? `<strong>${text}</strong>` : text;
   };
   return `<li class="series-game">${escapeHtml(when)} · ${side(game.away, !homeWon)} @ ${side(game.home, homeWon)}</li>`;
+}
+
+// The Leagues Cup's two tables, the Fire highlighted, quarterfinalists marked.
+function leaguesCupSectionHtml(leaguesCupState) {
+  const fire = FAVORITE_TEAMS.find((team) => team.key === "fire");
+  if (leaguesCupState.status === "loading") return `<section class="division"><h2 class="division-title">Leagues Cup</h2><div class="message">Loading the Leagues Cup…</div></section>`;
+  if (leaguesCupState.status === "error") return `<section class="division"><h2 class="division-title">Leagues Cup</h2>${errorMessageHtml("Couldn't load the Leagues Cup")}</section>`;
+  const { season, tables, notInTestSettings } = leaguesCupState.value;
+  if (notInTestSettings) return `<section class="division"><h2 class="division-title">Leagues Cup</h2><div class="message">The Leagues Cup uses live data; test settings don't include it.</div></section>`;
+  if (tables.length === 0) return `<section class="division"><h2 class="division-title">Leagues Cup</h2><div class="message">ESPN has no Leagues Cup tables right now.</div></section>`;
+  const tableHtml = ({ name, rows }) => `
+      <h3 class="hof-group">${escapeHtml(name)} teams</h3>
+      <table class="standings-table picture-table">
+        <thead><tr><th></th><th>Team</th><th>W-D-L</th><th>GD</th><th>Pts</th><th></th></tr></thead>
+        <tbody>${rows
+          .map(
+            (row) => `
+          <tr class="${row.abbreviation === fire.abbreviation && name === "MLS" ? "favorite" : ""} ${row.advanced ? "" : "outside"}">
+            <td class="seed">${row.rank}</td>
+            <td><span class="team-name">${logoHtml(row.logos, row.abbreviation, "logo-small")}${escapeHtml(row.name)}</span></td>
+            <td>${row.wins}-${row.draws}-${row.losses}</td>
+            <td>${row.goalDifference > 0 ? "+" : ""}${row.goalDifference}</td>
+            <td>${row.points}</td>
+            <td>${row.advanced ? `<span class="picture-status in">Quarterfinals</span>` : ""}</td>
+          </tr>`
+          )
+          .join("")}</tbody>
+      </table>`;
+  return `
+    <section class="division">
+      <h2 class="division-title">${escapeHtml(season)}</h2>
+      ${tables.map(tableHtml).join("")}
+      <p class="uniform-note">MLS and Liga MX teams play each other; each league's top four reach the quarterfinals. A draw goes to penalties: 2 points for the winner, 1 for the loser. From ESPN.</p>
+    </section>`;
 }

@@ -33,7 +33,8 @@ const state = {
   standingsSeason: null, // season picked on League Standings (null: current season)
   playoffsSeason: null, // season picked on Playoff Picture (null: current season)
   pastPlayoffs: {}, // past seasons' playoff games, keyed "MLB-2016", loaded when picked
-  cups: {}, // cup tournaments (cups.js), keyed "nba", loaded the first time Cups opens
+  cups: {}, // cup tournaments (cups.js), keyed "nba" and "leaguesCup", each loaded the first time it's picked
+  cupShown: "nba", // the cup picked on the Cups tab (cups-view.js); the NBA Cup, being played now
   openSeries: [], // bracket series whose games are shown (seriesKey in playoffs-view.js)
   lastUpdated: null,
   refreshing: false,
@@ -209,16 +210,24 @@ async function loadTitleChances() {
   render();
 }
 
-// The Bulls' NBA Cup group (cups.js) loads the first time Cups opens, once
-// the Bulls' schedule (which names the group) is in.
+// The picked cup (cups.js) loads the first time it's shown: the Leagues Cup
+// right away, the Bulls' NBA Cup group once the Bulls' schedule (which
+// names the group) is in.
 function loadCupsIfNeeded() {
-  if (state.page !== "cups" || state.cups.nba) return;
-  // Test settings' saved data doesn't include the other teams' schedules.
+  if (state.page !== "cups") return;
+  // Test settings' saved data doesn't include the cups.
   if (savedAnswerFor) {
+    if (state.cups.nba) return;
     state.cups.nba = { status: "loaded", value: { teams: [], games: [], notInTestSettings: true } };
+    state.cups.leaguesCup = { status: "loaded", value: { season: "", tables: [], notInTestSettings: true } };
     render();
     return;
   }
+  if (state.cupShown === "leaguesCup") {
+    if (!state.cups.leaguesCup) load("cups", "leaguesCup", fetchLeaguesCupStandings);
+    return;
+  }
+  if (state.cups.nba) return;
   const bulls = FAVORITE_TEAMS.find((team) => team.key === "bulls");
   const gamesState = loadState("games", bulls.key);
   if (gamesState.status !== "loaded") return;
@@ -367,7 +376,7 @@ function render() {
   else if (state.page === "funfacts") page.innerHTML = funFactsPageHtml();
   else if (state.page === "social") page.innerHTML = socialsPageHtml();
   else if (state.page === "stats") page.innerHTML = careerStatsPageHtml();
-  else if (state.page === "cups") page.innerHTML = cupsPageHtml(loadState("cups", "nba"));
+  else if (state.page === "cups") page.innerHTML = cupsPageHtml(state.cupShown, { nba: loadState("cups", "nba"), leaguesCup: loadState("cups", "leaguesCup") });
   else if (state.page === "settings") page.innerHTML = settingsPageHtml(notifyPanelHtml(state.notifyTeams, notificationPermission(), state.notifyMessage));
   else if (state.page === "diagnostics") page.innerHTML = diagnosticsPageHtml(readDiagnostics(), state.diagnosticsMessage);
   else page.innerHTML = injuriesPageHtml();
@@ -531,6 +540,9 @@ const ACTIONS = {
     state.notifyMessage = message;
     saveNotifyTeams(notifyTeams);
     render();
+  },
+  cup: (button) => {
+    state.cupShown = button.dataset.cup;
   },
   "time-zone": (button) => {
     timeZoneChoice = button.dataset.zone;

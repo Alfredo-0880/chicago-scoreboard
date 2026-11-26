@@ -1,5 +1,6 @@
 // Cup tournaments beside the leagues, for the Cups tab (Alfredo,
-// 2026-11-25). First the NBA Cup's group stage, for the Bulls' group.
+// 2026-11-25): the NBA Cup's group stage, for the Bulls' group, and the
+// Leagues Cup's tables (MLS and Liga MX teams).
 //
 // ESPN has no NBA Cup group table, but it labels each group game "NBA Cup -
 // Group Play". The Bulls' four Cup opponents are their group, so the table
@@ -70,4 +71,39 @@ function nbaCupGroupTable({ teams, games }) {
   return [...rows.values()]
     .map((row) => ({ ...row, differential: row.pointsFor - row.pointsAgainst }))
     .sort((a, b) => b.wins - a.wins || b.differential - a.differential || b.pointsFor - a.pointsFor);
+}
+
+// The Leagues Cup: MLS and Liga MX teams, each league's teams ranked in one
+// table, the best four of each reaching the quarterfinals. ESPN has these
+// tables. A draw goes to a penalty shootout: 2 points for the winner, 1 for
+// the loser.
+async function fetchLeaguesCupStandings() {
+  return parseLeaguesCupStandings(await fetchJson(`${ESPN_SITE_API}/v2/sports/soccer/concacaf.leagues.cup/standings`));
+}
+
+// ESPN's answer -> { season: "2026 Leagues Cup", tables: [{ name: "MLS",
+// rows: [{ abbreviation, name, logos, played, wins, draws, losses,
+// goalDifference, points, advanced }] }] }, rows in ESPN's rank order.
+function parseLeaguesCupStandings(data) {
+  const tables = (data.children || []).map((group) => {
+    const rows = ((group.standings && group.standings.entries) || []).map((entry) => {
+      const stats = Object.fromEntries((entry.stats || []).map((stat) => [stat.name, stat]));
+      const value = (name) => (stats[name] ? Number(stats[name].value) : 0);
+      return {
+        abbreviation: entry.team.abbreviation,
+        name: entry.team.shortDisplayName || entry.team.displayName,
+        logos: logosFrom(entry.team),
+        rank: value("rank") || 99,
+        played: value("gamesPlayed"),
+        wins: value("wins"),
+        draws: value("ties"),
+        losses: value("losses"),
+        goalDifference: value("pointDifferential"),
+        points: value("points"),
+        advanced: Boolean(entry.note && /qualif/i.test(entry.note.description || "")),
+      };
+    });
+    return { name: group.name, rows: rows.sort((a, b) => a.rank - b.rank) };
+  });
+  return { season: (data.season && data.season.displayName) || "Leagues Cup", tables };
 }
